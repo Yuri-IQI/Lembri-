@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Capabilities que o app MOBILE anuncia na rede Wear.
+    O relógio procura por "lembri_mobile" para saber para qual nó responder.
+    Este recurso é mesclado no APK final do app Expo junto com o módulo.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@array/android_wear_capabilities">
+    <string-array name="android_wear_capabilities" translatable="false">
+        <item>lembri_mobile</item>
+    </string-array>
+</resources>

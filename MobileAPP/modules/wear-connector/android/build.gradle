@@ -1,0 +1,24 @@
+// Módulo nativo local (Expo Modules API). Fica em /modules e é autolinkado
+// pelo Expo no `npx expo run:android` / prebuild — não precisa registrar à mão.
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.wearconnector'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.wearconnector"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // Wearable Data Layer API (MessageClient / CapabilityClient)
+  implementation 'com.google.android.gms:play-services-wearable:20.0.1'
+  // `.await()` para as Tasks do Play Services dentro de coroutines
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2'
+}
