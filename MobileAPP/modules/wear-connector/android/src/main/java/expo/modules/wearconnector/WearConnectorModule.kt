@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.NodeClient
 import com.google.android.gms.wearable.Wearable
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.functions.Coroutine
@@ -26,6 +27,7 @@ class WearConnectorModule : Module() {
 
   private val messageClient: MessageClient by lazy { Wearable.getMessageClient(context) }
   private val capabilityClient: CapabilityClient by lazy { Wearable.getCapabilityClient(context) }
+  private val nodeClient: NodeClient by lazy { Wearable.getNodeClient(context) }
 
   /** Repassa cada mensagem recebida do relógio para o JS como evento. */
   private val listener = MessageClient.OnMessageReceivedListener { event: MessageEvent ->
@@ -52,7 +54,11 @@ class WearConnectorModule : Module() {
     OnStopObserving { messageClient.removeListener(listener) }
 
     /**
-     * Lista os relógios pareados e alcançáveis que têm o app Lembri instalado.
+     * Lista os relógios pareados e alcançáveis.
+     * 1. Preferência: nós que anunciam a `capability` (app Lembri instalado lá).
+     * 2. Fallback: qualquer nó conectado. A propagação de capabilities às vezes
+     *    falha/atrasa (comum em emuladores); mensagens para um nó sem o app são
+     *    apenas descartadas, então o fallback é seguro.
      * Retorna: [{ id, nome, proximo }]
      */
     AsyncFunction("listarRelogios") Coroutine { capability: String ->
@@ -60,6 +66,7 @@ class WearConnectorModule : Module() {
         .getCapability(capability, CapabilityClient.FILTER_REACHABLE)
         .await()
         .nodes
+        .ifEmpty { nodeClient.connectedNodes.await().toSet() }
         .map { no -> mapOf("id" to no.id, "nome" to no.displayName, "proximo" to no.isNearby) }
     }
 

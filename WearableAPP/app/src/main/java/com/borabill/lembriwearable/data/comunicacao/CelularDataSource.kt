@@ -21,16 +21,26 @@ class CelularDataSource(context: Context) {
 
     private val messageClient = Wearable.getMessageClient(context)
     private val capabilityClient = Wearable.getCapabilityClient(context)
+    private val nodeClient = Wearable.getNodeClient(context)
 
     /**
-     * Procura celulares pareados e alcançáveis que tenham o app Lembri instalado
-     * (ou seja, que anunciam a capability [ContratoComunicacao.CAPABILITY_MOBILE]).
+     * Procura celulares pareados e alcançáveis.
+     *
+     * 1. Preferência: nós que anunciam a capability [ContratoComunicacao.CAPABILITY_MOBILE]
+     *    (garante que o app Lembri está instalado lá).
+     * 2. Fallback: qualquer nó conectado. A propagação de capabilities às vezes
+     *    falha/atrasa (comum em emuladores); mensagens enviadas a um nó sem o app
+     *    são apenas descartadas, então o fallback é seguro.
      */
     suspend fun buscarCelulares(): Set<Node> = try {
         capabilityClient
             .getCapability(ContratoComunicacao.CAPABILITY_MOBILE, CapabilityClient.FILTER_REACHABLE)
             .await()
             .nodes
+            .ifEmpty {
+                Log.d(TAG, "Capability não encontrada; usando nós conectados")
+                nodeClient.connectedNodes.await().toSet()
+            }
     } catch (e: Exception) {
         Log.w(TAG, "Falha ao buscar celulares conectados", e)
         emptySet()
