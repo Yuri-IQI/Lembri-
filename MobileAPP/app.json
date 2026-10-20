@@ -7,9 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mobileapp",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "package": "com.borabill.lembriwearable",
       "adaptiveIcon": {
@@ -19,10 +16,6 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -34,7 +27,8 @@
           "imageWidth": 76
         }
       ],
-      "./plugins/with-shared-debug-keystore"
+      "./plugins/with-shared-debug-keystore",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
