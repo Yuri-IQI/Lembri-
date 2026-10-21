@@ -28,7 +28,9 @@
         }
       ],
       "./plugins/with-shared-debug-keystore",
-      "expo-font"
+      "expo-font",
+      "./plugins/with-fast-gradle",
+      "./plugins/with-windows-cmake"
     ],
     "experiments": {
       "typedRoutes": true,
