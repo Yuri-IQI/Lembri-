@@ -1,10 +1,12 @@
-import { Screen } from '@/components/screen';
+import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 
-export default function ConfiguracoesScreen() {
+const ConfiguracoesScreen = () => {
   return (
-    <Screen titulo="Configurações">
+    <MainContainer>
       <ThemedText themeColor="textSecondary">Em breve.</ThemedText>
-    </Screen>
+    </MainContainer>
   );
 }
+
+export default ConfiguracoesScreen;

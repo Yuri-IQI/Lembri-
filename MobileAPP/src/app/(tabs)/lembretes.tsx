@@ -1,10 +1,12 @@
-import { Screen } from '@/components/screen';
+import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 
-export default function LembretesScreen() {
+const LembretesScreen = () => {
   return (
-    <Screen titulo="Meus Lembretes">
+    <MainContainer>
       <ThemedText themeColor="textSecondary">Em breve.</ThemedText>
-    </Screen>
+    </MainContainer>
   );
-}
+};
+
+export default LembretesScreen;

@@ -1,48 +1,39 @@
-/**
- * Tela de exemplo da comunicação celular ⇄ relógio.
- *
- * 1. Digite um lembrete e toque em "Enviar ao relógio".
- * 2. No relógio, toque no lembrete para concluí-lo.
- * 3. A confirmação volta e o item aparece como "Concluído" aqui.
- *
- * A tela só usa o hook `useWear`; não conhece o módulo nativo nem o formato das mensagens.
- */
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, TextInput } from 'react-native';
 
-import { Screen } from '@/components/screen';
+import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/themed-view';
+import { BorderWidth, FontFamily, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useWear } from '@/hooks/use-wear';
 
-export default function HomeScreen() {
+const HomeScreen = () => {
   const theme = useTheme();
   const { disponivel, relogios, lembretes, enviar, atualizarRelogios } = useWear();
   const [titulo, setTitulo] = useState('');
   const [aviso, setAviso] = useState<string | null>(null);
 
-  async function handleEnviar() {
+  const handleEnviar = async () => {
     const texto = titulo.trim();
     if (!texto) return;
     const entregues = await enviar(texto);
     setAviso(entregues > 0 ? `Enviado para ${entregues} relógio(s).` : 'Nenhum relógio recebeu.');
     if (entregues > 0) setTitulo('');
-  }
+  };
 
   return (
-    <Screen titulo="Lembri + Relógio">
-      {/* Status da conexão */}
-      <ThemedView type="backgroundElement" style={styles.card}>
+    <MainContainer>
+      <Card>
+        <ThemedText type="label">Relógio</ThemedText>
         {!disponivel ? (
-          <ThemedText type="small">
+          <ThemedText>
             Comunicação com relógio disponível apenas em um development build Android (não
             funciona no Expo Go).
           </ThemedText>
         ) : (
           <>
-            <ThemedText type="smallBold">
+            <ThemedText type="defaultBold">
               {relogios.length > 0
                 ? `Conectado: ${relogios.map((r) => r.nome).join(', ')}`
                 : 'Nenhum relógio com o Lembri encontrado'}
@@ -52,15 +43,18 @@ export default function HomeScreen() {
             </Pressable>
           </>
         )}
-      </ThemedView>
+      </Card>
 
       {/* Formulário de envio */}
       <TextInput
         value={titulo}
         onChangeText={setTitulo}
         placeholder="Ex.: Tomar remédio"
-        placeholderTextColor={theme.textSecondary}
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+        placeholderTextColor={theme.textMuted}
+        style={[
+          styles.input,
+          { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+        ]}
         onSubmitEditing={handleEnviar}
       />
       <Pressable
@@ -71,11 +65,14 @@ export default function HomeScreen() {
           { backgroundColor: theme.primary },
           { opacity: !disponivel || !titulo.trim() ? 0.4 : pressed ? 0.7 : 1 },
         ]}>
-        <ThemedText style={styles.botaoTexto}>Enviar ao relógio</ThemedText>
+        <ThemedText type="button" themeColor="onPrimary">
+          Enviar ao relógio
+        </ThemedText>
       </Pressable>
       {aviso && <ThemedText type="small">{aviso}</ThemedText>}
 
       {/* Lembretes enviados (atualizados pelas confirmações do relógio) */}
+      <ThemedText type="label">Lembretes enviados</ThemedText>
       <FlatList
         style={styles.lista}
         data={lembretes}
@@ -83,43 +80,41 @@ export default function HomeScreen() {
         contentContainerStyle={{ gap: Spacing.two, paddingBottom: Spacing.three }}
         ListEmptyComponent={<ThemedText type="small">Nenhum lembrete enviado ainda.</ThemedText>}
         renderItem={({ item }) => (
-          <ThemedView type="backgroundElement" style={styles.item}>
-            <ThemedText>{item.titulo}</ThemedText>
+          <Card>
+            <ThemedText type="subheading">{item.titulo}</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              {item.horario} · {item.concluido ? 'Concluído no relógio ✓' : 'Pendente'}
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                {item.horario}
+              </ThemedText>
+              {' - '}
+              {item.concluido ? 'Concluído no relógio ✓' : 'Pendente'}
             </ThemedText>
-          </ThemedView>
+          </Card>
         )}
       />
-    </Screen>
+    </MainContainer>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  card: {
-    gap: Spacing.one,
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-  },
   input: {
-    fontSize: 18,
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
+    minHeight: TouchTarget,
+    fontFamily: FontFamily,
+    fontSize: 19,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: BorderWidth.thin,
   },
   botao: {
+    minHeight: TouchTarget,
     alignItems: 'center',
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-  },
-  botaoTexto: {
-    color: '#ffffff',
-    fontWeight: 700,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.md,
   },
   lista: {
     flex: 1,
   },
-  item: {
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-  },
 });
+
+export default HomeScreen;

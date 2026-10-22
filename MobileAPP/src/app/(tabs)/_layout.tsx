@@ -1,34 +1,46 @@
-import { NativeTabs } from 'expo-router/native-tabs';
+import { router, usePathname, type Href } from 'expo-router';
+import { TabList, TabSlot, Tabs, TabTrigger } from 'expo-router/ui';
 
-import { useTheme } from '@/hooks/use-theme';
+import IconeLembretes from '@/assets/bottom-bar/bell.svg';
+import IconeHome from '@/assets/bottom-bar/home.svg';
+import IconeAjustes from '@/assets/bottom-bar/settings.svg';
+import IconeExercicios from '@/assets/bottom-bar/task.svg';
+import { BottomBar, BottomBarItem, type BottomBarIcone } from '@/components/app-bar/bottom-bar';
+import { TopBar } from '@/components/app-bar/top-bar';
 
-export default function TabsLayout() {
-  const theme = useTheme();
+const ABAS: { name: string; href: Href; Icone: BottomBarIcone; rotulo: string }[] = [
+  { name: 'index', href: '/', Icone: IconeHome, rotulo: 'Home' },
+  { name: 'exercicios', href: '/exercicios', Icone: IconeExercicios, rotulo: 'Exercícios' },
+  { name: 'lembretes', href: '/lembretes', Icone: IconeLembretes, rotulo: 'Lembretes' },
+  { name: 'configuracoes', href: '/configuracoes', Icone: IconeAjustes, rotulo: 'Ajustes' },
+];
+
+const semAcao = () => { };
+
+const TabsLayout = () => {
+  const pathname = usePathname();
+  const abaAtual = ABAS.find((aba) => aba.href === pathname) ?? ABAS[0];
 
   return (
-    <NativeTabs
-      backgroundColor={theme.background}
-      indicatorColor={theme.backgroundElement}
-      labelStyle={{ selected: { color: theme.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Início</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon md="home" />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="lembretes">
-        <NativeTabs.Trigger.Label>Lembretes</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon md="notifications" />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="exercicios">
-        <NativeTabs.Trigger.Label>Exercícios</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon md="psychology" />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="configuracoes">
-        <NativeTabs.Trigger.Label>Ajustes</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon md="settings" />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+    <Tabs>
+      <TopBar
+        titulo={abaAtual.rotulo}
+        onVoltar={abaAtual.name === 'index' ? undefined : () => router.navigate('/')}
+        onAjuda={semAcao}
+        onAudio={semAcao}
+      />
+      <TabSlot />
+      <TabList asChild>
+        <BottomBar>
+          {ABAS.map((aba) => (
+            <TabTrigger key={aba.name} name={aba.name} href={aba.href} asChild>
+              <BottomBarItem Icone={aba.Icone} rotulo={aba.rotulo} />
+            </TabTrigger>
+          ))}
+        </BottomBar>
+      </TabList>
+    </Tabs>
   );
 }
+
+export default TabsLayout;
