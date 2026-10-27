@@ -1,8 +1,26 @@
-# IDEs: configurações locais de cada máquina (o Android Studio recria a partir do Gradle)
+# Segredos, chaves e credenciais de integração (NUNCA comitar)
+.credentials
+*.env
+.env
+.env*.local
+.env.local
+
+# Pastas e arquivos temporários de automação e scripts (trello-fetch, etc.)
+.tmp/
+*.tmp
+
+# Dependências Node
+node_modules/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# IDEs: configurações locais de cada máquina (o Android Studio e VS Code recriam)
 .idea/
+.vscode/
 *.iml
 
-# Saídas de build e caches (valem para qualquer subpasta)
+# Saídas de build e caches (Android / Gradle / Kotlin)
 build/
 .gradle/
 .kotlin/
@@ -10,7 +28,7 @@ build/
 .externalNativeBuild/
 captures/
 
-# Arquivos locais da máquina (caminho do SDK, etc.)
+# Arquivos locais da máquina (caminho do Android SDK, etc.)
 local.properties
 
 # Sistema operacional
