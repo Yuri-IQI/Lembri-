@@ -21,8 +21,6 @@ assert.ok = (condition: unknown, message?: string) => {
   }
 };
 
-console.log('🧪 Iniciando testes unitários das Stores Zustand (CARD-21)...\n');
-
 // Reset inicial para garantir isolamento
 useLembretesStore.getState().resetarParaMocks();
 useTiposLembreteStore.getState().resetarParaMocks();
@@ -30,7 +28,6 @@ useExerciciosStore.getState().resetarParaMocks();
 
 // Teste RN-01: Criação de Lembrete
 {
-  console.log('▶ Testando RN-01: Criação de Lembrete...');
   const totalAntes = useLembretesStore.getState().lembretes.length;
   const novo = useLembretesStore.getState().adicionarLembrete({
     titulo: 'Lembrete Unitário',
@@ -43,12 +40,10 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(estado.lembretes[0].id, novo.id, 'Novo item deve estar no início da lista');
   assert.strictEqual(estado.lembretes[0].titulo, 'Lembrete Unitário');
   assert.strictEqual(estado.lembretes[0].concluido, false, 'Deve iniciar como pendente');
-  console.log('  ✅ RN-01 passou com sucesso.');
 }
 
 // Teste RN-02: Edição de Lembrete
 {
-  console.log('▶ Testando RN-02: Edição de Lembrete...');
   const primeiro = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().editarLembrete(primeiro.id, {
     titulo: 'Título Atualizado',
@@ -59,12 +54,10 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.ok(atualizado, 'Item deve existir');
   assert.strictEqual(atualizado?.titulo, 'Título Atualizado', 'Título deve ser alterado');
   assert.strictEqual(atualizado?.horario, '17:00', 'Horário deve ser alterado');
-  console.log('  ✅ RN-02 passou com sucesso.');
 }
 
 // Teste RN-03: Exclusão Reversível (Undo)
 {
-  console.log('▶ Testando RN-03: Exclusão Reversível (Undo)...');
   const primeiro = useLembretesStore.getState().lembretes[0];
   const totalAntes = useLembretesStore.getState().lembretes.length;
 
@@ -92,12 +85,10 @@ useExerciciosStore.getState().resetarParaMocks();
     null,
     'ultimoExcluido deve ser limpo'
   );
-  console.log('  ✅ RN-03 passou com sucesso.');
 }
 
 // Teste RN-04: Exclusão de Tipo desassociando lembretes
 {
-  console.log('▶ Testando RN-04: Exclusão de Tipo de Lembrete...');
   // Adiciona um tipo
   const tipo = useTiposLembreteStore.getState().adicionarTipo({
     nome: 'Tipo Especial',
@@ -121,24 +112,20 @@ useExerciciosStore.getState().resetarParaMocks();
     .lembretes.find((l) => l.id === lembreteVinculado.id);
   assert.ok(lembreteApos, 'Lembrete não deve ser excluído');
   assert.strictEqual(lembreteApos?.tipoId, undefined, 'Lembrete deve ter tipoId desassociado');
-  console.log('  ✅ RN-04 passou com sucesso.');
 }
 
 // Teste RN-05: Conclusão e Sincronização Wear OS
 {
-  console.log('▶ Testando RN-05: Sincronização Wear OS...');
   const lembrete = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().marcarConcluidoWear(lembrete.id);
 
   const concluidoWear = useLembretesStore.getState().lembretes.find((l) => l.id === lembrete.id);
   assert.strictEqual(concluidoWear?.concluido, true, 'Deve estar concluído');
   assert.strictEqual(concluidoWear?.concluidoNoWear, true, 'Deve ter flag concluidoNoWear: true');
-  console.log('  ✅ RN-05 passou com sucesso.');
 }
 
 // Teste RN-06: Registro de Tentativa de Exercício e Streak
 {
-  console.log('▶ Testando RN-06: Registro de Tentativa de Exercício...');
   const exercicio = useExerciciosStore.getState().exercicios[0];
   const streakAntes = exercicio.streakDias;
 
@@ -154,12 +141,10 @@ useExerciciosStore.getState().resetarParaMocks();
 
   const historico = useExerciciosStore.getState().obterHistoricoPorExercicio(exercicio.id);
   assert.strictEqual(historico[0].id, tentativa.id, 'Tentativa deve estar no topo do histórico');
-  console.log('  ✅ RN-06 passou com sucesso.');
 }
 
 // Teste RN-07: Restauração de Fábrica (Reset)
 {
-  console.log('▶ Testando RN-07: Restauração para Mocks...');
   useLembretesStore.getState().resetarParaMocks();
   useTiposLembreteStore.getState().resetarParaMocks();
   useExerciciosStore.getState().resetarParaMocks();
@@ -167,7 +152,4 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(useLembretesStore.getState().lembretes.length, 4, 'Deve restaurar os 4 lembretes');
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 4, 'Deve restaurar as 4 categorias');
   assert.strictEqual(useExerciciosStore.getState().exercicios.length, 4, 'Deve restaurar os 4 exercícios');
-  console.log('  ✅ RN-07 passou com sucesso.');
 }
-
-console.log('\n🎉 TODOS OS TESTES UNITÁRIOS PASSARAM COM 100% DE SUCESSO!\n');
