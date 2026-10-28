@@ -181,7 +181,7 @@ const LembretesScreen = () => {
 
       {/* Banner de Undo / Desfazer Exclusão (WCAG 3.3.6) */}
       {ultimoExcluido && (
-        <Card style={[styles.cardUndo, { borderColor: theme.border }]}>
+        <Card style={styles.cardUndo}>
           <ThemedText type="smallBold">
             Lembrete &quot;{ultimoExcluido.titulo}&quot; excluído.
           </ThemedText>
@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: Spacing.two,
-    backgroundColor: '#F8F9FA',
   },
   botaoDesfazer: {
     minHeight: TouchTarget,

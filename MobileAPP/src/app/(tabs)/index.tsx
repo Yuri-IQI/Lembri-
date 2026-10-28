@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -20,13 +20,17 @@ const HomeScreen = () => {
   const [titulo, setTitulo] = useState('');
   const [aviso, setAviso] = useState<string | null>(null);
 
-  const { lembretesPendentes, adicionarLembrete, toggleConcluido } = useLembretesStore(
+  const { lembretes, adicionarLembrete, toggleConcluido } = useLembretesStore(
     useShallow((state) => ({
-      lembretesPendentes: state.lembretes.filter((item) => !item.concluido),
+      lembretes: state.lembretes,
       adicionarLembrete: state.adicionarLembrete,
       toggleConcluido: state.toggleConcluido,
     }))
   );
+
+  const lembretesPendentes = useMemo(() => {
+    return lembretes.filter((item) => !item.concluido);
+  }, [lembretes]);
 
   const handleEnviar = async () => {
     const texto = titulo.trim();
