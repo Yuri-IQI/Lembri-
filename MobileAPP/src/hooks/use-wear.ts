@@ -2,8 +2,7 @@
  * Hook que expõe o estado da conexão com o relógio para as telas.
  *
  * Guarda em memória os lembretes enviados e marca como concluídos quando o
- * relógio confirma. Para persistir, troque o useState por um storage local
- * (ex.: expo-sqlite) mantendo a mesma interface de retorno.
+ * relógio confirma. Sincroniza bidirecionalmente com a useLembretesStore.
  */
 import { useCallback, useEffect, useState } from 'react';
 
@@ -15,6 +14,7 @@ import {
   wearDisponivel,
   type RelogioConectado,
 } from '@/services/wear/wear-service';
+import { useLembretesStore } from '@/stores/useLembretesStore';
 
 export type LembreteEnviado = Lembrete & { concluido: boolean };
 
@@ -37,6 +37,8 @@ export function useWear() {
       setLembretes((atuais) =>
         atuais.map((l) => (l.id === lembreteId ? { ...l, concluido: true } : l)),
       );
+      // RN-05: Sincroniza com a store Zustand reativa
+      useLembretesStore.getState().sincronizarComRelogio(lembreteId, true);
     });
 
     return () => {
