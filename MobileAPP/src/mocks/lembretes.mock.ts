@@ -1,42 +1,38 @@
-import type { Lembrete } from '@/types/lembrete';
+import { DIAS_SEMANA, type Lembrete } from '@/types/lembrete';
 
 /**
- * Massa de dados inicial mockada alinhada ao protótipo do Figma.
- * Contém itens pendentes e concluídos (inclusive com flag do Wear OS).
+ * Massa de dados inicial alinhada ao protótipo do Figma (frames "lembretes" e "detalhe lembrete"),
+ * mais um lembrete pausado para demonstrar a seção de pausados.
  */
 export const lembretesIniciaisMock: Lembrete[] = [
   {
-    id: 'mock-1',
+    id: 'mock-lavar-roupas',
+    titulo: 'Lavar roupas',
+    descricao:
+      'Roupas do cesto do quarto e do banheiro. Separe claras e escuras, use o ciclo normal e não esqueça de pendurar depois.',
+    horarios: ['12:00', '18:00'],
+    dias: [0, 4],
+    tipoId: 'tipo-tarefas-domesticas',
+    ativo: true,
+    criadoEm: '2026-10-27T10:00:00.000Z',
+  },
+  {
+    id: 'mock-tomar-remedio',
     titulo: 'Tomar remédio',
-    horario: '08:00',
+    horarios: ['09:00', '18:00'],
+    dias: [...DIAS_SEMANA],
     tipoId: 'tipo-saude',
-    concluido: true,
-    concluidoNoWear: true,
+    ativo: true,
     criadoEm: '2026-10-27T08:00:00.000Z',
   },
   {
-    id: 'mock-2',
-    titulo: 'Lavar roupas',
-    horario: '10:30',
-    tipoId: 'tipo-casa',
-    concluido: false,
-    criadoEm: '2026-10-27T10:30:00.000Z',
-  },
-  {
-    id: 'mock-3',
-    titulo: 'Beber 500ml de água',
-    horario: '14:00',
-    tipoId: 'tipo-saude',
-    concluido: false,
-    criadoEm: '2026-10-27T14:00:00.000Z',
-  },
-  {
-    id: 'mock-4',
-    titulo: 'Pagar conta de energia',
-    horario: '16:00',
-    tipoId: 'tipo-pessoal',
-    concluido: false,
-    criadoEm: '2026-10-27T16:00:00.000Z',
+    id: 'mock-regar-plantas',
+    titulo: 'Regar plantas',
+    horarios: ['07:30'],
+    dias: [1, 3, 5],
+    tipoId: 'tipo-tarefas-domesticas',
+    ativo: false,
+    criadoEm: '2026-10-27T07:30:00.000Z',
   },
 ];
 
@@ -46,9 +42,10 @@ export const lembretesIniciaisMock: Lembrete[] = [
 export const criarLembreteMock = (override: Partial<Lembrete> = {}): Lembrete => ({
   id: `mock-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
   titulo: 'Lembrete de Teste',
-  horario: '12:00',
+  horarios: ['12:00'],
+  dias: [...DIAS_SEMANA],
   tipoId: 'tipo-saude',
-  concluido: false,
+  ativo: true,
   criadoEm: new Date().toISOString(),
   ...override,
 });

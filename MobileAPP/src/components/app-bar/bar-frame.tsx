@@ -1,18 +1,20 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type BarFrameProps = ViewProps & {
   posicao: 'top' | 'bottom';
+  /** Cor de fundo; a barra superior usa o fundo da tela para não formar uma faixa. */
+  fundo?: ThemeColor;
 };
 
-export const BarFrame = ({ posicao, style, children, ...rest }: BarFrameProps) => {
+export const BarFrame = ({ posicao, fundo = 'surface', style, children, ...rest }: BarFrameProps) => {
   const theme = useTheme();
 
   return (
-    <SafeAreaView edges={[posicao, 'left', 'right']} style={{ backgroundColor: theme.surface }}>
+    <SafeAreaView edges={[posicao, 'left', 'right']} style={{ backgroundColor: theme[fundo] }}>
       <View style={[styles.linha, style]} {...rest}>
         {children}
       </View>

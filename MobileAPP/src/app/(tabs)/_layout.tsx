@@ -1,7 +1,8 @@
-import { router, usePathname, type Href } from 'expo-router';
-import { TabList, TabSlot, Tabs, TabTrigger } from 'expo-router/ui';
+import type { Href } from 'expo-router';
+import { TabList, TabSlot, Tabs, TabTrigger, useTabTrigger } from 'expo-router/ui';
+import { useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 
-import IconeLembretes from '@/assets/bottom-bar/bell.svg';
 import IconeHome from '@/assets/bottom-bar/home.svg';
 import IconeAjustes from '@/assets/bottom-bar/settings.svg';
 import IconeExercicios from '@/assets/bottom-bar/task.svg';
@@ -11,24 +12,53 @@ import { TopBar } from '@/components/app-bar/top-bar';
 const ABAS: { name: string; href: Href; Icone: BottomBarIcone; rotulo: string }[] = [
   { name: 'index', href: '/', Icone: IconeHome, rotulo: 'Home' },
   { name: 'exercicios', href: '/exercicios', Icone: IconeExercicios, rotulo: 'Exercícios' },
-  { name: 'lembretes', href: '/lembretes', Icone: IconeLembretes, rotulo: 'Lembretes' },
   { name: 'configuracoes', href: '/configuracoes', Icone: IconeAjustes, rotulo: 'Ajustes' },
 ];
 
 const semAcao = () => { };
 
-const TabsLayout = () => {
-  const pathname = usePathname();
-  const abaAtual = ABAS.find((aba) => aba.href === pathname) ?? ABAS[0];
+/**
+ * Top bar com histórico de abas próprio: o backBehavior das abas headless do expo-router
+ * quebra a aba Home. Fica dentro de <Tabs> para trocar de aba pelo próprio navegador.
+ */
+const BarraSuperior = () => {
+  const { switchTab, getTrigger } = useTabTrigger({ name: ABAS[0].name });
+  const abaAtual = ABAS.find((aba) => getTrigger(aba.name)?.isFocused)?.name ?? ABAS[0].name;
 
+  const [historico, setHistorico] = useState<string[]>([abaAtual]);
+  // Aba para onde o "voltar" está indo; até chegar nela, a aba atual não entra no histórico.
+  const [destino, setDestino] = useState<string | null>(null);
+
+  if (destino !== null) {
+    if (abaAtual === destino) setDestino(null);
+  } else if (historico[historico.length - 1] !== abaAtual) {
+    setHistorico([...historico, abaAtual]);
+  }
+
+  const podeVoltar = historico.length > 1;
+
+  const voltar = () => {
+    if (!podeVoltar) return false;
+    const anteriores = historico.slice(0, -1);
+    const anterior = anteriores[anteriores.length - 1];
+    setHistorico(anteriores);
+    setDestino(anterior);
+    switchTab(anterior, {});
+    return true;
+  };
+
+  useEffect(() => {
+    const assinatura = BackHandler.addEventListener('hardwareBackPress', voltar);
+    return () => assinatura.remove();
+  });
+
+  return <TopBar onVoltar={podeVoltar ? voltar : undefined} onAjuda={semAcao} onAudio={semAcao} />;
+};
+
+const TabsLayout = () => {
   return (
     <Tabs>
-      <TopBar
-        titulo={abaAtual.rotulo}
-        onVoltar={abaAtual.name === 'index' ? undefined : () => router.navigate('/')}
-        onAjuda={semAcao}
-        onAudio={semAcao}
-      />
+      <BarraSuperior />
       <TabSlot />
       <TabList asChild>
         <BottomBar>
@@ -41,6 +71,6 @@ const TabsLayout = () => {
       </TabList>
     </Tabs>
   );
-}
+};
 
 export default TabsLayout;

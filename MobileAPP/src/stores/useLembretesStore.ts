@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { lembretesIniciaisMock } from '@/mocks/lembretes.mock';
-import type { CriarLembreteInput, FiltroLembrete, Lembrete } from '@/types/lembrete';
+import type {
+  CriarLembreteInput,
+  Lembrete,
+  OcorrenciaLembrete,
+  RegistroFeito,
+} from '@/types/lembrete';
 
 /**
  * Interface que define o estado e as ações da store de lembretes.
@@ -8,8 +13,8 @@ import type { CriarLembreteInput, FiltroLembrete, Lembrete } from '@/types/lembr
 export interface LembretesState {
   /** Coleção reativa de lembretes cadastrados. */
   lembretes: Lembrete[];
-  /** Filtro de visualização ativo. */
-  filtro: FiltroLembrete;
+  /** Histórico de ocorrências marcadas como feitas, mais recentes primeiro. */
+  registros: RegistroFeito[];
   /** Armazena o último lembrete excluído para permitir reversão imediata (WCAG 3.3.6). */
   ultimoExcluido: Lembrete | null;
   /** Indica se há uma operação assíncrona em andamento. */
@@ -18,99 +23,62 @@ export interface LembretesState {
   erro: string | null;
 
   // Ações
-  /**
-   * Adiciona um novo lembrete à coleção de forma imutável.
-   * Suporta objeto de entrada ou parâmetros posicionais para retrocompatibilidade.
-   */
-  adicionarLembrete: (inputOrTitulo: CriarLembreteInput | string, horario?: string) => Lembrete;
+  /** Adiciona um novo lembrete (ativo) à coleção de forma imutável. */
+  adicionarLembrete: (input: CriarLembreteInput) => Lembrete;
 
-  /**
-   * Atualiza os dados de um lembrete existente preservando sua posição.
-   */
+  /** Atualiza os dados de um lembrete existente preservando sua posição. */
   editarLembrete: (id: string, input: Partial<CriarLembreteInput>) => void;
 
-  /**
-   * Remove um lembrete e o guarda em `ultimoExcluido` para permitir ação de desfazer (Undo).
-   */
+  /** Remove um lembrete e o guarda em `ultimoExcluido` para permitir ação de desfazer (Undo). */
   removerLembrete: (id: string) => void;
 
-  /**
-   * Restaura o último lembrete removido para a lista ativa.
-   */
+  /** Restaura o último lembrete removido para a lista ativa. */
   desfazerExclusao: () => void;
 
-  /**
-   * Alterna o status de conclusão do lembrete.
-   */
-  toggleConcluido: (id: string) => void;
+  /** Liga ou pausa os alertas de um lembrete (pausado = oculto da agenda). */
+  alternarAtivo: (id: string) => void;
 
-  /**
-   * Marca o lembrete como concluído com sinalização de origem no relógio Wear OS.
-   */
-  marcarConcluidoWear: (id: string) => void;
+  /** Registra que a atividade desta ocorrência foi feita agora ("Fiz"). */
+  marcarFeito: (ocorrencia: OcorrenciaLembrete) => void;
 
-  /**
-   * Sincroniza o status de conclusão de um lembrete com o retorno do relógio.
-   */
-  sincronizarComRelogio: (id: string, concluidoNoRelogio: boolean) => void;
+  /** Desfaz o "Fiz" de uma ocorrência. */
+  desmarcarFeito: (chave: string) => void;
 
-  /**
-   * Desassocia um tipo/categoria de todos os lembretes vinculados sem excluí-los.
-   */
+  /** Desassocia um tipo/categoria de todos os lembretes vinculados sem excluí-los. */
   desassociarTipo: (tipoId: string) => void;
 
-  /**
-   * Altera o filtro ativo para exibição de itens na listagem.
-   */
-  definirFiltro: (filtro: FiltroLembrete) => void;
-
-  /**
-   * Restaura o estado da store para as fixtures iniciais do Figma.
-   */
+  /** Restaura o estado da store para as fixtures iniciais do Figma. */
   resetarParaMocks: () => void;
 }
 
+/** Horários sem espaços extras, sem duplicatas e em ordem crescente. */
+const normalizarHorarios = (horarios: string[]): string[] =>
+  [...new Set(horarios.map((h) => h.trim()))].sort();
+
 /**
  * Store global Zustand para gerenciamento reativo e imutável de lembretes.
+ * A agenda (próximos / já passaram) é derivada em `agenda-lembretes.ts`.
  */
 export const useLembretesStore = create<LembretesState>((set) => ({
   lembretes: lembretesIniciaisMock,
-  filtro: 'todos',
+  registros: [],
   ultimoExcluido: null,
   isLoading: false,
   erro: null,
 
-  adicionarLembrete: (inputOrTitulo, horario) => {
-    let titulo: string;
-    let horaFormatada: string;
-    let tipoId: string | undefined;
-
-    if (typeof inputOrTitulo === 'string') {
-      titulo = inputOrTitulo.trim();
-      horaFormatada =
-        horario ||
-        new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } else {
-      titulo = inputOrTitulo.titulo.trim();
-      horaFormatada =
-        inputOrTitulo.horario ||
-        new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      tipoId = inputOrTitulo.tipoId;
-    }
-
+  adicionarLembrete: (input) => {
     const novoLembrete: Lembrete = {
       id: Date.now().toString(),
-      titulo,
-      horario: horaFormatada,
-      tipoId,
-      concluido: false,
+      titulo: input.titulo.trim(),
+      descricao: input.descricao?.trim() || undefined,
+      horarios: normalizarHorarios(input.horarios),
+      dias: [...new Set(input.dias)].sort(),
+      tipoId: input.tipoId,
+      ativo: true,
       criadoEm: new Date().toISOString(),
     };
 
-    set((state) => ({
-      lembretes: [novoLembrete, ...state.lembretes],
-    }));
-
+    set((state) => ({ lembretes: [novoLembrete, ...state.lembretes] }));
     return novoLembrete;
   },
 
@@ -121,7 +89,9 @@ export const useLembretesStore = create<LembretesState>((set) => ({
           ? {
               ...item,
               ...(input.titulo !== undefined ? { titulo: input.titulo.trim() } : {}),
-              ...(input.horario !== undefined ? { horario: input.horario } : {}),
+              ...(input.descricao !== undefined ? { descricao: input.descricao.trim() || undefined } : {}),
+              ...(input.horarios !== undefined ? { horarios: normalizarHorarios(input.horarios) } : {}),
+              ...(input.dias !== undefined ? { dias: [...new Set(input.dias)].sort() } : {}),
               ...(input.tipoId !== undefined ? { tipoId: input.tipoId } : {}),
             }
           : item
@@ -146,28 +116,28 @@ export const useLembretesStore = create<LembretesState>((set) => ({
       };
     }),
 
-  toggleConcluido: (id) =>
+  alternarAtivo: (id) =>
     set((state) => ({
       lembretes: state.lembretes.map((item) =>
-        item.id === id ? { ...item, concluido: !item.concluido } : item
+        item.id === id ? { ...item, ativo: !item.ativo } : item
       ),
     })),
 
-  marcarConcluidoWear: (id) =>
-    set((state) => ({
-      lembretes: state.lembretes.map((item) =>
-        item.id === id ? { ...item, concluido: true, concluidoNoWear: true } : item
-      ),
-    })),
+  marcarFeito: (ocorrencia) =>
+    set((state) => {
+      if (state.registros.some((r) => r.chave === ocorrencia.chave)) return state;
+      const registro: RegistroFeito = {
+        chave: ocorrencia.chave,
+        lembreteId: ocorrencia.lembrete.id,
+        previstoPara: ocorrencia.quando.toISOString(),
+        feitoEm: new Date().toISOString(),
+        origem: 'celular',
+      };
+      return { registros: [registro, ...state.registros] };
+    }),
 
-  sincronizarComRelogio: (id, concluidoNoRelogio) =>
-    set((state) => ({
-      lembretes: state.lembretes.map((item) =>
-        item.id === id
-          ? { ...item, concluido: concluidoNoRelogio, concluidoNoWear: concluidoNoRelogio }
-          : item
-      ),
-    })),
+  desmarcarFeito: (chave) =>
+    set((state) => ({ registros: state.registros.filter((r) => r.chave !== chave) })),
 
   desassociarTipo: (tipoId) =>
     set((state) => ({
@@ -176,12 +146,10 @@ export const useLembretesStore = create<LembretesState>((set) => ({
       ),
     })),
 
-  definirFiltro: (filtro) => set({ filtro }),
-
   resetarParaMocks: () =>
     set({
       lembretes: lembretesIniciaisMock,
-      filtro: 'todos',
+      registros: [],
       ultimoExcluido: null,
       isLoading: false,
       erro: null,
