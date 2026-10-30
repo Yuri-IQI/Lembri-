@@ -2,7 +2,7 @@
  * Hook que expõe o estado da conexão com o relógio para as telas.
  *
  * Guarda em memória os lembretes enviados e marca como concluídos quando o
- * relógio confirma. Sincroniza bidirecionalmente com a useLembretesStore.
+ * relógio confirma.
  */
 import { useCallback, useEffect, useState } from 'react';
 
@@ -14,7 +14,6 @@ import {
   wearDisponivel,
   type RelogioConectado,
 } from '@/services/wear/wear-service';
-import { useLembretesStore } from '@/stores/useLembretesStore';
 
 export type LembreteEnviado = Lembrete & { concluido: boolean };
 
@@ -37,8 +36,9 @@ export function useWear() {
       setLembretes((atuais) =>
         atuais.map((l) => (l.id === lembreteId ? { ...l, concluido: true } : l)),
       );
-      // RN-05: Sincroniza com a store Zustand reativa
-      useLembretesStore.getState().sincronizarComRelogio(lembreteId, true);
+      // PENDÊNCIA: lembretes deixaram de ter "concluído"; a confirmação do relógio deve virar um
+      // registro de histórico ("Últimas vezes" do frame `detalhe lembrete`; Trello: "Marcar como
+      // feito atualiza o histórico"). Até lá, ela só atualiza esta lista local.
     });
 
     return () => {

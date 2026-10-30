@@ -31,7 +31,8 @@ useExerciciosStore.getState().resetarParaMocks();
   const totalAntes = useLembretesStore.getState().lembretes.length;
   const novo = useLembretesStore.getState().adicionarLembrete({
     titulo: 'Lembrete Unitário',
-    horario: '15:30',
+    horarios: ['15:30'],
+    dias: [1, 3, 5],
     tipoId: 'tipo-saude',
   });
 
@@ -39,7 +40,7 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(estado.lembretes.length, totalAntes + 1, 'Deve incrementar o total de lembretes');
   assert.strictEqual(estado.lembretes[0].id, novo.id, 'Novo item deve estar no início da lista');
   assert.strictEqual(estado.lembretes[0].titulo, 'Lembrete Unitário');
-  assert.strictEqual(estado.lembretes[0].concluido, false, 'Deve iniciar como pendente');
+  assert.strictEqual(estado.lembretes[0].ativo, true, 'Deve iniciar programado');
 }
 
 // Teste RN-02: Edição de Lembrete
@@ -47,13 +48,13 @@ useExerciciosStore.getState().resetarParaMocks();
   const primeiro = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().editarLembrete(primeiro.id, {
     titulo: 'Título Atualizado',
-    horario: '17:00',
+    horarios: ['17:00', '08:00'],
   });
 
   const atualizado = useLembretesStore.getState().lembretes.find((l) => l.id === primeiro.id);
   assert.ok(atualizado, 'Item deve existir');
   assert.strictEqual(atualizado?.titulo, 'Título Atualizado', 'Título deve ser alterado');
-  assert.strictEqual(atualizado?.horario, '17:00', 'Horário deve ser alterado');
+  assert.strictEqual(atualizado?.horarios.join(','), '08:00,17:00', 'Horários devem ser alterados e ordenados');
 }
 
 // Teste RN-03: Exclusão Reversível (Undo)
@@ -98,7 +99,8 @@ useExerciciosStore.getState().resetarParaMocks();
   // Vincula a um lembrete
   const lembreteVinculado = useLembretesStore.getState().adicionarLembrete({
     titulo: 'Com tipo especial',
-    horario: '12:00',
+    horarios: ['12:00'],
+    dias: [0, 1, 2, 3, 4, 5, 6],
     tipoId: tipo.id,
   });
 
@@ -114,14 +116,33 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(lembreteApos?.tipoId, undefined, 'Lembrete deve ter tipoId desassociado');
 }
 
-// Teste RN-05: Conclusão e Sincronização Wear OS
+// Teste RN-05: Pausar e reativar os alertas
 {
   const lembrete = useLembretesStore.getState().lembretes[0];
-  useLembretesStore.getState().marcarConcluidoWear(lembrete.id);
+  useLembretesStore.getState().alternarAtivo(lembrete.id);
+  const pausado = useLembretesStore.getState().lembretes.find((l) => l.id === lembrete.id);
+  assert.strictEqual(pausado?.ativo, false, 'Deve ficar pausado');
 
-  const concluidoWear = useLembretesStore.getState().lembretes.find((l) => l.id === lembrete.id);
-  assert.strictEqual(concluidoWear?.concluido, true, 'Deve estar concluído');
-  assert.strictEqual(concluidoWear?.concluidoNoWear, true, 'Deve ter flag concluidoNoWear: true');
+  useLembretesStore.getState().alternarAtivo(lembrete.id);
+  const reativado = useLembretesStore.getState().lembretes.find((l) => l.id === lembrete.id);
+  assert.strictEqual(reativado?.ativo, true, 'Deve voltar a ficar programado');
+}
+
+// Teste RN-05b: "Fiz" registra no histórico, sem duplicar, e pode ser desfeito
+{
+  const lembrete = useLembretesStore.getState().lembretes[0];
+  const ocorrencia = {
+    chave: `${lembrete.id}@2026-10-29T09:00`,
+    lembrete,
+    horario: '09:00',
+    quando: new Date(2026, 9, 29, 9, 0),
+  };
+  useLembretesStore.getState().marcarFeito(ocorrencia);
+  useLembretesStore.getState().marcarFeito(ocorrencia);
+  assert.strictEqual(useLembretesStore.getState().registros.length, 1, 'Deve registrar uma vez só');
+
+  useLembretesStore.getState().desmarcarFeito(ocorrencia.chave);
+  assert.strictEqual(useLembretesStore.getState().registros.length, 0, 'Deve desfazer o registro');
 }
 
 // Teste RN-06: Registro de Tentativa de Exercício e Streak
@@ -149,7 +170,7 @@ useExerciciosStore.getState().resetarParaMocks();
   useTiposLembreteStore.getState().resetarParaMocks();
   useExerciciosStore.getState().resetarParaMocks();
 
-  assert.strictEqual(useLembretesStore.getState().lembretes.length, 4, 'Deve restaurar os 4 lembretes');
-  assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 4, 'Deve restaurar as 4 categorias');
+  assert.strictEqual(useLembretesStore.getState().lembretes.length, 3, 'Deve restaurar os 3 lembretes');
+  assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Deve restaurar os 2 tipos');
   assert.strictEqual(useExerciciosStore.getState().exercicios.length, 4, 'Deve restaurar os 4 exercícios');
 }
