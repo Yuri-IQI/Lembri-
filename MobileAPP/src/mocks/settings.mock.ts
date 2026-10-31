@@ -5,6 +5,7 @@ import type { UserSettings } from '@/types/settings';
  */
 export const defaultSettingsMock: UserSettings = {
   isLargeText: false,
+  hasSeenSplash: false,
 };
 
 /**
