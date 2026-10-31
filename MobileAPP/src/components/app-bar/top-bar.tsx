@@ -23,9 +23,9 @@ const BOTAO = ComponentSize.topBarButton;
 export const TopBar = ({ onVoltar, onAjuda, onAudio }: TopBarProps) => {
   const theme = useTheme();
   const acoes = [
-    onAjuda && { icone: 'help' as const, rotulo: 'Ajuda', onPress: onAjuda },
+    onAjuda && { icone: 'question_mark' as const, rotulo: 'Ajuda', onPress: onAjuda },
     onAudio && { icone: 'mic' as const, rotulo: 'Áudio', onPress: onAudio },
-  ].filter((acao): acao is { icone: 'help' | 'mic'; rotulo: string; onPress: () => void } => !!acao);
+  ].filter((acao): acao is { icone: 'question_mark' | 'mic'; rotulo: string; onPress: () => void } => !!acao);
 
   const botoes = acoes.map((acao) => (
     <Pressable

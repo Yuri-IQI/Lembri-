@@ -32,7 +32,7 @@ export const Colors = {
   tagLilas: '#CDB8F5',
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
-  tabActive: '#DADADA',
+  tabActive: '#EAE28A',
   success: '#A8D5A2',
   /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
   danger: '#A50E0E',
@@ -236,6 +236,9 @@ export const ComponentSize = {
   horarioMinWidth: 76,
   /** Largura/altura da caixa de exibição dos dígitos de hora/minuto no seletor de horário. */
   horarioDigitos: 64,
+
+  /** Tamanho máximo do logo da tela de boas-vindas; em telas menores ele encolhe. */
+  splashLogoMax: 400,
 
   /** Espessura da linha do texto riscado/tachado. */
   strikethroughHeight: 2,
