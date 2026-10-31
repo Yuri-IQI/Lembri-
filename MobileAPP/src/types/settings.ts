@@ -6,4 +6,6 @@ export interface UserSettings {
   isLargeText: boolean;
   /** Indica se a tela de boas-vindas já foi vista e dispensada pelo usuário. */
   hasSeenSplash: boolean;
+  /** Quantidade máxima de lembretes (ajustável só em builds de desenvolvimento). */
+  reminderLimit: number;
 }

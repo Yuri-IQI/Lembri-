@@ -4,16 +4,20 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { Splash } from '@/components/splash';
-import { useSettingsHydrated } from '@/hooks/use-settings-hydrated';
+import { useRespostasNotificacao } from '@/hooks/use-respostas-notificacao';
+import { useSincronizarNotificacoes } from '@/hooks/use-sincronizar-notificacoes';
+import { useStoresHidratadas } from '@/hooks/use-stores-hidratadas';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const colorScheme = useColorScheme();
-  const hydrated = useSettingsHydrated();
+  const hydrated = useStoresHidratadas();
   const hasSeenSplash = useSettingsStore((s) => s.hasSeenSplash);
   const markSplashSeen = useSettingsStore((s) => s.markSplashSeen);
+  useSincronizarNotificacoes(hydrated);
+  useRespostasNotificacao(hydrated);
 
   useEffect(() => {
     if (hydrated) {

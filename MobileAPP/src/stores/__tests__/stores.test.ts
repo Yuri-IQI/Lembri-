@@ -1,6 +1,7 @@
 import { useExerciciosStore } from '../useExerciciosStore';
 import { useLembretesStore } from '../useLembretesStore';
 import { useTiposLembreteStore } from '../useTiposLembreteStore';
+import { dadosIniciais } from '../../utils/dados-iniciais';
 
 // Asserções leves sem dependência de tipos de Node no runtime React Native
 function assert(condition: unknown, message?: string): asserts condition {
@@ -30,14 +31,21 @@ useExerciciosStore.getState().resetarParaMocks();
 {
   const totalAntes = useLembretesStore.getState().lembretes.length;
   const novo = useLembretesStore.getState().adicionarLembrete({
+    template: 'livre',
     titulo: 'Lembrete Unitário',
     horarios: ['15:30'],
-    dias: [1, 3, 5],
-    tipoId: 'tipo-saude',
+    repeticao: { modo: 'dias', dias: [1, 3, 5] },
+    tipoIds: ['tipo-saude'],
+    exigeConfirmacao: false,
   });
+  assert(novo, 'Deve criar dentro do limite');
 
   const estado = useLembretesStore.getState();
-  assert.strictEqual(estado.lembretes.length, totalAntes + 1, 'Deve incrementar o total de lembretes');
+  assert.strictEqual(
+    estado.lembretes.length,
+    totalAntes + 1,
+    'Deve incrementar o total de lembretes'
+  );
   assert.strictEqual(estado.lembretes[0].id, novo.id, 'Novo item deve estar no início da lista');
   assert.strictEqual(estado.lembretes[0].titulo, 'Lembrete Unitário');
   assert.strictEqual(estado.lembretes[0].ativo, true, 'Deve iniciar programado');
@@ -47,14 +55,23 @@ useExerciciosStore.getState().resetarParaMocks();
 {
   const primeiro = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().editarLembrete(primeiro.id, {
+    template: 'livre',
     titulo: 'Título Atualizado',
-    horarios: ['17:00', '08:00'],
+    horarios: ['17:00', '08:00', '17:00'],
+    repeticao: { modo: 'todo_dia' },
+    tipoIds: [],
+    exigeConfirmacao: false,
   });
 
   const atualizado = useLembretesStore.getState().lembretes.find((l) => l.id === primeiro.id);
   assert.ok(atualizado, 'Item deve existir');
   assert.strictEqual(atualizado?.titulo, 'Título Atualizado', 'Título deve ser alterado');
-  assert.strictEqual(atualizado?.horarios.join(','), '08:00,17:00', 'Horários devem ser alterados e ordenados');
+  assert(atualizado?.template === 'livre', 'Template deve ser mantido');
+  assert.strictEqual(
+    atualizado.horarios.join(','),
+    '08:00,17:00',
+    'Horários devem ser alterados e ordenados'
+  );
 }
 
 // Teste RN-03: Exclusão Reversível (Undo)
@@ -98,11 +115,14 @@ useExerciciosStore.getState().resetarParaMocks();
 
   // Vincula a um lembrete
   const lembreteVinculado = useLembretesStore.getState().adicionarLembrete({
+    template: 'livre',
     titulo: 'Com tipo especial',
     horarios: ['12:00'],
-    dias: [0, 1, 2, 3, 4, 5, 6],
-    tipoId: tipo.id,
+    repeticao: { modo: 'todo_dia' },
+    tipoIds: [tipo.id],
+    exigeConfirmacao: false,
   });
+  assert(lembreteVinculado, 'Deve criar dentro do limite');
 
   // Remove o tipo
   useTiposLembreteStore.getState().removerTipo(tipo.id);
@@ -113,7 +133,7 @@ useExerciciosStore.getState().resetarParaMocks();
     .getState()
     .lembretes.find((l) => l.id === lembreteVinculado.id);
   assert.ok(lembreteApos, 'Lembrete não deve ser excluído');
-  assert.strictEqual(lembreteApos?.tipoId, undefined, 'Lembrete deve ter tipoId desassociado');
+  assert.strictEqual(lembreteApos?.tipoIds.length, 0, 'Lembrete deve ter o tipo desassociado');
 }
 
 // Teste RN-05: Pausar e reativar os alertas
@@ -170,39 +190,47 @@ useExerciciosStore.getState().resetarParaMocks();
   useTiposLembreteStore.getState().resetarParaMocks();
   useExerciciosStore.getState().resetarParaMocks();
 
-  assert.strictEqual(useLembretesStore.getState().lembretes.length, 3, 'Deve restaurar os 3 lembretes');
+  assert.strictEqual(
+    useLembretesStore.getState().lembretes.length,
+    5,
+    'Deve restaurar os 5 lembretes'
+  );
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Deve restaurar os 2 tipos');
-  assert.strictEqual(useExerciciosStore.getState().exercicios.length, 4, 'Deve restaurar os 4 exercícios');
+  assert.strictEqual(
+    useExerciciosStore.getState().exercicios.length,
+    4,
+    'Deve restaurar os 4 exercícios'
+  );
 }
 
 // Teste RN-08: Contadores de Ativos e Por Categoria (CARD-31 e CARD-34)
 {
   useLembretesStore.getState().resetarParaMocks();
   const contador = useLembretesStore.getState().obterContadorAtivos();
-  assert.strictEqual(contador.total, 3, 'Total deve ser 3');
-  assert.strictEqual(contador.ativos, 2, 'Ativos devem ser 2 (1 está pausado nos mocks)');
+  assert.strictEqual(contador.total, 5, 'Total deve ser 5');
+  assert.strictEqual(contador.ativos, 4, 'Ativos devem ser 4 (1 está pausado nos mocks)');
 
   const contagemSaude = useLembretesStore.getState().obterContagemPorTipo('tipo-saude');
   assert.strictEqual(contagemSaude, 1, 'Deve ter 1 lembrete com tipo saúde');
 
-  const contagemDomestica = useLembretesStore.getState().obterContagemPorTipo('tipo-tarefas-domesticas');
+  const contagemDomestica = useLembretesStore
+    .getState()
+    .obterContagemPorTipo('tipo-tarefas-domesticas');
   assert.strictEqual(contagemDomestica, 2, 'Deve ter 2 lembretes de tarefas domésticas');
 
   // Adiciona com template remédio e confirmação ativa (CARD-33)
   const remedio = useLembretesStore.getState().adicionarLembrete({
+    ...dadosIniciais('remedio', ['tipo-saude'], new Date()),
     titulo: 'Vitamina C',
-    horarios: ['08:00', '18:00'],
-    dias: [0, 1, 2, 3, 4, 5, 6],
-    tipoId: 'tipo-saude',
-    exigeConfirmacao: true,
-    templateOrigem: 'remedio',
   });
+  if (!remedio) throw new Error('Deve caber mais um lembrete');
   assert.strictEqual(remedio.exigeConfirmacao, true, 'Exige confirmação deve estar ativo');
-  assert.strictEqual(remedio.templateOrigem, 'remedio', 'Template de origem deve ser remédio');
+  assert.strictEqual(remedio.template, 'remedio', 'Template deve ser remédio');
+  assert.strictEqual(useLembretesStore.getState().obterContagemPorTipo('tipo-saude'), 2);
 
   const novoContador = useLembretesStore.getState().obterContadorAtivos();
-  assert.strictEqual(novoContador.total, 4, 'Total agora deve ser 4');
-  assert.strictEqual(novoContador.ativos, 3, 'Ativos agora devem ser 3');
+  assert.strictEqual(novoContador.total, 6, 'Total agora deve ser 6');
+  assert.strictEqual(novoContador.ativos, 5, 'Ativos agora devem ser 5');
 
   useLembretesStore.getState().resetarParaMocks();
 }

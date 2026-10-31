@@ -1,4 +1,5 @@
-import type { DiaSemana } from '@/types/lembrete';
+import type { DiaSemana, Repeticao } from '@/types/lembrete';
+import { formatarData } from '@/utils/data';
 
 const NOMES: Record<DiaSemana, string> = {
   0: 'Domingo',
@@ -25,4 +26,10 @@ export const descreverFrequencia = (dias: DiaSemana[]): string => {
 
   const nomes = ordenados.map((dia) => NOMES[dia]);
   return `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`;
+};
+
+export const descreverRepeticao = (repeticao: Repeticao): string => {
+  if (repeticao.modo === 'todo_dia') return 'Todos os dias';
+  if (repeticao.modo === 'dias') return descreverFrequencia(repeticao.dias);
+  return `Só em ${formatarData(repeticao.data)}`;
 };

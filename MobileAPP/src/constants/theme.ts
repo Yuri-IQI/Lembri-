@@ -14,6 +14,8 @@ export const Colors = {
 
   background: '#F2F2F2',
   surface: '#FFFFFF',
+  /** Fundo das caixas de texto (Figma). */
+  inputBackground: '#F9F9F9',
 
   border: '#949494',
   borderSubtle: '#D0D0D0',
@@ -32,7 +34,9 @@ export const Colors = {
   tagLilas: '#CDB8F5',
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
-  tabActive: '#DADADA',
+  /** Borda tracejada do chip "+ Novo tipo" (Figma). */
+  borderDashed: '#787878',
+  tabActive: '#EAE28A',
   success: '#A8D5A2',
   /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
   danger: '#A50E0E',
@@ -237,6 +241,26 @@ export const ComponentSize = {
   /** Largura/altura da caixa de exibição dos dígitos de hora/minuto no seletor de horário. */
   horarioDigitos: 64,
 
+  /** Tamanho máximo do logo da tela de boas-vindas; em telas menores ele encolhe. */
+  splashLogoMax: 400,
+
+  /** Célula do calendário: o mês inteiro precisa caber no diálogo (mínimo AAA de 44dp). */
+  calendarioCelula: 44,
+
+  /** Altura das etiquetas de horário que podem ser tocadas para marcar como feito (AAA: 44dp). */
+  chipMarcavel: 48,
+
+  /** Círculo do ícone nos cards de escolha de template. */
+  iconeTemplate: 56,
+  /** Círculo do ícone do template nos cards da agenda. */
+  iconeTemplateCard: 40,
+  /** Círculo com a cor do tipo na tela de tipos. */
+  bolinhaTipo: 24,
+
+  /** Faixa de cores do seletor de matiz e o marcador que desliza sobre ela. */
+  faixaMatiz: 48,
+  marcadorMatiz: 16,
+
   /** Espessura da linha do texto riscado/tachado. */
   strikethroughHeight: 2,
 
@@ -256,9 +280,6 @@ export const Gradients = {
    * @param theme - Objeto com tokens de cor do tema.
    * @returns Declaração CSS de linear-gradient.
    */
-  proximoLembrete: (
-    feito: boolean,
-    theme: { success: string; accent: string; surface: string }
-  ) =>
+  proximoLembrete: (feito: boolean, theme: { success: string; accent: string; surface: string }) =>
     `linear-gradient(-59.4deg, ${feito ? theme.success : theme.accent} 18.9%, ${theme.surface} 114.5%)`,
 } as const;

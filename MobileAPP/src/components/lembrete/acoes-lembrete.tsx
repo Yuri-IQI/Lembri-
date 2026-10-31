@@ -8,6 +8,7 @@ import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
 import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { Lembrete } from '@/types/lembrete';
+import { horariosDoLembrete } from '@/utils/lembrete';
 
 export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
   const removerLembrete = useLembretesStore((state) => state.removerLembrete);
@@ -26,10 +27,7 @@ export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
         icone="edit"
         accessibilityLabel={`Editar ${lembrete.titulo}`}
         onPress={() =>
-          router.push({
-            pathname: '/lembrete/editar/[id]' as const,
-            params: { id: lembrete.id },
-          })
+          router.push({ pathname: '/lembrete/[id]/editar', params: { id: lembrete.id } })
         }
         style={styles.editar}
       />
@@ -42,7 +40,7 @@ export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
       <DialogoConfirmacao
         visivel={confirmando}
         titulo="Excluir lembrete?"
-        mensagem={`"${lembrete.titulo}" e todos os seus horários (${lembrete.horarios.join(', ')}) serão excluídos. Você poderá desfazer na tela inicial.`}
+        mensagem={`"${lembrete.titulo}" e todos os seus horários (${horariosDoLembrete(lembrete).join(', ')}) serão excluídos. Você poderá desfazer na tela inicial.`}
         rotuloConfirmar="Excluir"
         varianteConfirmar="perigo"
         onConfirmar={excluir}

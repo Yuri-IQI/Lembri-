@@ -8,11 +8,18 @@ type MarcadorFeitoProps = {
   feito: boolean;
   onAlternar: () => void;
   descricao: string;
+  /** Ação lida pelo leitor de tela ("Tomei" no remédio, "Fiz" nos demais). */
+  rotulo?: string;
 };
 
 const CIRCULO = ComponentSize.marcadorCirculo;
 
-export const MarcadorFeito = ({ feito, onAlternar, descricao }: MarcadorFeitoProps) => {
+export const MarcadorFeito = ({
+  feito,
+  onAlternar,
+  descricao,
+  rotulo = 'Feito',
+}: MarcadorFeitoProps) => {
   const theme = useTheme();
 
   return (
@@ -20,7 +27,7 @@ export const MarcadorFeito = ({ feito, onAlternar, descricao }: MarcadorFeitoPro
       onPress={onAlternar}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: feito }}
-      accessibilityLabel={`Feito: ${descricao}`}
+      accessibilityLabel={`${rotulo}: ${descricao}`}
       style={({ pressed }) => [styles.area, { opacity: pressed ? 0.6 : 1 }]}>
       <View
         style={[

@@ -10,7 +10,7 @@ import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Lembrete } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
-import { descreverFrequencia } from '@/utils/frequencia';
+import { descreverAgenda, horariosDoLembrete, rotuloFeito, textoDeApoio } from '@/utils/lembrete';
 
 export type LembreteCardProps = {
   lembrete: Lembrete;
@@ -36,14 +36,16 @@ export const LembreteCard = ({
 }: LembreteCardProps) => {
   const theme = useTheme();
   const corTexto = feito ? 'textSecondary' : 'text';
-  const frequencia = descreverFrequencia(lembrete.dias);
+  const frequencia = descreverAgenda(lembrete);
+  const horarios = horariosDoLembrete(lembrete);
+  const apoio = textoDeApoio(lembrete);
   const statusTexto = feito ? 'Concluído' : 'Pendente';
 
   const rotuloAcessibilidade = [
     lembrete.titulo,
     tipo?.nome,
-    lembrete.descricao,
-    `Horários: ${lembrete.horarios.join(', ')}`,
+    apoio,
+    `Horários: ${horarios.join(', ')}`,
     frequencia,
     `Status: ${statusTexto}`,
   ]
@@ -90,15 +92,15 @@ export const LembreteCard = ({
             </View>
           </View>
 
-          {lembrete.descricao ? (
+          {apoio ? (
             <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-              {lembrete.descricao}
+              {apoio}
             </ThemedText>
           ) : null}
 
-          {lembrete.horarios.length > 0 ? (
+          {horarios.length > 0 ? (
             <View style={styles.chipsHorarios}>
-              {lembrete.horarios.map((horario) => (
+              {horarios.map((horario) => (
                 <ChipHorario key={horario} horario={horario} />
               ))}
             </View>
@@ -125,6 +127,7 @@ export const LembreteCard = ({
           feito={feito}
           onAlternar={onAlternarFeito}
           descricao={`${lembrete.titulo}, ${statusTexto}`}
+          rotulo={rotuloFeito(lembrete)}
         />
       )}
     </View>

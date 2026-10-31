@@ -7,7 +7,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { ajustarHorario } from '@/utils/horario';
 
 export type SeletorHorarioProps = {
-  rotulo: string;
+  rotulo?: string;
   valor: string;
   onAlterar: (horario: string) => void;
   passoMinutos?: number;
@@ -43,7 +43,7 @@ export const SeletorHorario = ({
 
   return (
     <View style={styles.container}>
-      <ThemedText type="label">{rotulo}</ThemedText>
+      {rotulo ? <ThemedText type="label">{rotulo}</ThemedText> : null}
 
       <View style={styles.linhaSeletor}>
         {/* Coluna de Horas */}

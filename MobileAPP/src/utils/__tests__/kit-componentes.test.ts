@@ -1,11 +1,9 @@
 import { Colors, PaletaTipos } from '@/constants/theme';
-import { modelosLembreteMock } from '@/mocks/modelos-lembrete.mock';
 import type { TentativaExercicio } from '@/types/exercicio';
-import type { TipoLembrete } from '@/types/tipo-lembrete';
 import { razaoDeContraste } from '@/utils/contraste';
+import { corLegivelDoMatiz, hslParaHex, matizDaCor } from '@/utils/cor';
 import { descreverUltimaAtividade, ultimaTentativa } from '@/utils/exercicio';
 import { ajustarHorario } from '@/utils/horario';
-import { rascunhoDeModelo } from '@/utils/modelo-lembrete';
 
 // Asserções leves sem dependência de runner ou tipos externos de Node
 function assert(condition: unknown, message?: string): asserts condition {
@@ -157,48 +155,13 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   assert.strictEqual(descricao, 'Última atividade: ontem às 09:15');
 }
 
-// T09: rascunhoDeModelo com tipo inexistente
+// Cores da faixa de matizes: texto preto sempre com contraste AAA
 {
-  const modeloComTipoInexistente = modelosLembreteMock.find((m) => m.id === 'modelo-consulta-longa');
-  assert.ok(modeloComTipoInexistente, 'Modelo de borda deve existir nos mocks');
-
-  const tiposAtivos: TipoLembrete[] = [
-    { id: 'tipo-saude', nome: 'Saúde', corHex: '#FF8181' },
-    { id: 'tipo-tarefas', nome: 'Tarefas', corHex: '#9FD3F5' },
-  ];
-
-  const rascunho = rascunhoDeModelo(modeloComTipoInexistente, tiposAtivos);
-  assert.strictEqual(
-    rascunho.tipoId,
-    undefined,
-    'tipoId inexistente na store deve ser mapeado para undefined'
-  );
-  assert.strictEqual(rascunho.titulo, modeloComTipoInexistente.titulo);
-}
-
-// T10: rascunhoDeModelo garante imutabilidade dos arrays do mock original
-{
-  const modeloOriginal = modelosLembreteMock[0];
-  const horariosOriginais = [...modeloOriginal.horarios];
-  const diasOriginais = [...modeloOriginal.dias];
-
-  const rascunho = rascunhoDeModelo(modeloOriginal, [
-    { id: 'tipo-saude', nome: 'Saúde', corHex: '#FF8181' },
-  ]);
-
-  // Modifica os arrays no rascunho
-  rascunho.horarios.push('23:59');
-  rascunho.dias.length = 0;
-
-  // Verifica se o mock original continua inalterado
-  assert.strictEqual(
-    modeloOriginal.horarios.length,
-    horariosOriginais.length,
-    'Array de horários do mock original não deve ser afetado'
-  );
-  assert.strictEqual(
-    modeloOriginal.dias.length,
-    diasOriginais.length,
-    'Array de dias do mock original não deve ser afetado'
-  );
+  for (let matiz = 0; matiz < 360; matiz += 5) {
+    const cor = corLegivelDoMatiz(matiz);
+    assert.ok(razaoDeContraste(Colors.text, cor) >= 7, `matiz ${matiz} (${cor}) abaixo de 7:1`);
+  }
+  assert.strictEqual(hslParaHex(0, 1, 0.5), '#FF0000');
+  assert.strictEqual(hslParaHex(240, 1, 0.5), '#0000FF');
+  assert.strictEqual(Math.round(matizDaCor('#00FF00')), 120);
 }
