@@ -1,24 +1,33 @@
 import { Modal, StyleSheet, View } from 'react-native';
 
-import { Botao } from '@/components/botao';
+import { Botao, type BotaoVariante } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type DialogoConfirmacaoProps = {
+export type DialogoConfirmacaoProps = {
   visivel: boolean;
   titulo: string;
   mensagem: string;
   rotuloConfirmar: string;
+  varianteConfirmar?: Extract<BotaoVariante, 'primario' | 'perigo'>;
   onConfirmar: () => void;
   onCancelar: () => void;
 };
 
+/**
+ * Diálogo modal acessível de confirmação de ações críticas (WCAG 2.2 AAA — Prevenção de Erros 3.3.6).
+ *
+ * Apresenta o título, mensagem explicativa da consequência e dois botões de tamanho TouchTarget = 56dp:
+ * - Cancelar (sempre secundário para manter o estado sem alteração)
+ * - Confirmar (primário ou perigo para ações destrutivas como exclusão).
+ */
 export const DialogoConfirmacao = ({
   visivel,
   titulo,
   mensagem,
   rotuloConfirmar,
+  varianteConfirmar = 'primario',
   onConfirmar,
   onCancelar,
 }: DialogoConfirmacaoProps) => {
@@ -42,7 +51,12 @@ export const DialogoConfirmacao = ({
               onPress={onCancelar}
               style={styles.botao}
             />
-            <Botao rotulo={rotuloConfirmar} onPress={onConfirmar} style={styles.botao} />
+            <Botao
+              rotulo={rotuloConfirmar}
+              variante={varianteConfirmar}
+              onPress={onConfirmar}
+              style={styles.botao}
+            />
           </View>
         </View>
       </View>
