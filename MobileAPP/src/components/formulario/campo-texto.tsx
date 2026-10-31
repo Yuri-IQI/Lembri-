@@ -1,6 +1,13 @@
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  type StyleProp,
+  type TextInputProps,
+  type TextStyle,
+} from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import {
@@ -19,6 +26,7 @@ export type CampoTextoProps = Omit<TextInputProps, 'style' | 'value' | 'onChange
   onAlterar: (texto: string) => void;
   ajuda?: string;
   erro?: string;
+  inputStyle?: StyleProp<TextStyle>;
 };
 
 /**
@@ -37,6 +45,7 @@ export const CampoTexto = ({
   onAlterar,
   ajuda,
   erro,
+  inputStyle,
   placeholderTextColor,
   onFocus,
   onBlur,
@@ -79,6 +88,7 @@ export const CampoTexto = ({
             borderWidth: larguraBorda,
             color: theme.text,
           },
+          inputStyle,
         ]}
         {...rest}
       />

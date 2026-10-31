@@ -23,6 +23,8 @@ export const lembretesIniciaisMock: Lembrete[] = [
     dias: [...DIAS_SEMANA],
     tipoId: 'tipo-saude',
     ativo: true,
+    exigeConfirmacao: true,
+    templateOrigem: 'remedio',
     criadoEm: '2026-10-27T08:00:00.000Z',
   },
   {

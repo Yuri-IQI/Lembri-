@@ -174,3 +174,35 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Deve restaurar os 2 tipos');
   assert.strictEqual(useExerciciosStore.getState().exercicios.length, 4, 'Deve restaurar os 4 exercícios');
 }
+
+// Teste RN-08: Contadores de Ativos e Por Categoria (CARD-31 e CARD-34)
+{
+  useLembretesStore.getState().resetarParaMocks();
+  const contador = useLembretesStore.getState().obterContadorAtivos();
+  assert.strictEqual(contador.total, 3, 'Total deve ser 3');
+  assert.strictEqual(contador.ativos, 2, 'Ativos devem ser 2 (1 está pausado nos mocks)');
+
+  const contagemSaude = useLembretesStore.getState().obterContagemPorTipo('tipo-saude');
+  assert.strictEqual(contagemSaude, 1, 'Deve ter 1 lembrete com tipo saúde');
+
+  const contagemDomestica = useLembretesStore.getState().obterContagemPorTipo('tipo-tarefas-domesticas');
+  assert.strictEqual(contagemDomestica, 2, 'Deve ter 2 lembretes de tarefas domésticas');
+
+  // Adiciona com template remédio e confirmação ativa (CARD-33)
+  const remedio = useLembretesStore.getState().adicionarLembrete({
+    titulo: 'Vitamina C',
+    horarios: ['08:00', '18:00'],
+    dias: [0, 1, 2, 3, 4, 5, 6],
+    tipoId: 'tipo-saude',
+    exigeConfirmacao: true,
+    templateOrigem: 'remedio',
+  });
+  assert.strictEqual(remedio.exigeConfirmacao, true, 'Exige confirmação deve estar ativo');
+  assert.strictEqual(remedio.templateOrigem, 'remedio', 'Template de origem deve ser remédio');
+
+  const novoContador = useLembretesStore.getState().obterContadorAtivos();
+  assert.strictEqual(novoContador.total, 4, 'Total agora deve ser 4');
+  assert.strictEqual(novoContador.ativos, 3, 'Ativos agora devem ser 3');
+
+  useLembretesStore.getState().resetarParaMocks();
+}
