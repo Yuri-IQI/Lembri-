@@ -2,8 +2,7 @@
  * Hook que expõe o estado da conexão com o relógio para as telas.
  *
  * Guarda em memória os lembretes enviados e marca como concluídos quando o
- * relógio confirma. Para persistir, troque o useState por um storage local
- * (ex.: expo-sqlite) mantendo a mesma interface de retorno.
+ * relógio confirma.
  */
 import { useCallback, useEffect, useState } from 'react';
 
@@ -37,6 +36,9 @@ export function useWear() {
       setLembretes((atuais) =>
         atuais.map((l) => (l.id === lembreteId ? { ...l, concluido: true } : l)),
       );
+      // PENDÊNCIA: lembretes deixaram de ter "concluído"; a confirmação do relógio deve virar um
+      // registro de histórico ("Últimas vezes" do frame `detalhe lembrete`; Trello: "Marcar como
+      // feito atualiza o histórico"). Até lá, ela só atualiza esta lista local.
     });
 
     return () => {

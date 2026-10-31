@@ -1,119 +1,64 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AgendaVazia } from '@/components/agenda/agenda-vazia';
+import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
+import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
+import { FiltrosAgenda } from '@/components/agenda/filtros-agenda';
+import { ListaAgenda } from '@/components/agenda/lista-agenda';
+import { ProximoLembreteCard } from '@/components/cards/proximo-lembrete-card';
 import { MainContainer } from '@/components/main-container';
-import { ThemedText } from '@/components/themed-text';
-import { Card } from '@/components/themed-view';
-import { BorderWidth, FontFamily, Radius, Spacing, TouchTarget } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { useWear } from '@/hooks/use-wear';
+import { Spacing } from '@/constants/theme';
+import { useAgenda, type ChaveSecao } from '@/hooks/use-agenda';
 
 const HomeScreen = () => {
-  const theme = useTheme();
-  const { disponivel, relogios, lembretes, enviar, atualizarRelogios } = useWear();
-  const [titulo, setTitulo] = useState('');
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [secaoAtiva, setSecaoAtiva] = useState<ChaveSecao>('proximas');
+  const { lembretes, secoes, pausados, proxima, quandoProxima, feitos, acaoFeito } = useAgenda();
+  const secao = secoes.find((item) => item.chave === secaoAtiva) ?? secoes[0];
 
-  const handleEnviar = async () => {
-    const texto = titulo.trim();
-    if (!texto) return;
-    const entregues = await enviar(texto);
-    setAviso(entregues > 0 ? `Enviado para ${entregues} relógio(s).` : 'Nenhum relógio recebeu.');
-    if (entregues > 0) setTitulo('');
-  };
+  const cabecalho = (
+    <View style={styles.cabecalho}>
+      <ProximoLembreteCard
+        ocorrencia={proxima}
+        quando={quandoProxima}
+        feito={proxima ? feitos.has(proxima.chave) : false}
+        onAlternarFeito={acaoFeito(proxima ?? undefined)}
+        onAbrir={(ocorrencia) =>
+          router.push({ pathname: '/lembrete/[id]', params: { id: ocorrencia.lembrete.id } })
+        }
+      />
+      <AvisoDesfazer />
+      <CabecalhoLista programados={lembretes.length - pausados.length} pausados={pausados.length} />
+      {lembretes.length > 0 && (
+        <FiltrosAgenda ativa={secaoAtiva} pausados={pausados.length} onSelecionar={setSecaoAtiva} />
+      )}
+    </View>
+  );
+
+  if (lembretes.length === 0) {
+    return (
+      <MainContainer>
+        {cabecalho}
+        <AgendaVazia />
+      </MainContainer>
+    );
+  }
 
   return (
-    <MainContainer>
-      <Card>
-        <ThemedText type="label">Relógio</ThemedText>
-        {!disponivel ? (
-          <ThemedText>
-            Comunicação com relógio disponível apenas em um development build Android (não
-            funciona no Expo Go).
-          </ThemedText>
-        ) : (
-          <>
-            <ThemedText type="defaultBold">
-              {relogios.length > 0
-                ? `Conectado: ${relogios.map((r) => r.nome).join(', ')}`
-                : 'Nenhum relógio com o Lembri encontrado'}
-            </ThemedText>
-            <Pressable onPress={atualizarRelogios}>
-              <ThemedText type="link">Procurar novamente</ThemedText>
-            </Pressable>
-          </>
-        )}
-      </Card>
-
-      {/* Formulário de envio */}
-      <TextInput
-        value={titulo}
-        onChangeText={setTitulo}
-        placeholder="Ex.: Tomar remédio"
-        placeholderTextColor={theme.textMuted}
-        style={[
-          styles.input,
-          { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
-        ]}
-        onSubmitEditing={handleEnviar}
-      />
-      <Pressable
-        onPress={handleEnviar}
-        disabled={!disponivel || !titulo.trim()}
-        style={({ pressed }) => [
-          styles.botao,
-          { backgroundColor: theme.primary },
-          { opacity: !disponivel || !titulo.trim() ? 0.4 : pressed ? 0.7 : 1 },
-        ]}>
-        <ThemedText type="button" themeColor="onPrimary">
-          Enviar ao relógio
-        </ThemedText>
-      </Pressable>
-      {aviso && <ThemedText type="small">{aviso}</ThemedText>}
-
-      {/* Lembretes enviados (atualizados pelas confirmações do relógio) */}
-      <ThemedText type="label">Lembretes enviados</ThemedText>
-      <FlatList
-        style={styles.lista}
-        data={lembretes}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ gap: Spacing.two, paddingBottom: Spacing.three }}
-        ListEmptyComponent={<ThemedText type="small">Nenhum lembrete enviado ainda.</ThemedText>}
-        renderItem={({ item }) => (
-          <Card>
-            <ThemedText type="subheading">{item.titulo}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              <ThemedText type="smallBold" themeColor="textSecondary">
-                {item.horario}
-              </ThemedText>
-              {' - '}
-              {item.concluido ? 'Concluído no relógio ✓' : 'Pendente'}
-            </ThemedText>
-          </Card>
-        )}
-      />
+    <MainContainer style={styles.container}>
+      <ListaAgenda secao={secao} cabecalho={cabecalho} feitos={feitos} acaoFeito={acaoFeito} />
     </MainContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  input: {
-    minHeight: TouchTarget,
-    fontFamily: FontFamily,
-    fontSize: 19,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Radius.lg,
-    borderWidth: BorderWidth.thin,
+  container: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
   },
-  botao: {
-    minHeight: TouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.three,
-    borderRadius: Radius.md,
-  },
-  lista: {
-    flex: 1,
+  cabecalho: {
+    gap: Spacing.three,
   },
 });
 

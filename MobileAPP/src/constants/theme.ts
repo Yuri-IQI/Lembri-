@@ -29,6 +29,8 @@ export const Colors = {
   tag: '#D5EA9B',
   chipSelected: '#CCCCCC',
   tabActive: '#DADADA',
+  success: '#A8D5A2',
+  overlay: 'rgba(0, 0, 0, 0.55)',
 } as const;
 
 export type ThemeColor = keyof typeof Colors;
