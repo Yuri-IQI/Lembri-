@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type ChipHorarioProps = {
@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.three - Spacing.one,
     borderRadius: Radius.full,
-    borderWidth: 1,
+    borderWidth: BorderWidth.hairline,
   },
 });

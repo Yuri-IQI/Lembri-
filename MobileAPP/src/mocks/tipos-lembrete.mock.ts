@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/theme';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
 
 /**
@@ -8,13 +9,13 @@ export const tiposLembreteIniciaisMock: TipoLembrete[] = [
   {
     id: 'tipo-saude',
     nome: 'Saúde',
-    corHex: '#FF8181',
+    corHex: Colors.tagSaude,
     icone: 'heart-pulse',
   },
   {
     id: 'tipo-tarefas-domesticas',
     nome: 'Tarefas Domésticas',
-    corHex: '#D5EA9B',
+    corHex: Colors.tag,
     icone: 'home',
   },
 ];
@@ -25,7 +26,7 @@ export const tiposLembreteIniciaisMock: TipoLembrete[] = [
 export const criarTipoLembreteMock = (override: Partial<TipoLembrete> = {}): TipoLembrete => ({
   id: `tipo-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
   nome: 'Categoria de Teste',
-  corHex: '#D5EA9B',
+  corHex: Colors.tag,
   icone: 'tag',
   ...override,
 });

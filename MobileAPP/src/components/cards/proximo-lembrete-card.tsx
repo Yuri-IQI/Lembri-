@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { MarcadorFeito } from '@/components/marcador-feito';
 import { ThemedText } from '@/components/themed-text';
-import { BorderWidth, Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
 
@@ -24,7 +24,7 @@ export const ProximoLembreteCard = ({
   const theme = useTheme();
   const fundo = {
     borderColor: theme.border,
-    backgroundImage: `linear-gradient(-59.4deg, ${feito ? theme.success : theme.accent} 18.9%, ${theme.surface} 114.5%)`,
+    backgroundImage: Gradients.proximoLembrete(feito, theme),
   };
 
   if (!ocorrencia) {

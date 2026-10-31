@@ -5,7 +5,7 @@ import type { SvgProps } from 'react-native-svg';
 
 import { BarFrame } from '@/components/app-bar/bar-frame';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { ComponentSize, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type BottomBarIcone = ComponentType<SvgProps & { preenchimento?: string }>;
@@ -41,7 +41,7 @@ export const BottomBarItem = ({ Icone, rotulo, isFocused, style, ...rest }: Bott
 
 const styles = StyleSheet.create({
   barra: {
-    minHeight: 80,
+    minHeight: ComponentSize.bottomBarHeight,
     gap: 0,
     paddingHorizontal: Spacing.two,
   },

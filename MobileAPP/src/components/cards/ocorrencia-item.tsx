@@ -5,7 +5,7 @@ import { EtiquetaTipo } from '@/components/etiqueta-tipo';
 import { MarcadorFeito } from '@/components/marcador-feito';
 import { TextoRiscado } from '@/components/texto-riscado';
 import { ThemedText } from '@/components/themed-text';
-import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
+import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Lembrete } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     minHeight: TouchTarget,
   },
   horario: {
-    minWidth: 76,
+    minWidth: ComponentSize.horarioMinWidth,
   },
   textos: {
     flex: 1,
