@@ -10,6 +10,29 @@ import {
 import { createSettingsMock, defaultSettingsMock } from '@/mocks/settings.mock';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
+// Prover mock leve de localStorage caso executado em ambiente Node puro (sem Jest/browser)
+if (typeof globalThis.window === 'undefined') {
+  const memoryStore = new Map<string, string>();
+  (globalThis as unknown as { window: { localStorage: Storage } }).window = {
+    localStorage: {
+      getItem: (key: string) => memoryStore.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        memoryStore.set(key, value);
+      },
+      removeItem: (key: string) => {
+        memoryStore.delete(key);
+      },
+      clear: () => {
+        memoryStore.clear();
+      },
+      key: (index: number) => Array.from(memoryStore.keys())[index] ?? null,
+      get length() {
+        return memoryStore.size;
+      },
+    },
+  };
+}
+
 /**
  * Valida igualdade estrita entre o valor obtido e o esperado nos testes unitários.
  *
@@ -41,12 +64,25 @@ function assertOk(condition: boolean, message: string): void {
  */
 export function runSettingsStoreTests(): void {
   // 1. Inicialização da useSettingsStore
-  useSettingsStore.getState().resetToDefaults();
+  useSettingsStore.setState({
+    ...defaultSettingsMock,
+    textScaleFactor: TextScale.normal,
+  });
   let state = useSettingsStore.getState();
   assertEqual(state.isLargeText, false, 'Estado inicial de isLargeText');
+  assertEqual(state.hasSeenSplash, false, 'Estado inicial de hasSeenSplash');
   assertEqual(state.textScaleFactor, TextScale.normal, 'Estado inicial de textScaleFactor');
 
-  // 2. Alternância imutável via toggleLargeText()
+  // 2. Ação markSplashSeen() e idempotência (R2, R7)
+  useSettingsStore.getState().markSplashSeen();
+  state = useSettingsStore.getState();
+  assertEqual(state.hasSeenSplash, true, 'markSplashSeen deve definir hasSeenSplash como true');
+
+  useSettingsStore.getState().markSplashSeen();
+  state = useSettingsStore.getState();
+  assertEqual(state.hasSeenSplash, true, 'markSplashSeen deve ser idempotente');
+
+  // 3. Alternância imutável via toggleLargeText()
   useSettingsStore.getState().toggleLargeText();
   state = useSettingsStore.getState();
   assertEqual(state.isLargeText, true, 'Primeiro toggleLargeText deve ativar isLargeText');
@@ -65,7 +101,7 @@ export function runSettingsStoreTests(): void {
     'Segundo toggleLargeText deve restaurar escala 1.0x'
   );
 
-  // 3. Atribuição explícita e idempotente via setLargeText()
+  // 4. Atribuição explícita e idempotente via setLargeText()
   useSettingsStore.getState().setLargeText(true);
   useSettingsStore.getState().setLargeText(true);
   state = useSettingsStore.getState();
@@ -77,19 +113,26 @@ export function runSettingsStoreTests(): void {
   assertEqual(state.isLargeText, false, 'setLargeText(false)');
   assertEqual(state.textScaleFactor, TextScale.normal, 'textScaleFactor em setLargeText(false)');
 
-  // 4. Reset via resetToDefaults() e factory createSettingsMock()
+  // 5. Reset via resetToDefaults() preservando hasSeenSplash (R10) e factory createSettingsMock()
   useSettingsStore.getState().setLargeText(true);
   useSettingsStore.getState().resetToDefaults();
   state = useSettingsStore.getState();
   assertEqual(
     state.isLargeText,
     defaultSettingsMock.isLargeText,
-    'resetToDefaults deve restaurar defaultSettingsMock'
+    'resetToDefaults deve restaurar isLargeText'
+  );
+  assertEqual(
+    state.hasSeenSplash,
+    true,
+    'resetToDefaults deve preservar hasSeenSplash (R10)'
   );
 
-  const customMock = createSettingsMock({ isLargeText: true });
-  assertEqual(customMock.isLargeText, true, 'createSettingsMock com override');
+  const customMock = createSettingsMock({ isLargeText: true, hasSeenSplash: true });
+  assertEqual(customMock.isLargeText, true, 'createSettingsMock com isLargeText override');
+  assertEqual(customMock.hasSeenSplash, true, 'createSettingsMock com hasSeenSplash override');
   assertEqual(defaultSettingsMock.isLargeText, false, 'defaultSettingsMock permanece imutável');
+  assertEqual(defaultSettingsMock.hasSeenSplash, false, 'defaultSettingsMock.hasSeenSplash permanece false');
 
   // 5. Cálculo de getScaledTypography(variant, isLargeText)
   const normalDefault = getScaledTypography('default', false);
