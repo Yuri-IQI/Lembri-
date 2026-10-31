@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { BorderWidth, Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, ComponentSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type InterruptorProps = {
@@ -9,9 +9,9 @@ type InterruptorProps = {
   accessibilityLabel: string;
 };
 
-const LARGURA = 56;
-const ALTURA = 32;
-const BOLINHA = 28;
+const LARGURA = ComponentSize.switchWidth;
+const ALTURA = ComponentSize.switchHeight;
+const BOLINHA = ComponentSize.switchKnob;
 
 export const Interruptor = ({ ligado, onAlternar, accessibilityLabel }: InterruptorProps) => {
   const theme = useTheme();

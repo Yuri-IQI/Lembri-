@@ -23,6 +23,6 @@ const styles = StyleSheet.create({
   bloco: {
     gap: Spacing.two,
     padding: Spacing.three - Spacing.one,
-    borderWidth: BorderWidth.thick - 0.5,
+    borderWidth: BorderWidth.regular,
   },
 });

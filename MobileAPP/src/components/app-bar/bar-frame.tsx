@@ -1,7 +1,7 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Spacing, type ThemeColor } from '@/constants/theme';
+import { ComponentSize, Spacing, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type BarFrameProps = ViewProps & {
@@ -24,7 +24,7 @@ export const BarFrame = ({ posicao, fundo = 'surface', style, children, ...rest 
 
 const styles = StyleSheet.create({
   linha: {
-    minHeight: 72,
+    minHeight: ComponentSize.barFrameHeight,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,

@@ -27,6 +27,7 @@ export const Colors = {
   brand: '#1A1A1A',
 
   tag: '#D5EA9B',
+  tagSaude: '#FF8181',
   chipSelected: '#CCCCCC',
   tabActive: '#DADADA',
   success: '#A8D5A2',
@@ -189,8 +190,59 @@ export const Radius = {
 } as const;
 
 export const BorderWidth = {
+  hairline: 1,
   thin: 1.5,
+  regular: 2,
   thick: 2.5,
 } as const;
 
 export const TouchTarget = 56;
+
+/**
+ * Dimensões estruturais e áreas de toque de componentes padronizados.
+ */
+export const ComponentSize = {
+  /** Altura mínima da barra superior (TopBar). */
+  topBarHeight: 64,
+  /** Altura mínima da moldura base das barras (BarFrame). */
+  barFrameHeight: 72,
+  /** Altura mínima da barra inferior de abas (BottomBar). */
+  bottomBarHeight: 80,
+
+  /** Dimensões estruturais do interruptor customizado (Switch). */
+  switchWidth: 56,
+  switchHeight: 32,
+  switchKnob: 28,
+
+  /** Diâmetro do marcador circular de conclusão (mínimo visual WCAG AAA). */
+  marcadorCirculo: 44,
+
+  /** Largura mínima da coluna de horário na listagem de lembretes. */
+  horarioMinWidth: 76,
+
+  /** Espessura da linha do texto riscado/tachado. */
+  strikethroughHeight: 2,
+
+  /** Dimensões e áreas de apoio da barra superior. */
+  topBarButton: 31,
+  topBarBackWidth: 40,
+  topBarHitSlop: 8,
+} as const;
+
+/**
+ * Fórmulas de gradientes visuais extraídas do protótipo Figma.
+ */
+export const Gradients = {
+  /**
+   * Gradiente do card de próximo lembrete na Home.
+   *
+   * @param feito - Indica se o lembrete foi concluído.
+   * @param theme - Objeto com tokens de cor do tema.
+   * @returns Declaração CSS de linear-gradient.
+   */
+  proximoLembrete: (
+    feito: boolean,
+    theme: { success: string; accent: string; surface: string }
+  ) =>
+    `linear-gradient(-59.4deg, ${feito ? theme.success : theme.accent} 18.9%, ${theme.surface} 114.5%)`,
+} as const;

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { ComponentSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type TextoRiscadoProps = {
@@ -29,6 +30,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: 2,
+    height: ComponentSize.strikethroughHeight,
   },
 });

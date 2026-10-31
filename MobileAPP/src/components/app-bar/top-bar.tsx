@@ -2,7 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { BarFrame } from '@/components/app-bar/bar-frame';
-import { Spacing } from '@/constants/theme';
+import { BorderWidth, ComponentSize, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type TopBarProps = {
@@ -11,9 +11,9 @@ type TopBarProps = {
   onAudio?: () => void;
 };
 
-const BOTAO = 31;
+const BOTAO = ComponentSize.topBarButton;
 // Amplia a área de toque dos botões de 31px para ~48px.
-const AREA_EXTRA = 8;
+const AREA_EXTRA = ComponentSize.topBarHitSlop;
 
 /** Barra superior sem título, sobre o fundo da tela: voltar à esquerda, ajuda e áudio à direita. */
 export const TopBar = ({ onVoltar, onAjuda, onAudio }: TopBarProps) => {
@@ -62,11 +62,11 @@ export const TopBar = ({ onVoltar, onAjuda, onAudio }: TopBarProps) => {
 
 const styles = StyleSheet.create({
   barra: {
-    minHeight: 64,
+    minHeight: ComponentSize.topBarHeight,
     paddingHorizontal: Spacing.four,
   },
   voltar: {
-    width: 40,
+    width: ComponentSize.topBarBackWidth,
   },
   espaco: {
     flex: 1,
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     gap: 9,
     paddingHorizontal: 7,
     paddingVertical: 7,
-    borderWidth: 1,
+    borderWidth: BorderWidth.hairline,
     borderRadius: 17.5,
   },
   botao: {
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     height: BOTAO,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: BorderWidth.hairline,
     borderRadius: BOTAO / 2,
   },
 });

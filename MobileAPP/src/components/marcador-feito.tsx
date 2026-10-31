@@ -1,7 +1,7 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { BorderWidth, Radius, TouchTarget } from '@/constants/theme';
+import { BorderWidth, ComponentSize, Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type MarcadorFeitoProps = {
@@ -10,7 +10,7 @@ type MarcadorFeitoProps = {
   descricao: string;
 };
 
-const CIRCULO = 44;
+const CIRCULO = ComponentSize.marcadorCirculo;
 
 export const MarcadorFeito = ({ feito, onAlternar, descricao }: MarcadorFeitoProps) => {
   const theme = useTheme();

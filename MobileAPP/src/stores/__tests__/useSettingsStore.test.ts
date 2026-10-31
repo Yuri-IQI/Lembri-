@@ -1,4 +1,12 @@
-import { getScaledTypography, TextScale, Typography, type TextVariant } from '@/constants/theme';
+import {
+  BorderWidth,
+  Colors,
+  ComponentSize,
+  getScaledTypography,
+  TextScale,
+  Typography,
+  type TextVariant,
+} from '@/constants/theme';
 import { createSettingsMock, defaultSettingsMock } from '@/mocks/settings.mock';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
@@ -127,4 +135,17 @@ export function runSettingsStoreTests(): void {
       `Variante ${variant} ampliada deve ter lineHeight >= 1.5x`
     );
   }
+
+  // 7. Tokens estruturais e bordas consolidadas
+  assertEqual(BorderWidth.hairline, 1, 'BorderWidth.hairline deve ser 1');
+  assertEqual(BorderWidth.thin, 1.5, 'BorderWidth.thin deve ser 1.5');
+  assertEqual(BorderWidth.regular, 2, 'BorderWidth.regular deve ser 2');
+  assertEqual(BorderWidth.thick, 2.5, 'BorderWidth.thick deve ser 2.5');
+
+  assertEqual(Colors.tagSaude, '#FF8181', 'Colors.tagSaude deve corresponder à cor do Figma');
+  assertEqual(ComponentSize.topBarHeight, 64, 'ComponentSize.topBarHeight');
+  assertEqual(ComponentSize.barFrameHeight, 72, 'ComponentSize.barFrameHeight');
+  assertEqual(ComponentSize.bottomBarHeight, 80, 'ComponentSize.bottomBarHeight');
+  assertEqual(ComponentSize.marcadorCirculo, 44, 'ComponentSize.marcadorCirculo (WCAG AAA)');
+  assertEqual(ComponentSize.switchWidth, 56, 'ComponentSize.switchWidth');
 }
