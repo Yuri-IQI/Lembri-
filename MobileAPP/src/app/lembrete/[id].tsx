@@ -21,10 +21,28 @@ const DetalheLembreteScreen = () => {
   const agora = useAgora();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lembrete = useLembretesStore((state) => state.lembretes.find((item) => item.id === id));
+  const registros = useLembretesStore((state) => state.registros);
+  const marcarFeito = useLembretesStore((state) => state.marcarFeito);
+  const desmarcarFeito = useLembretesStore((state) => state.desmarcarFeito);
+
   const proxima = useMemo(
     () => (lembrete ? proximaOcorrenciaDoLembrete(lembrete, agora) : null),
     [lembrete, agora]
   );
+
+  const isProximaFeita = useMemo(
+    () => (proxima ? registros.some((r) => r.chave === proxima.chave) : false),
+    [proxima, registros]
+  );
+
+  const handleAlternarFeito = () => {
+    if (!proxima) return;
+    if (isProximaFeita) {
+      desmarcarFeito(proxima.chave);
+    } else {
+      marcarFeito(proxima);
+    }
+  };
 
   if (!lembrete) {
     return (
@@ -45,7 +63,13 @@ const DetalheLembreteScreen = () => {
       <TopBar onVoltar={voltar} onAjuda={semAcao} onAudio={semAcao} />
       <ScrollView contentContainerStyle={styles.conteudo}>
         <CabecalhoLembrete lembrete={lembrete} />
-        <BlocoProximaVez lembrete={lembrete} proxima={proxima} agora={agora} />
+        <BlocoProximaVez
+          lembrete={lembrete}
+          proxima={proxima}
+          agora={agora}
+          feito={isProximaFeita}
+          onAlternarFeito={handleAlternarFeito}
+        />
         <BlocoConfiguracao lembrete={lembrete} horarioDestacado={proxima?.horario} />
         <BlocoUltimasVezes lembreteId={lembrete.id} agora={agora} />
       </ScrollView>

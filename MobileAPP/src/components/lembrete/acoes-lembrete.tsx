@@ -25,7 +25,12 @@ export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
         rotulo="Editar"
         icone="edit"
         accessibilityLabel={`Editar ${lembrete.titulo}`}
-        onPress={() => router.push({ pathname: '/em-breve', params: { titulo: 'Editar lembrete' } })}
+        onPress={() =>
+          router.push({
+            pathname: '/lembrete/editar/[id]' as const,
+            params: { id: lembrete.id },
+          })
+        }
         style={styles.editar}
       />
       <Botao

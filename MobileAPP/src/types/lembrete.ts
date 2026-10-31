@@ -24,6 +24,10 @@ export interface Lembrete {
   tipoId?: string;
   /** true = alertas ligados; false = pausado (fica oculto da agenda até ser reativado). */
   ativo: boolean;
+  /** Se o lembrete exige confirmação explícita no celular/relógio (ex.: remédio). */
+  exigeConfirmacao?: boolean;
+  /** Identificador do template original utilizado na criação. */
+  templateOrigem?: 'remedio' | 'compromisso' | 'livre';
   /** Data e hora de criação no formato ISO 8601. */
   criadoEm: string;
 }
@@ -67,4 +71,6 @@ export interface CriarLembreteInput {
   dias: DiaSemana[];
   tipoId?: string;
   descricao?: string;
+  exigeConfirmacao?: boolean;
+  templateOrigem?: 'remedio' | 'compromisso' | 'livre';
 }

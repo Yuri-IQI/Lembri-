@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { lembretesIniciaisMock } from '@/mocks/lembretes.mock';
+import { enviarLembrete, wearDisponivel } from '@/services/wear/wear-service';
 import type {
   CriarLembreteInput,
   Lembrete,
@@ -47,6 +48,12 @@ export interface LembretesState {
   /** Desassocia um tipo/categoria de todos os lembretes vinculados sem excluí-los. */
   desassociarTipo: (tipoId: string) => void;
 
+  /** Retorna a contagem de lembretes ativos e o total cadastrado (RN-01). */
+  obterContadorAtivos: () => { ativos: number; total: number };
+
+  /** Retorna a contagem de lembretes vinculados a uma categoria específica. */
+  obterContagemPorTipo: (tipoId: string) => number;
+
   /** Restaura o estado da store para as fixtures iniciais do Figma. */
   resetarParaMocks: () => void;
 }
@@ -59,7 +66,7 @@ const normalizarHorarios = (horarios: string[]): string[] =>
  * Store global Zustand para gerenciamento reativo e imutável de lembretes.
  * A agenda (próximos / já passaram) é derivada em `agenda-lembretes.ts`.
  */
-export const useLembretesStore = create<LembretesState>((set) => ({
+export const useLembretesStore = create<LembretesState>((set, get) => ({
   lembretes: lembretesIniciaisMock,
   registros: [],
   ultimoExcluido: null,
@@ -75,14 +82,25 @@ export const useLembretesStore = create<LembretesState>((set) => ({
       dias: [...new Set(input.dias)].sort(),
       tipoId: input.tipoId,
       ativo: true,
+      exigeConfirmacao: input.exigeConfirmacao ?? false,
+      templateOrigem: input.templateOrigem,
       criadoEm: new Date().toISOString(),
     };
 
     set((state) => ({ lembretes: [novoLembrete, ...state.lembretes] }));
+
+    if (wearDisponivel && novoLembrete.horarios.length > 0) {
+      void enviarLembrete({
+        id: novoLembrete.id,
+        titulo: novoLembrete.titulo,
+        horario: novoLembrete.horarios[0],
+      }).catch(() => {});
+    }
+
     return novoLembrete;
   },
 
-  editarLembrete: (id, input) =>
+  editarLembrete: (id, input) => {
     set((state) => ({
       lembretes: state.lembretes.map((item) =>
         item.id === id
@@ -93,10 +111,22 @@ export const useLembretesStore = create<LembretesState>((set) => ({
               ...(input.horarios !== undefined ? { horarios: normalizarHorarios(input.horarios) } : {}),
               ...(input.dias !== undefined ? { dias: [...new Set(input.dias)].sort() } : {}),
               ...(input.tipoId !== undefined ? { tipoId: input.tipoId } : {}),
+              ...(input.exigeConfirmacao !== undefined ? { exigeConfirmacao: input.exigeConfirmacao } : {}),
+              ...(input.templateOrigem !== undefined ? { templateOrigem: input.templateOrigem } : {}),
             }
           : item
       ),
-    })),
+    }));
+
+    const editado = get().lembretes.find((l) => l.id === id);
+    if (wearDisponivel && editado && editado.horarios.length > 0) {
+      void enviarLembrete({
+        id: editado.id,
+        titulo: editado.titulo,
+        horario: editado.horarios[0],
+      }).catch(() => {});
+    }
+  },
 
   removerLembrete: (id) =>
     set((state) => {
@@ -145,6 +175,18 @@ export const useLembretesStore = create<LembretesState>((set) => ({
         item.tipoId === tipoId ? { ...item, tipoId: undefined } : item
       ),
     })),
+
+  obterContadorAtivos: () => {
+    const lembretes = get().lembretes;
+    return {
+      ativos: lembretes.filter((item) => item.ativo).length,
+      total: lembretes.length,
+    };
+  },
+
+  obterContagemPorTipo: (tipoId) => {
+    return get().lembretes.filter((item) => item.tipoId === tipoId).length;
+  },
 
   resetarParaMocks: () =>
     set({
