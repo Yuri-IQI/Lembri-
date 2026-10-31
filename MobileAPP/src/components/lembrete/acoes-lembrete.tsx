@@ -30,7 +30,7 @@ export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
       />
       <Botao
         rotulo="Excluir"
-        variante="secundario"
+        variante="perigo"
         accessibilityLabel={`Excluir ${lembrete.titulo}`}
         onPress={() => setConfirmando(true)}
       />
@@ -39,6 +39,7 @@ export const AcoesLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
         titulo="Excluir lembrete?"
         mensagem={`"${lembrete.titulo}" e todos os seus horários (${lembrete.horarios.join(', ')}) serão excluídos. Você poderá desfazer na tela inicial.`}
         rotuloConfirmar="Excluir"
+        varianteConfirmar="perigo"
         onConfirmar={excluir}
         onCancelar={() => setConfirmando(false)}
       />

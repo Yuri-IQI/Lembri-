@@ -2,19 +2,29 @@ import { SymbolView, type AndroidSymbol } from 'expo-symbols';
 import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
+import { BorderWidth, Radius, Spacing, TouchTarget, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type BotaoProps = {
+export type BotaoVariante = 'primario' | 'secundario' | 'perigo';
+
+export type BotaoProps = {
   rotulo: string;
   onPress: () => void;
-  variante?: 'primario' | 'secundario';
+  variante?: BotaoVariante;
   tamanho?: 'normal' | 'compacto';
   icone?: AndroidSymbol;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
+/**
+ * Botão principal acessível do Lembri (WCAG 2.2 AAA com alvo mínimo TouchTarget = 56dp).
+ *
+ * Suporta três variantes semânticas:
+ * - `primario`: fundo escuro sólido para ações principais (ex: Salvar, Começar).
+ * - `secundario`: fundo em superfície com contorno escuro para ações de apoio (ex: Detalhes, Cancelar).
+ * - `perigo`: fundo vermelho de alto contraste (Colors.danger) para ações destrutivas (ex: Excluir).
+ */
 export const Botao = ({
   rotulo,
   onPress,
@@ -25,8 +35,29 @@ export const Botao = ({
   style,
 }: BotaoProps) => {
   const theme = useTheme();
-  const primario = variante === 'primario';
-  const corTexto = primario ? 'onPrimary' : 'text';
+
+  const mapaCores: Record<
+    BotaoVariante,
+    { fundo: string; borda: string; corTexto: ThemeColor }
+  > = {
+    primario: {
+      fundo: theme.primary,
+      borda: theme.primary,
+      corTexto: 'onPrimary',
+    },
+    secundario: {
+      fundo: theme.surface,
+      borda: theme.primary,
+      corTexto: 'text',
+    },
+    perigo: {
+      fundo: theme.danger,
+      borda: theme.danger,
+      corTexto: 'onPrimary',
+    },
+  };
+
+  const { fundo, borda, corTexto } = mapaCores[variante];
 
   return (
     <Pressable
@@ -36,8 +67,8 @@ export const Botao = ({
       style={({ pressed }) => [
         styles.botao,
         {
-          backgroundColor: primario ? theme.primary : theme.surface,
-          borderColor: theme.primary,
+          backgroundColor: fundo,
+          borderColor: borda,
           opacity: pressed ? 0.7 : 1,
         },
         style,
