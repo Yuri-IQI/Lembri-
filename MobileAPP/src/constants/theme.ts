@@ -28,11 +28,26 @@ export const Colors = {
 
   tag: '#D5EA9B',
   tagSaude: '#FF8181',
+  tagAzul: '#9FD3F5',
+  tagLilas: '#CDB8F5',
+  tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
   tabActive: '#DADADA',
   success: '#A8D5A2',
+  /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
+  danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
 } as const;
+
+/** Cores oferecidas no seletor de cor de tipos. Todas com contraste ≥ 7:1 contra Colors.text. */
+export const PaletaTipos = [
+  { nome: 'Vermelho', corHex: Colors.tagSaude },
+  { nome: 'Verde', corHex: Colors.tag },
+  { nome: 'Amarelo', corHex: Colors.accent },
+  { nome: 'Azul', corHex: Colors.tagAzul },
+  { nome: 'Lilás', corHex: Colors.tagLilas },
+  { nome: 'Laranja', corHex: Colors.tagLaranja },
+] as const;
 
 export type ThemeColor = keyof typeof Colors;
 
@@ -219,6 +234,8 @@ export const ComponentSize = {
 
   /** Largura mínima da coluna de horário na listagem de lembretes. */
   horarioMinWidth: 76,
+  /** Largura/altura da caixa de exibição dos dígitos de hora/minuto no seletor de horário. */
+  horarioDigitos: 64,
 
   /** Espessura da linha do texto riscado/tachado. */
   strikethroughHeight: 2,
@@ -226,7 +243,6 @@ export const ComponentSize = {
   /** Dimensões e áreas de apoio da barra superior. */
   topBarButton: 31,
   topBarBackWidth: 40,
-  topBarHitSlop: 8,
 } as const;
 
 /**
