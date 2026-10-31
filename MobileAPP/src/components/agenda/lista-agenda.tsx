@@ -10,7 +10,6 @@ import type { SecaoAgenda } from '@/hooks/use-agenda';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
 import type { GrupoAgenda } from '@/utils/agrupar-agenda';
-import { horariosDoLembrete } from '@/utils/lembrete';
 
 type ListaAgendaProps = {
   secao: SecaoAgenda;
@@ -37,30 +36,20 @@ export const ListaAgenda = ({
   const tipos = useTiposLembreteStore((state) => state.tipos);
   const mapaTipos = useMemo(() => new Map(tipos.map((tipo) => [tipo.id, tipo])), [tipos]);
 
-  const consulta = secao.chave === 'todos';
-
   const tiposDo = (grupo: GrupoAgenda) =>
     grupo.lembrete.tipoIds.flatMap((id) => mapaTipos.get(id) ?? []);
 
   const horariosDo = (grupo: GrupoAgenda): HorarioDoCard[] =>
-    consulta
-      ? grupo.lembrete.ativo
-        ? horariosDoLembrete(grupo.lembrete).map((horario) => ({
-            chave: horario,
-            horario,
-            estado: 'pendente',
-          }))
-        : []
-      : grupo.ocorrencias.map((ocorrencia) => ({
-          chave: ocorrencia.chave,
-          horario: ocorrencia.horario,
-          estado: feitos.has(ocorrencia.chave)
-            ? 'feito'
-            : ocorrencia.quando < agora
-              ? 'nao_marcado'
-              : 'pendente',
-          onAlternar: acaoFeito(ocorrencia),
-        }));
+    grupo.ocorrencias.map((ocorrencia) => ({
+      chave: ocorrencia.chave,
+      horario: ocorrencia.horario,
+      estado: feitos.has(ocorrencia.chave)
+        ? 'feito'
+        : ocorrencia.quando < agora
+          ? 'nao_marcado'
+          : 'pendente',
+      onAlternar: acaoFeito(ocorrencia),
+    }));
 
   const renderizar = (grupo: GrupoAgenda) => {
     const removivel = secao.chave === 'proximas' && todoFeito(grupo);
@@ -71,7 +60,6 @@ export const ListaAgenda = ({
         horarios={horariosDo(grupo)}
         onAbrir={() => abrirDetalhe(grupo)}
         onRemover={removivel ? () => onOcultar(grupo.chave) : undefined}
-        consulta={consulta}
       />
     );
     return removivel ? (

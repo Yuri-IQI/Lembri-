@@ -12,6 +12,7 @@ import { ProximoLembreteCard } from '@/components/cards/proximo-lembrete-card';
 import { MainContainer } from '@/components/main-container';
 import { Spacing } from '@/constants/theme';
 import { useAgenda, type ChaveSecao } from '@/hooks/use-agenda';
+import { plural } from '@/utils/texto';
 
 const HomeScreen = () => {
   const [secaoAtiva, setSecaoAtiva] = useState<ChaveSecao>('proximas');
@@ -42,7 +43,9 @@ const HomeScreen = () => {
       />
       <AvisoDesfazer />
       <AvisoGlobal />
-      <CabecalhoLista programados={lembretes.length - pausados.length} pausados={pausados.length} />
+      <CabecalhoLista
+        resumo={`${plural(lembretes.length - pausados.length, 'programado', 'programados')} · ${plural(pausados.length, 'pausado', 'pausados')}`}
+      />
       {lembretes.length > 0 && (
         <FiltrosAgenda ativa={secaoAtiva} pausados={pausados.length} onSelecionar={setSecaoAtiva} />
       )}

@@ -1,11 +1,15 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { Animated, PanResponder, useWindowDimensions } from 'react-native';
+import { Animated, PanResponder, useWindowDimensions, View } from 'react-native';
 
 type ArrastarParaRemoverProps = {
   children: ReactNode;
   chave: string;
   /** Recebe a `chave`; passe uma função estável (ex.: ação da store). */
   onRemover: (chave: string) => void;
+  /** Volta ao lugar depois do gesto, para quem vai pedir confirmação antes de remover. */
+  voltarAoSoltar?: boolean;
+  /** Revelado atrás do conteúdo durante o arrasto; com ele, o conteúdo não esmaece. */
+  fundo?: ReactNode;
 };
 
 const LIMIAR = 0.35;
@@ -13,7 +17,13 @@ const LIMIAR = 0.35;
 /**
  * Arrastar o conteúdo para o lado tira ele da lista; soltando antes do limiar, ele volta.
  */
-export const ArrastarParaRemover = ({ children, chave, onRemover }: ArrastarParaRemoverProps) => {
+export const ArrastarParaRemover = ({
+  children,
+  chave,
+  onRemover,
+  voltarAoSoltar = false,
+  fundo,
+}: ArrastarParaRemoverProps) => {
   const { width } = useWindowDimensions();
   const [x] = useState(() => new Animated.Value(0));
 
@@ -26,6 +36,10 @@ export const ArrastarParaRemover = ({ children, chave, onRemover }: ArrastarPara
       onPanResponderMove: (_, g) => x.setValue(g.dx),
       onPanResponderRelease: (_, g) => {
         if (Math.abs(g.dx) < width * LIMIAR) return voltar();
+        if (voltarAoSoltar) {
+          voltar();
+          return onRemover(chave);
+        }
         Animated.timing(x, {
           toValue: Math.sign(g.dx) * width,
           duration: 200,
@@ -34,7 +48,7 @@ export const ArrastarParaRemover = ({ children, chave, onRemover }: ArrastarPara
       },
       onPanResponderTerminate: voltar,
     });
-  }, [x, width, chave, onRemover]);
+  }, [x, width, chave, onRemover, voltarAoSoltar]);
 
   const opacity = x.interpolate({
     inputRange: [-width, 0, width],
@@ -42,9 +56,20 @@ export const ArrastarParaRemover = ({ children, chave, onRemover }: ArrastarPara
     extrapolate: 'clamp',
   });
 
-  return (
-    <Animated.View style={{ opacity, transform: [{ translateX: x }] }} {...gesto.panHandlers}>
+  const conteudo = (
+    <Animated.View
+      style={{ opacity: fundo ? 1 : opacity, transform: [{ translateX: x }] }}
+      {...gesto.panHandlers}>
       {children}
     </Animated.View>
+  );
+
+  return fundo ? (
+    <View>
+      {fundo}
+      {conteudo}
+    </View>
+  ) : (
+    conteudo
   );
 };

@@ -1,196 +1,137 @@
 import { router } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useShallow } from 'zustand/react/shallow';
 
 import { TopBar } from '@/components/app-bar/top-bar';
 import { AvisoSucesso } from '@/components/aviso-sucesso';
 import { Botao } from '@/components/botao';
 import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
-import { CampoTexto } from '@/components/formulario/campo-texto';
-import { SeletorCor } from '@/components/formulario/seletor-cor';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
-import {
-  BorderWidth,
-  PaletaTipos,
-  Radius,
-  Spacing,
-  TouchTarget,
-} from '@/constants/theme';
+import { CriarTipo } from '@/components/tipos/criar-tipo';
+import { ItemTipo } from '@/components/tipos/item-tipo';
+import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
+import { useSelecaoTiposStore } from '@/stores/useSelecaoTiposStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
+import { LIMITE_TIPOS } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
+import { plural } from '@/utils/texto';
 
 const semAcao = () => {};
 const voltar = () => router.back();
 
 /**
- * Gerenciador de Categorias / Tipos de Lembretes (CARD-34 - Figma 152:1608).
- *
- * Características WCAG 2.2 AAA:
- * - Seletor de cores acessível com contraste garantido >= 7:1;
- * - Prevenção de erros na exclusão de categoria (RN-07: desassocia lembretes sem apagá-los);
- * - Alvos de toque TouchTarget = 56dp no botão de exclusão e formulário.
+ * Tipos de Lembretes (CARD-34, Figma 152:1608): criar, excluir e, vindo do formulário, escolher
+ * até LIMITE_TIPOS para o lembrete. Cada toque já chega ao formulário.
  */
 const TiposLembreteScreen = () => {
   const theme = useTheme();
-  const tipos = useTiposLembreteStore((state) => state.tipos);
-  const adicionarTipo = useTiposLembreteStore((state) => state.adicionarTipo);
-  const removerTipo = useTiposLembreteStore((state) => state.removerTipo);
-  const obterContagemPorTipo = useLembretesStore((state) => state.obterContagemPorTipo);
+  const { tipos, removerTipo } = useTiposLembreteStore(
+    useShallow((state) => ({ tipos: state.tipos, removerTipo: state.removerTipo }))
+  );
+  const lembretes = useLembretesStore((state) => state.lembretes);
+  const contagem = (tipoId: string) =>
+    lembretes.filter((lembrete) => lembrete.tipoIds.includes(tipoId)).length;
+  const { selecionados, pendente, escolhendo, alternar, remover } = useSelecaoTiposStore(
+    useShallow((state) => ({
+      selecionados: state.selecionados,
+      pendente: state.pendente,
+      escolhendo: state.aoAlterar !== null,
+      alternar: state.alternar,
+      remover: state.remover,
+    }))
+  );
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<TipoLembrete | null>(null);
 
-  const [nome, setNome] = useState('');
-  const [corHex, setCorHex] = useState<string>(PaletaTipos[0].corHex);
-  const [erroNome, setErroNome] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<string | null>(null);
-  const [tipoParaExcluir, setTipoParaExcluir] = useState<TipoLembrete | null>(null);
+  const cheio = selecionados.length >= LIMITE_TIPOS;
+  const acaoDe = (chave: string) =>
+    escolhendo && (selecionados.includes(chave) || !cheio) ? () => alternar(chave) : undefined;
 
-  const handleAdicionar = () => {
-    if (!nome.trim()) {
-      setErroNome('Informe o nome da categoria.');
-      return;
-    }
-
-    adicionarTipo({
-      nome: nome.trim(),
-      corHex,
-    });
-
-    setSucesso(`Categoria "${nome.trim()}" adicionada com sucesso!`);
-    setNome('');
-    setErroNome(null);
+  const criado = (tipo: TipoLembrete) => {
+    if (escolhendo && !cheio) alternar(tipo.id);
+    setAviso(`Tipo "${tipo.nome}" criado.`);
   };
 
-  const handleConfirmarExclusao = () => {
-    if (tipoParaExcluir) {
-      removerTipo(tipoParaExcluir.id);
-      setSucesso(`Categoria "${tipoParaExcluir.nome}" excluída.`);
-      setTipoParaExcluir(null);
-    }
+  const excluir = () => {
+    if (!paraExcluir) return;
+    removerTipo(paraExcluir.id);
+    remover(paraExcluir.id);
+    setAviso(`Tipo "${paraExcluir.nome}" excluído.`);
+    setParaExcluir(null);
   };
 
   return (
     <View style={styles.tela}>
       <TopBar onVoltar={voltar} onAjuda={semAcao} onAudio={semAcao} />
-
       <ScrollView contentContainerStyle={styles.conteudo}>
-        {/* Cabeçalho */}
         <View style={styles.cabecalho}>
           <ThemedText type="title" accessibilityRole="header">
             Tipos de Lembretes
           </ThemedText>
           <ThemedText themeColor="textSecondary">
-            Gerencie seus tipos de lembretes
+            {escolhendo
+              ? `Escolha até ${LIMITE_TIPOS} para o lembrete. ${selecionados.length} de ${LIMITE_TIPOS} escolhidos.`
+              : 'Gerencie seus tipos de lembretes'}
           </ThemedText>
         </View>
 
-        {sucesso && (
-          <AvisoSucesso mensagem={sucesso} onFechar={() => setSucesso(null)} />
-        )}
+        <AvisoSucesso mensagem={aviso} onFechar={() => setAviso(null)} />
 
-        {/* Card Criar Tipo */}
-        <Card style={[styles.cardCriar, { borderColor: theme.border }]}>
-          <ThemedText type="subheading">Criar Tipo</ThemedText>
+        <CriarTipo
+          nomesExistentes={[
+            ...tipos.map((tipo) => tipo.nome),
+            ...(pendente ? [pendente.nome] : []),
+          ]}
+          onCriado={criado}
+        />
 
-          <CampoTexto
-            rotulo="Nome da categoria"
-            placeholder="Ex.: Saúde, Casa, Estudos"
-            valor={nome}
-            onAlterar={(txt) => {
-              setNome(txt);
-              if (erroNome) setErroNome(null);
-            }}
-            erro={erroNome ?? undefined}
-          />
-
-          <SeletorCor
-            rotulo="Cor:"
-            valor={corHex}
-            onAlterar={setCorHex}
-          />
-
-          <Botao
-            rotulo="Adicionar"
-            variante="primario"
-            onPress={handleAdicionar}
-            accessibilityLabel="Adicionar nova categoria"
-            style={styles.botaoAdicionar}
-          />
-        </Card>
-
-        {/* Seção MEUS TIPOS */}
-        <View style={styles.secaoMeusTipos}>
-          <ThemedText type="label" themeColor="textSecondary">
+        <View style={styles.secao}>
+          <ThemedText type="label" themeColor="textSecondary" accessibilityRole="header">
             MEUS TIPOS
           </ThemedText>
-
-          <Card style={[styles.cardLista, { borderColor: theme.border }]}>
-            {tipos.map((item, index) => {
-              const contagem = obterContagemPorTipo(item.id);
-              const textoContagem =
-                contagem === 1 ? '1 lembrete' : `${contagem} lembretes`;
-
-              return (
-                <View key={item.id}>
-                  {index > 0 && (
-                    <View
-                      style={[styles.divisor, { borderColor: theme.borderSubtle }]}
-                    />
-                  )}
-                  <View style={styles.itemTipo}>
-                    <View style={styles.infoTipo}>
-                      <View
-                        style={[
-                          styles.bolinhaCor,
-                          { backgroundColor: item.corHex },
-                        ]}
-                      />
-                      <View style={styles.textosTipo}>
-                        <ThemedText type="defaultBold">{item.nome}</ThemedText>
-                        <ThemedText type="small" themeColor="textSecondary">
-                          {textoContagem}
-                        </ThemedText>
-                      </View>
-                    </View>
-
-                    <Pressable
-                      onPress={() => setTipoParaExcluir(item)}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Excluir categoria ${item.nome}`}
-                      accessibilityHint="Abre diálogo de confirmação. Lembretes associados não serão apagados."
-                      style={({ pressed }) => [
-                        styles.botaoLixeira,
-                        { opacity: pressed ? 0.6 : 1 },
-                      ]}>
-                      <SymbolView
-                        name={{ android: 'delete_outline' }}
-                        size={24}
-                        tintColor={theme.danger}
-                      />
-                    </Pressable>
-                  </View>
-                </View>
-              );
-            })}
+          <Card style={[styles.lista, { borderColor: theme.border }]}>
+            {pendente && (
+              <ItemTipo
+                nome={pendente.nome}
+                corHex={pendente.corHex}
+                detalhe="Sugerido pelo modelo. É criado ao salvar."
+                selecionado={selecionados.includes(pendente.chave)}
+                onAlternar={acaoDe(pendente.chave)}
+              />
+            )}
+            {tipos.map((tipo) => (
+              <ItemTipo
+                key={tipo.id}
+                nome={tipo.nome}
+                corHex={tipo.corHex}
+                detalhe={plural(contagem(tipo.id), 'lembrete', 'lembretes')}
+                selecionado={selecionados.includes(tipo.id)}
+                onAlternar={acaoDe(tipo.id)}
+                onExcluir={() => setParaExcluir(tipo)}
+              />
+            ))}
           </Card>
         </View>
+
+        {escolhendo && <Botao rotulo="Pronto" icone="check" onPress={voltar} />}
       </ScrollView>
 
-      {/* Diálogo de confirmação de exclusão da categoria (RN-07 / RN-04) */}
       <DialogoConfirmacao
-        visivel={tipoParaExcluir !== null}
-        titulo="Excluir categoria?"
+        visivel={paraExcluir !== null}
+        titulo="Excluir tipo?"
         mensagem={
-          tipoParaExcluir
-            ? `Excluir o tipo "${tipoParaExcluir.nome}"? Os lembretes associados não serão apagados, apenas ficarão sem categoria vinculada.`
+          paraExcluir
+            ? `Excluir o tipo "${paraExcluir.nome}"? Os lembretes não são apagados, só ficam sem esse tipo.`
             : ''
         }
         rotuloConfirmar="Excluir"
         varianteConfirmar="perigo"
-        onConfirmar={handleConfirmarExclusao}
-        onCancelar={() => setTipoParaExcluir(null)}
+        onConfirmar={excluir}
+        onCancelar={() => setParaExcluir(null)}
       />
     </View>
   );
@@ -204,61 +145,18 @@ const styles = StyleSheet.create({
     gap: Spacing.four,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
-    paddingBottom: Spacing.four * 2,
+    paddingBottom: Spacing.five,
   },
   cabecalho: {
     gap: Spacing.one,
   },
-  cardCriar: {
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.lg,
-    borderWidth: BorderWidth.thin,
-  },
-  botaoAdicionar: {
-    minHeight: TouchTarget,
-    marginTop: Spacing.one,
-  },
-  secaoMeusTipos: {
+  secao: {
     gap: Spacing.two,
   },
-  cardLista: {
+  lista: {
     padding: Spacing.two,
     borderRadius: Radius.lg,
     borderWidth: BorderWidth.thin,
-  },
-  itemTipo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.one,
-    minHeight: TouchTarget,
-  },
-  infoTipo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    flex: 1,
-  },
-  bolinhaCor: {
-    width: 24,
-    height: 24,
-    borderRadius: Radius.full,
-  },
-  textosTipo: {
-    gap: 2,
-    flex: 1,
-  },
-  botaoLixeira: {
-    width: TouchTarget,
-    height: TouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  divisor: {
-    borderBottomWidth: 1,
-    marginHorizontal: Spacing.one,
   },
 });
 

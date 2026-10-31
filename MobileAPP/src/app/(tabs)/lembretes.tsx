@@ -3,24 +3,23 @@ import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { Botao } from '@/components/botao';
+import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
+import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
 import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
-import { ItemLembreteDeslizavel } from '@/components/lembrete/item-lembrete-deslizavel';
+import { ItemLembrete } from '@/components/lembrete/item-lembrete';
 import { ListaVaziaLembretes } from '@/components/lembrete/lista-vazia-lembretes';
 import { MainContainer } from '@/components/main-container';
-import { ThemedText } from '@/components/themed-text';
-import { Spacing, TouchTarget } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { Lembrete } from '@/types/lembrete';
+import { horariosDoLembrete } from '@/utils/lembrete';
 
 /**
- * Aba oficial de Lembretes do Lembri (Frames Figma 152:1440 e 152:1538 - CARD-31).
- *
- * Apresenta o cabeçalho "Seus Lembretes", o contador reativo de ativos vs total (RN-01),
- * botão de ação primária "+ Novo" e listagem com gesto de deslizar e acessibilidade WCAG 2.2 AAA.
+ * Aba Lembretes (CARD-31, Figma 152:1440 e 152:1538): todos os lembretes, inclusive pausados,
+ * com o contador de ativos, o switch de alertas e deslizar para excluir.
  */
-const LembretesTabScreen = () => {
+const LembretesScreen = () => {
   const { lembretes, alternarAtivo, removerLembrete } = useLembretesStore(
     useShallow((state) => ({
       lembretes: state.lembretes,
@@ -28,99 +27,54 @@ const LembretesTabScreen = () => {
       removerLembrete: state.removerLembrete,
     }))
   );
-
   const tipos = useTiposLembreteStore((state) => state.tipos);
-  const [lembreteParaExcluir, setLembreteParaExcluir] = useState<Lembrete | null>(null);
+  const mapaTipos = useMemo(() => new Map(tipos.map((tipo) => [tipo.id, tipo])), [tipos]);
+  const [paraExcluir, setParaExcluir] = useState<Lembrete | null>(null);
 
-  const mapaTipos = useMemo(() => {
-    return new Map(tipos.map((t) => [t.id, t]));
-  }, [tipos]);
+  const ativos = lembretes.filter((lembrete) => lembrete.ativo).length;
+  const pedirExclusao = (id: string) =>
+    setParaExcluir(lembretes.find((lembrete) => lembrete.id === id) ?? null);
 
-  const ativos = useMemo(() => {
-    return lembretes.filter((l) => l.ativo).length;
-  }, [lembretes]);
-
-  const total = lembretes.length;
-  const textoContador = `${ativos} de ${total} ativos`;
-
-  const handleNovo = () => {
-    router.push('/lembrete/novo' as const);
-  };
-
-  const handleAbrir = (lembrete: Lembrete) => {
-    router.push({
-      pathname: '/lembrete/[id]' as const,
-      params: { id: lembrete.id },
-    });
-  };
-
-  const confirmarExclusao = () => {
-    if (lembreteParaExcluir) {
-      removerLembrete(lembreteParaExcluir.id);
-      setLembreteParaExcluir(null);
-    }
+  const excluir = () => {
+    if (paraExcluir) removerLembrete(paraExcluir.id);
+    setParaExcluir(null);
   };
 
   return (
     <MainContainer style={styles.container}>
-      {/* Cabeçalho da página (Título Seus Lembretes + Linha Contador e Botão + Novo) */}
-      <View style={styles.cabecalho}>
-        <ThemedText type="title" accessibilityRole="header">
-          Seus Lembretes
-        </ThemedText>
-
-        <View style={styles.linhaContadorENovo}>
-          <ThemedText
-            type="subheading"
-            themeColor="textSecondary"
-            accessibilityLabel={`Contador: ${textoContador}`}>
-            {textoContador}
-          </ThemedText>
-
-          <Botao
-            rotulo="+ Novo"
-            variante="primario"
-            tamanho="compacto"
-            onPress={handleNovo}
-            accessibilityLabel="Criar novo lembrete"
-            style={styles.botaoNovo}
+      <FlatList
+        data={lembretes}
+        keyExtractor={(lembrete) => lembrete.id}
+        contentContainerStyle={styles.lista}
+        ListHeaderComponent={
+          <View style={styles.cabecalho}>
+            <AvisoDesfazer />
+            <CabecalhoLista resumo={`${ativos} de ${lembretes.length} ativos`} />
+          </View>
+        }
+        ListEmptyComponent={<ListaVaziaLembretes onNovo={() => router.push('/lembrete/novo')} />}
+        renderItem={({ item }) => (
+          <ItemLembrete
+            lembrete={item}
+            tipos={item.tipoIds.flatMap((id) => mapaTipos.get(id) ?? [])}
+            onAlternarAtivo={alternarAtivo}
+            onExcluir={pedirExclusao}
           />
-        </View>
-      </View>
+        )}
+      />
 
-      {/* Lista de lembretes ou Estado Vazio Oficial */}
-      {lembretes.length === 0 ? (
-        <ListaVaziaLembretes onNovo={handleNovo} />
-      ) : (
-        <FlatList
-          data={lembretes}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listaConteudo}
-          renderItem={({ item }) => (
-            <ItemLembreteDeslizavel
-              lembrete={item}
-              tipo={item.tipoId ? mapaTipos.get(item.tipoId) : undefined}
-              onAbrir={handleAbrir}
-              onAlternarAtivo={alternarAtivo}
-              onSolicitarExclusao={setLembreteParaExcluir}
-            />
-          )}
-        />
-      )}
-
-      {/* Diálogo de confirmação protetiva para exclusão (WCAG 3.3.6) */}
       <DialogoConfirmacao
-        visivel={lembreteParaExcluir !== null}
+        visivel={paraExcluir !== null}
         titulo="Excluir lembrete?"
         mensagem={
-          lembreteParaExcluir
-            ? `"${lembreteParaExcluir.titulo}" e seus horários (${lembreteParaExcluir.horarios.join(', ')}) serão removidos.`
+          paraExcluir
+            ? `"${paraExcluir.titulo}" e seus horários (${horariosDoLembrete(paraExcluir).join(', ')}) serão removidos.`
             : ''
         }
         rotuloConfirmar="Excluir"
         varianteConfirmar="perigo"
-        onConfirmar={confirmarExclusao}
-        onCancelar={() => setLembreteParaExcluir(null)}
+        onConfirmar={excluir}
+        onCancelar={() => setParaExcluir(null)}
       />
     </MainContainer>
   );
@@ -128,27 +82,20 @@ const LembretesTabScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
+  },
+  lista: {
+    flexGrow: 1,
+    gap: Spacing.two,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
+    paddingBottom: Spacing.five,
   },
   cabecalho: {
-    gap: Spacing.two,
+    gap: Spacing.three,
     marginBottom: Spacing.two,
-  },
-  linhaContadorENovo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-  },
-  botaoNovo: {
-    minHeight: TouchTarget,
-    minWidth: 100,
-  },
-  listaConteudo: {
-    paddingBottom: Spacing.four * 2,
-    gap: Spacing.two,
   },
 });
 
-export default LembretesTabScreen;
+export default LembretesScreen;

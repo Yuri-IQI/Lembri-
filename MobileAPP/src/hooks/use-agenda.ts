@@ -15,7 +15,7 @@ import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { Lembrete, OcorrenciaLembrete } from '@/types/lembrete';
 import { agruparPorDia, type DiaAgenda, type GrupoAgenda } from '@/utils/agrupar-agenda';
 
-export type ChaveSecao = 'proximas' | 'passadas' | 'pausados' | 'todos';
+export type ChaveSecao = 'proximas' | 'passadas' | 'pausados';
 
 export type SecaoAgenda = {
   chave: ChaveSecao;
@@ -87,11 +87,6 @@ export const useAgenda = () => {
       chave: 'pausados',
       vazio: 'Nenhum lembrete pausado. Para pausar, abra o lembrete e desligue o “Alertar”.',
       dias: listaDeLembretes('pausados', 'Pausados', pausados),
-    },
-    {
-      chave: 'todos',
-      vazio: 'Nenhum lembrete cadastrado.',
-      dias: listaDeLembretes('todos', 'Todos os lembretes', lembretes),
     },
   ];
 

@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 
-import { BuscaTipo } from '@/components/formulario/busca-tipo';
+import { Botao } from '@/components/botao';
 import { CampoRotulado } from '@/components/formulario/campo-rotulado';
-import { ChipTipo } from '@/components/formulario/chip-tipo';
-import { DialogoNovoTipo } from '@/components/formulario/dialogo-novo-tipo';
+import { ListaEtiquetas } from '@/components/lista-etiquetas';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { CHAVE_TIPO_PADRAO } from '@/hooks/formulario/use-opcoes-tipo';
+import { useSelecaoTiposStore } from '@/stores/useSelecaoTiposStore';
 import { LIMITE_TIPOS } from '@/types/lembrete';
 
 export type OpcaoTipo = { chave: string; nome: string; corHex: string };
@@ -18,58 +17,37 @@ type SeletorTipoProps = {
 };
 
 /**
- * Tipos do lembrete (opcional, até LIMITE_TIPOS): os escolhidos aparecem como chips que saem
- * ao tocar; enquanto cabe mais um, há a busca com sugestões e o botão de criar tipo.
+ * Tipos do lembrete (opcional, até LIMITE_TIPOS): mostra as etiquetas escolhidas e leva à tela
+ * de tipos, onde se escolhe, cria e exclui.
  */
 export const SeletorTipo = ({ opcoes, selecionados, onAlterar }: SeletorTipoProps) => {
-  const [nomeNovo, setNomeNovo] = useState<string | null>(null);
-  const escolhidos = selecionados.flatMap((chave) => opcoes.find((o) => o.chave === chave) ?? []);
-  const disponiveis = opcoes.filter((opcao) => !selecionados.includes(opcao.chave));
-  const cheio = selecionados.length >= LIMITE_TIPOS;
+  const iniciar = useSelecaoTiposStore((state) => state.iniciar);
+  const escolhidos = selecionados.flatMap((chave) => {
+    const opcao = opcoes.find((item) => item.chave === chave);
+    return opcao ? [{ id: opcao.chave, nome: opcao.nome, corHex: opcao.corHex }] : [];
+  });
+
+  const escolher = () => {
+    const pendente = opcoes.find((opcao) => opcao.chave === CHAVE_TIPO_PADRAO) ?? null;
+    iniciar(selecionados, pendente, onAlterar);
+    router.push('/tipos-lembrete');
+  };
 
   return (
     <CampoRotulado rotulo="Tipo">
       <ThemedText type="small" themeColor="textSecondary">
-        {cheio
-          ? `Já tem ${LIMITE_TIPOS} tipos. Tire um para escolher outro.`
-          : `Escolha até ${LIMITE_TIPOS}.`}
+        {escolhidos.length > 0
+          ? `${escolhidos.length} de ${LIMITE_TIPOS} escolhidos.`
+          : `Nenhum tipo. Escolha até ${LIMITE_TIPOS}.`}
       </ThemedText>
-      {escolhidos.length > 0 && (
-        <View style={styles.grade}>
-          {escolhidos.map((opcao) => (
-            <ChipTipo
-              key={opcao.chave}
-              nome={opcao.nome}
-              corHex={opcao.corHex}
-              onRemover={() => onAlterar(selecionados.filter((chave) => chave !== opcao.chave))}
-            />
-          ))}
-        </View>
-      )}
-      {!cheio && (
-        <BuscaTipo
-          opcoes={disponiveis}
-          onEscolher={(chave) => onAlterar([...selecionados, chave])}
-          onCriar={setNomeNovo}
-        />
-      )}
-      {nomeNovo !== null && (
-        <DialogoNovoTipo
-          visivel
-          nomeInicial={nomeNovo}
-          nomesExistentes={opcoes.map((opcao) => opcao.nome)}
-          onFechar={() => setNomeNovo(null)}
-          onCriado={(tipo) => onAlterar([...selecionados, tipo.id])}
-        />
-      )}
+      <ListaEtiquetas tipos={escolhidos} />
+      <Botao
+        rotulo="Escolher tipos"
+        icone="sell"
+        variante="secundario"
+        onPress={escolher}
+        accessibilityLabel="Escolher os tipos do lembrete"
+      />
     </CampoRotulado>
   );
 };
-
-const styles = StyleSheet.create({
-  grade: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-  },
-});

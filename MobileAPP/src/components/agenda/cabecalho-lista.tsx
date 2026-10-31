@@ -8,14 +8,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { podeCriarLembrete, useLembretesStore } from '@/stores/useLembretesStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { plural } from '@/utils/texto';
 
 type CabecalhoListaProps = {
-  programados: number;
-  pausados: number;
+  /** Linha de contagem abaixo do título (ex.: "4 programados · 1 pausado"). */
+  resumo: string;
 };
 
-export const CabecalhoLista = ({ programados, pausados }: CabecalhoListaProps) => {
+export const CabecalhoLista = ({ resumo }: CabecalhoListaProps) => {
   const total = useLembretesStore((state) => state.lembretes.length);
   const limite = useSettingsStore((state) => state.reminderLimit);
   const [noLimite, setNoLimite] = useState(false);
@@ -32,7 +31,7 @@ export const CabecalhoLista = ({ programados, pausados }: CabecalhoListaProps) =
           Seus Lembretes
         </ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          {`${plural(programados, 'programado', 'programados')} · ${plural(pausados, 'pausado', 'pausados')}`}
+          {resumo}
         </ThemedText>
       </View>
       <BotaoIcone icone="add" accessibilityLabel="Criar novo lembrete" onPress={novoLembrete} />

@@ -254,6 +254,8 @@ export const ComponentSize = {
   iconeTemplate: 56,
   /** Círculo do ícone do template nos cards da agenda. */
   iconeTemplateCard: 40,
+  /** Círculo com a cor do tipo na tela de tipos. */
+  bolinhaTipo: 24,
 
   /** Faixa de cores do seletor de matiz e o marcador que desliza sobre ela. */
   faixaMatiz: 48,

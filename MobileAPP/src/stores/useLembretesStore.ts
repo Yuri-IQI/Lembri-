@@ -54,6 +54,12 @@ export interface LembretesState {
   /** Desassocia um tipo/categoria de todos os lembretes vinculados sem excluí-los. */
   desassociarTipo: (tipoId: string) => void;
 
+  /** Quantos lembretes estão com os alertas ligados e quantos existem (RN-01). */
+  obterContadorAtivos: () => { ativos: number; total: number };
+
+  /** Quantos lembretes usam este tipo. */
+  obterContagemPorTipo: (tipoId: string) => number;
+
   /** Restaura o estado da store para as fixtures iniciais do Figma. */
   resetarParaMocks: () => void;
 }
@@ -167,6 +173,14 @@ export const useLembretesStore = create<LembretesState>()(
               : item
           ),
         })),
+
+      obterContadorAtivos: () => {
+        const { lembretes } = get();
+        return { ativos: lembretes.filter((item) => item.ativo).length, total: lembretes.length };
+      },
+
+      obterContagemPorTipo: (tipoId) =>
+        get().lembretes.filter((item) => item.tipoIds.includes(tipoId)).length,
 
       resetarParaMocks: () =>
         set({

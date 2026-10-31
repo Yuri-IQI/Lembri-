@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 
+import { enviarAoRelogio } from '@/services/wear/enviar-ao-relogio';
 import { useAvisoStore } from '@/stores/useAvisoStore';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useSugestoesStore } from '@/stores/useSugestoesStore';
@@ -36,11 +37,12 @@ export const useSalvarLembrete = (idEditado?: string) => {
 
   return (dados: DadosLembrete): boolean => {
     const { adicionarLembrete, editarLembrete } = useLembretesStore.getState();
-    if (idEditado) {
-      editarLembrete(idEditado, dados);
-    } else if (!adicionarLembrete(dados)) {
-      return false;
-    }
+    if (idEditado) editarLembrete(idEditado, dados);
+    const salvo = idEditado
+      ? useLembretesStore.getState().lembretes.find((item) => item.id === idEditado)
+      : adicionarLembrete(dados);
+    if (!salvo) return false;
+    enviarAoRelogio(salvo);
     registrarSugestoes(dados);
     mostrarAviso(MENSAGEM_SALVO);
     pedirPermissaoNotificacoes().catch(() => undefined);

@@ -17,7 +17,7 @@ type FiltrosAgendaProps = {
 type Filtro = { chave: ChaveSecao; rotulo: string };
 
 /**
- * Abas da agenda: "A seguir" e "Já passaram" sempre visíveis; "Pausados" e "Todos" aparecem
+ * Abas da agenda: "A seguir" e "Já passaram" sempre visíveis; "Pausados" aparece
  * em "Mais opções".
  */
 export const FiltrosAgenda = ({ ativa, pausados, onSelecionar }: FiltrosAgendaProps) => {
@@ -26,10 +26,7 @@ export const FiltrosAgenda = ({ ativa, pausados, onSelecionar }: FiltrosAgendaPr
     { chave: 'proximas', rotulo: 'A seguir' },
     { chave: 'passadas', rotulo: 'Já passaram' },
   ];
-  const extras: Filtro[] = [
-    { chave: 'pausados', rotulo: `Pausados (${pausados})` },
-    { chave: 'todos', rotulo: 'Todos' },
-  ];
+  const extras: Filtro[] = [{ chave: 'pausados', rotulo: `Pausados (${pausados})` }];
   const ativaEhExtra = extras.some((filtro) => filtro.chave === ativa);
   const [aberto, setAberto] = useState(ativaEhExtra);
 
