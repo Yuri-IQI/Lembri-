@@ -24,7 +24,8 @@ export type ChipsSelecaoProps<T extends string> = {
  * Suporta seleção única (radio) ou múltipla (checkbox) para filtros, categorias e horários sugeridos.
  * - Alvo de toque TouchTarget = 56dp (WCAG 2.2 AAA — Critério 2.5.5);
  * - Indicador visual de check para não depender unicamente de cor (WCAG 1.4.1);
- * - Em seleção única, tocar no item ativo não o desmarca para prevenir estado vazio acidental.
+ * - Em seleção única, tocar no item ativo não o desmarca (prevenindo estado vazio acidental),
+ *   mas avisa de novo o toque para quem precisa reabrir uma escolha (ex.: "Outra data").
  */
 export function ChipsSelecao<T extends string>({
   rotulo,
@@ -45,9 +46,7 @@ export function ChipsSelecao<T extends string>({
         onAlterar([...selecionados, valor]);
       }
     } else {
-      if (!ativo) {
-        onAlterar([valor]);
-      }
+      onAlterar([valor]);
     }
   };
 

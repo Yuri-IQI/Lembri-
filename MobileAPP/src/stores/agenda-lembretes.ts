@@ -1,40 +1,29 @@
-import type { Lembrete, OcorrenciaLembrete } from '@/types/lembrete';
+import type { Lembrete, OcorrenciaLembrete, RegistroFeito } from '@/types/lembrete';
+import {
+  chaveData,
+  doisDigitos,
+  inicioDoDia,
+  juntarDataHorario,
+  lerHorario,
+  somarDias,
+} from '@/utils/data';
+import { horariosDoLembrete, ocorreNoDia } from '@/utils/lembrete';
 
 const MS_DIA = 24 * 60 * 60 * 1000;
 
-const inicioDoDia = (data: Date): Date =>
-  new Date(data.getFullYear(), data.getMonth(), data.getDate());
-
-const somarDias = (data: Date, dias: number): Date =>
-  new Date(data.getFullYear(), data.getMonth(), data.getDate() + dias);
-
 const inicioDoMinuto = (data: Date): number => Math.floor(data.getTime() / 60000) * 60000;
-
-const lerHorario = (horario: string): [number, number] | null => {
-  const partes = /^(\d{2}):(\d{2})$/.exec(horario);
-  if (!partes) return null;
-  const horas = Number(partes[1]);
-  const minutos = Number(partes[2]);
-  return horas > 23 || minutos > 59 ? null : [horas, minutos];
-};
-
-const doisDigitos = (n: number) => String(n).padStart(2, '0');
-
-const chaveDoDia = (dia: Date) =>
-  `${dia.getFullYear()}-${doisDigitos(dia.getMonth() + 1)}-${doisDigitos(dia.getDate())}`;
 
 export const ocorrenciasDoDia = (lembretes: Lembrete[], data: Date): OcorrenciaLembrete[] => {
   const dia = inicioDoDia(data);
-  const diaSemana = dia.getDay();
   const ocorrencias: OcorrenciaLembrete[] = [];
 
   for (const lembrete of lembretes) {
-    if (!lembrete.ativo || !lembrete.dias.includes(diaSemana as Lembrete['dias'][number])) continue;
-    for (const horario of lembrete.horarios) {
+    if (!lembrete.ativo || !ocorreNoDia(lembrete, dia)) continue;
+    for (const horario of horariosDoLembrete(lembrete)) {
       const hm = lerHorario(horario);
       if (!hm) continue;
       ocorrencias.push({
-        chave: `${lembrete.id}@${chaveDoDia(dia)}T${horario}`,
+        chave: `${lembrete.id}@${chaveData(dia)}T${horario}`,
         lembrete,
         horario,
         quando: new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), hm[0], hm[1]),
@@ -68,28 +57,36 @@ export const proximasOcorrencias = (
   return null;
 };
 
-export interface OcorrenciasPassadas {
-  periodo: 'hoje' | 'semana';
-  ocorrencias: OcorrenciaLembrete[];
-}
+/** Dias depois de hoje em que o card de próximo lembrete procura. */
+export const DIAS_PROXIMO_LEMBRETE = 3;
 
-export const ocorrenciasPassadas = (lembretes: Lembrete[], agora: Date): OcorrenciasPassadas => {
+/** "A seguir" mostra só hoje e amanhã: os dias em que dá para marcar como feito. */
+export const ateAmanha = (ocorrencia: OcorrenciaLembrete, agora: Date): boolean =>
+  ocorrencia.quando < somarDias(agora, 2);
+
+/** O que ainda vai acontecer: o resto de hoje e os próximos `dias` dias, em ordem. */
+export const ocorrenciasFuturas = (
+  lembretes: Lembrete[],
+  agora: Date,
+  dias: number
+): OcorrenciaLembrete[] => {
   const minutoAtual = inicioDoMinuto(agora);
-  const maisRecentesPrimeiro = (a: OcorrenciaLembrete, b: OcorrenciaLembrete) =>
-    b.quando.getTime() - a.quando.getTime();
+  const futuras = ocorrenciasDoDia(lembretes, agora).filter(
+    (o) => o.quando.getTime() >= minutoAtual
+  );
+  for (let i = 1; i <= dias; i++) futuras.push(...ocorrenciasDoDia(lembretes, somarDias(agora, i)));
+  return futuras;
+};
 
+/** O que já passou de hoje e tudo de ontem, do mais recente para o mais antigo. */
+export const ocorrenciasPassadas = (lembretes: Lembrete[], agora: Date): OcorrenciaLembrete[] => {
+  const minutoAtual = inicioDoMinuto(agora);
   const passadasHoje = ocorrenciasDoDia(lembretes, agora).filter(
     (o) => o.quando.getTime() < minutoAtual
   );
-  if (passadasHoje.length > 0) {
-    return { periodo: 'hoje', ocorrencias: passadasHoje.sort(maisRecentesPrimeiro) };
-  }
-
-  const semana: OcorrenciaLembrete[] = [];
-  for (let i = 1; i <= inicioDoDia(agora).getDay(); i++) {
-    semana.push(...ocorrenciasDoDia(lembretes, somarDias(agora, -i)));
-  }
-  return { periodo: 'semana', ocorrencias: semana.sort(maisRecentesPrimeiro) };
+  return [...passadasHoje, ...ocorrenciasDoDia(lembretes, somarDias(agora, -1))].sort(
+    (a, b) => b.quando.getTime() - a.quando.getTime()
+  );
 };
 
 export const lembretesPausados = (lembretes: Lembrete[]): Lembrete[] =>
@@ -106,7 +103,9 @@ const NOMES_DIA = [
 ];
 
 export const descreverDia = (dia: Date, agora: Date): string => {
-  const diferenca = Math.round((inicioDoDia(dia).getTime() - inicioDoDia(agora).getTime()) / MS_DIA);
+  const diferenca = Math.round(
+    (inicioDoDia(dia).getTime() - inicioDoDia(agora).getTime()) / MS_DIA
+  );
   if (diferenca === 0) return 'hoje';
   if (diferenca === 1) return 'amanhã';
   if (diferenca === -1) return 'ontem';
@@ -123,24 +122,22 @@ export const proximaOcorrenciaDoLembrete = (
   agora: Date
 ): OcorrenciaLembrete | null => proximasOcorrencias([lembrete], agora)?.ocorrencias[0] ?? null;
 
-// PENDÊNCIA: virar uma configuração em Ajustes; por enquanto, fixo em "passados e o próximo".
-export type RegraMarcarFeito = 'passados-e-proximo' | 'passados' | 'todos';
+// PENDÊNCIA: virar uma configuração em Ajustes; por enquanto, fixo em "passados, hoje e amanhã".
+export type RegraMarcarFeito = 'ate-amanha' | 'passados' | 'todos';
 
-export const MARCAR_FEITO_EM = 'passados-e-proximo' as RegraMarcarFeito;
+export const MARCAR_FEITO_EM = 'ate-amanha' as RegraMarcarFeito;
 
-export const podeMarcarFeito = (
-  ocorrencia: OcorrenciaLembrete,
-  proxima: OcorrenciaLembrete | null,
-  agora: Date
-): boolean => {
+export const podeMarcarFeito = (ocorrencia: OcorrenciaLembrete, agora: Date): boolean => {
   if (MARCAR_FEITO_EM === 'todos') return true;
   if (ocorrencia.quando.getTime() < inicioDoMinuto(agora)) return true;
-  return MARCAR_FEITO_EM === 'passados-e-proximo' && ocorrencia.chave === proxima?.chave;
+  return MARCAR_FEITO_EM === 'ate-amanha' && ateAmanha(ocorrencia, agora);
 };
 
 export const descreverQuando = (data: Date, agora: Date): string => {
   const hora = `${doisDigitos(data.getHours())}:${doisDigitos(data.getMinutes())}`;
-  const diferenca = Math.round((inicioDoDia(data).getTime() - inicioDoDia(agora).getTime()) / MS_DIA);
+  const diferenca = Math.round(
+    (inicioDoDia(data).getTime() - inicioDoDia(agora).getTime()) / MS_DIA
+  );
   const dia =
     diferenca === 0
       ? 'Hoje'
@@ -152,4 +149,18 @@ export const descreverQuando = (data: Date, agora: Date): string => {
             ? NOMES_DIA[data.getDay()].charAt(0).toUpperCase() + NOMES_DIA[data.getDay()].slice(1)
             : `${doisDigitos(data.getDate())}/${doisDigitos(data.getMonth() + 1)}`;
   return `${dia}, ${hora}`;
+};
+
+export type StatusCompromisso = 'agendado' | 'concluido' | 'nao_confirmado';
+
+/** Depois que a data passa, o compromisso fica "Concluído" (com registro de feito) ou "Não confirmado". */
+export const statusCompromisso = (
+  lembrete: Lembrete,
+  registros: RegistroFeito[],
+  agora: Date
+): StatusCompromisso | null => {
+  if (lembrete.template !== 'compromisso') return null;
+  const quando = juntarDataHorario(lembrete.data, lembrete.horario);
+  if (!quando || quando.getTime() >= inicioDoMinuto(agora)) return 'agendado';
+  return registros.some((r) => r.lembreteId === lembrete.id) ? 'concluido' : 'nao_confirmado';
 };

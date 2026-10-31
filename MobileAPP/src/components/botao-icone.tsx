@@ -9,7 +9,7 @@ type BotaoIconeProps = Omit<PressableProps, 'children' | 'style'> & {
   accessibilityLabel: string;
 };
 
-export const BotaoIcone = ({ icone, ...rest }: BotaoIconeProps) => {
+export const BotaoIcone = ({ icone, disabled, ...rest }: BotaoIconeProps) => {
   const theme = useTheme();
 
   return (
@@ -17,8 +17,12 @@ export const BotaoIcone = ({ icone, ...rest }: BotaoIconeProps) => {
       accessibilityRole="button"
       style={({ pressed }) => [
         styles.botao,
-        { backgroundColor: theme.primary, opacity: pressed ? 0.7 : 1 },
+        {
+          backgroundColor: disabled ? theme.textMuted : theme.primary,
+          opacity: pressed ? 0.7 : 1,
+        },
       ]}
+      disabled={disabled}
       {...rest}>
       <SymbolView name={{ android: icone }} size={32} tintColor={theme.onPrimary} />
     </Pressable>

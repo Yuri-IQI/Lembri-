@@ -2,58 +2,105 @@ import { router } from 'expo-router';
 import { useMemo, type ReactElement } from 'react';
 import { SectionList, StyleSheet } from 'react-native';
 
-import { OcorrenciaItem } from '@/components/cards/ocorrencia-item';
+import { ArrastarParaRemover } from '@/components/agenda/arrastar-para-remover';
+import { GrupoAgendaCard, type HorarioDoCard } from '@/components/cards/grupo-agenda-card';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import type { ItemAgenda, SecaoAgenda } from '@/hooks/use-agenda';
+import type { SecaoAgenda } from '@/hooks/use-agenda';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
-import { capitalizar } from '@/utils/texto';
+import type { GrupoAgenda } from '@/utils/agrupar-agenda';
+import { horariosDoLembrete } from '@/utils/lembrete';
 
 type ListaAgendaProps = {
   secao: SecaoAgenda;
   cabecalho: ReactElement;
+  agora: Date;
   feitos: Set<string>;
   acaoFeito: (ocorrencia?: OcorrenciaLembrete) => (() => void) | undefined;
+  todoFeito: (grupo: GrupoAgenda) => boolean;
+  onOcultar: (chave: string) => void;
 };
 
-const abrirDetalhe = (item: ItemAgenda) =>
-  router.push({ pathname: '/lembrete/[id]', params: { id: item.lembrete.id } });
+const abrirDetalhe = (grupo: GrupoAgenda) =>
+  router.push({ pathname: '/lembrete/[id]', params: { id: grupo.lembrete.id } });
 
-export const ListaAgenda = ({ secao, cabecalho, feitos, acaoFeito }: ListaAgendaProps) => {
+export const ListaAgenda = ({
+  secao,
+  cabecalho,
+  agora,
+  feitos,
+  acaoFeito,
+  todoFeito,
+  onOcultar,
+}: ListaAgendaProps) => {
   const tipos = useTiposLembreteStore((state) => state.tipos);
   const mapaTipos = useMemo(() => new Map(tipos.map((tipo) => [tipo.id, tipo])), [tipos]);
 
+  const consulta = secao.chave === 'todos';
+
+  const tiposDo = (grupo: GrupoAgenda) =>
+    grupo.lembrete.tipoIds.flatMap((id) => mapaTipos.get(id) ?? []);
+
+  const horariosDo = (grupo: GrupoAgenda): HorarioDoCard[] =>
+    consulta
+      ? grupo.lembrete.ativo
+        ? horariosDoLembrete(grupo.lembrete).map((horario) => ({
+            chave: horario,
+            horario,
+            estado: 'pendente',
+          }))
+        : []
+      : grupo.ocorrencias.map((ocorrencia) => ({
+          chave: ocorrencia.chave,
+          horario: ocorrencia.horario,
+          estado: feitos.has(ocorrencia.chave)
+            ? 'feito'
+            : ocorrencia.quando < agora
+              ? 'nao_marcado'
+              : 'pendente',
+          onAlternar: acaoFeito(ocorrencia),
+        }));
+
+  const renderizar = (grupo: GrupoAgenda) => {
+    const removivel = secao.chave === 'proximas' && todoFeito(grupo);
+    const card = (
+      <GrupoAgendaCard
+        lembrete={grupo.lembrete}
+        tipos={tiposDo(grupo)}
+        horarios={horariosDo(grupo)}
+        onAbrir={() => abrirDetalhe(grupo)}
+        onRemover={removivel ? () => onOcultar(grupo.chave) : undefined}
+        consulta={consulta}
+      />
+    );
+    return removivel ? (
+      <ArrastarParaRemover chave={grupo.chave} onRemover={onOcultar}>
+        {card}
+      </ArrastarParaRemover>
+    ) : (
+      card
+    );
+  };
+
   return (
     <SectionList
-      sections={[secao]}
-      keyExtractor={(item) => item.chave}
+      sections={secao.dias}
+      keyExtractor={(grupo) => grupo.chave}
       ListHeaderComponent={cabecalho}
+      ListEmptyComponent={
+        <ThemedText type="small" themeColor="textSecondary" style={styles.titulo}>
+          {secao.vazio}
+        </ThemedText>
+      }
       contentContainerStyle={styles.lista}
       stickySectionHeadersEnabled={false}
       renderSectionHeader={({ section }) => (
         <ThemedText type="headline" accessibilityRole="header" style={styles.titulo}>
-          {capitalizar(section.titulo)}
+          {section.titulo}
         </ThemedText>
       )}
-      renderSectionFooter={({ section }) =>
-        section.data.length === 0 ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {section.vazio}
-          </ThemedText>
-        ) : null
-      }
-      renderItem={({ item }) => (
-        <OcorrenciaItem
-          lembrete={item.lembrete}
-          tipo={item.lembrete.tipoId ? mapaTipos.get(item.lembrete.tipoId) : undefined}
-          horario={item.ocorrencia?.horario}
-          rotuloDia={item.rotuloDia}
-          feito={feitos.has(item.chave)}
-          onAlternarFeito={acaoFeito(item.ocorrencia)}
-          onAbrir={() => abrirDetalhe(item)}
-        />
-      )}
+      renderItem={({ item }) => renderizar(item)}
     />
   );
 };

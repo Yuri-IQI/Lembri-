@@ -3,95 +3,106 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useAgora } from '@/hooks/use-agora';
 import {
-  descreverDia,
+  DIAS_PROXIMO_LEMBRETE,
+  ateAmanha,
   descreverQuando,
   lembretesPausados,
+  ocorrenciasFuturas,
   ocorrenciasPassadas,
   podeMarcarFeito,
-  proximasOcorrencias,
 } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { Lembrete, OcorrenciaLembrete } from '@/types/lembrete';
-import { capitalizar } from '@/utils/texto';
+import { agruparPorDia, type DiaAgenda, type GrupoAgenda } from '@/utils/agrupar-agenda';
 
-export type ChaveSecao = 'proximas' | 'passadas' | 'pausados';
-
-export type ItemAgenda = {
-  chave: string;
-  lembrete: Lembrete;
-  ocorrencia?: OcorrenciaLembrete;
-  rotuloDia?: string;
-};
+export type ChaveSecao = 'proximas' | 'passadas' | 'pausados' | 'todos';
 
 export type SecaoAgenda = {
   chave: ChaveSecao;
-  titulo: string;
   vazio: string;
-  data: ItemAgenda[];
+  dias: DiaAgenda[];
 };
 
-const paraItem = (ocorrencia: OcorrenciaLembrete, rotuloDia?: string): ItemAgenda => ({
-  chave: ocorrencia.chave,
-  lembrete: ocorrencia.lembrete,
-  ocorrencia,
-  rotuloDia,
-});
+/** Uma lista só, um card por lembrete, sem horários do dia. */
+const listaDeLembretes = (chave: ChaveSecao, titulo: string, lembretes: Lembrete[]): DiaAgenda[] =>
+  lembretes.length > 0
+    ? [
+        {
+          chave,
+          titulo,
+          data: lembretes.map((lembrete) => ({
+            chave: `${lembrete.id}@${chave}`,
+            lembrete,
+            ocorrencias: [],
+          })),
+        },
+      ]
+    : [];
 
 export const useAgenda = () => {
   const agora = useAgora();
-  const { lembretes, registros, marcarFeito, desmarcarFeito } = useLembretesStore(
-    useShallow((state) => ({
-      lembretes: state.lembretes,
-      registros: state.registros,
-      marcarFeito: state.marcarFeito,
-      desmarcarFeito: state.desmarcarFeito,
-    }))
-  );
+  const { lembretes, registros, ocultos, marcarFeito, desmarcarFeito, ocultarDaAgenda } =
+    useLembretesStore(
+      useShallow((state) => ({
+        lembretes: state.lembretes,
+        registros: state.registros,
+        ocultos: state.ocultosDaAgenda,
+        marcarFeito: state.marcarFeito,
+        desmarcarFeito: state.desmarcarFeito,
+        ocultarDaAgenda: state.ocultarDaAgenda,
+      }))
+    );
 
   const feitos = useMemo(() => new Set(registros.map((registro) => registro.chave)), [registros]);
-  const proximas = useMemo(() => proximasOcorrencias(lembretes, agora), [lembretes, agora]);
+  const futuras = useMemo(
+    () => ocorrenciasFuturas(lembretes, agora, DIAS_PROXIMO_LEMBRETE),
+    [lembretes, agora]
+  );
   const passadas = useMemo(() => ocorrenciasPassadas(lembretes, agora), [lembretes, agora]);
   const pausados = useMemo(() => lembretesPausados(lembretes), [lembretes]);
-  const proxima = proximas?.ocorrencias[0] ?? null;
-  const dia = proximas ? descreverDia(proximas.dia, agora) : 'hoje';
+  const proxima = futuras.find((o) => !feitos.has(o.chave)) ?? null;
 
-  const secoes = useMemo<SecaoAgenda[]>(
-    () => [
-      {
-        chave: 'proximas',
-        titulo: proximas ? `Também ${dia}` : 'A seguir',
-        vazio: proximas
-          ? `Nenhum outro alerta ${dia} além do próximo lembrete.`
-          : 'Nenhum alerta programado para os próximos 7 dias.',
-        data: proximas?.ocorrencias.slice(1).map((o) => paraItem(o)) ?? [],
-      },
-      {
-        chave: 'passadas',
-        titulo: passadas.periodo === 'hoje' ? 'Já passaram hoje' : 'Já passaram nesta semana',
-        vazio: 'Nenhum alerta passou nesta semana ainda.',
-        data: passadas.ocorrencias.map((o) =>
-          paraItem(o, passadas.periodo === 'semana' ? capitalizar(descreverDia(o.quando, agora)) : undefined)
-        ),
-      },
-      {
-        chave: 'pausados',
-        titulo: 'Pausados',
-        vazio: 'Nenhum lembrete pausado. Para pausar, abra o lembrete e desligue o “Alertar”.',
-        data: pausados.map((lembrete) => ({ chave: `${lembrete.id}@pausado`, lembrete })),
-      },
-    ],
-    [proximas, passadas, pausados, dia, agora]
-  );
+  const todoFeito = (grupo: GrupoAgenda) => grupo.ocorrencias.every((o) => feitos.has(o.chave));
+  const visivel = (grupo: GrupoAgenda) => !(ocultos.includes(grupo.chave) && todoFeito(grupo));
+
+  const aSeguir = agruparPorDia(
+    futuras.filter((o) => ateAmanha(o, agora)),
+    agora
+  )
+    .map((dia) => ({ ...dia, data: dia.data.filter(visivel) }))
+    .filter((dia) => dia.data.length > 0);
+
+  const secoes: SecaoAgenda[] = [
+    {
+      chave: 'proximas',
+      vazio: 'Nenhum alerta programado para hoje e amanhã.',
+      dias: aSeguir,
+    },
+    {
+      chave: 'passadas',
+      vazio: 'Nenhum alerta passou hoje nem ontem.',
+      dias: agruparPorDia(passadas, agora),
+    },
+    {
+      chave: 'pausados',
+      vazio: 'Nenhum lembrete pausado. Para pausar, abra o lembrete e desligue o “Alertar”.',
+      dias: listaDeLembretes('pausados', 'Pausados', pausados),
+    },
+    {
+      chave: 'todos',
+      vazio: 'Nenhum lembrete cadastrado.',
+      dias: listaDeLembretes('todos', 'Todos os lembretes', lembretes),
+    },
+  ];
 
   const alternarFeito = (ocorrencia: OcorrenciaLembrete) =>
     feitos.has(ocorrencia.chave) ? desmarcarFeito(ocorrencia.chave) : marcarFeito(ocorrencia);
 
   const acaoFeito = (ocorrencia?: OcorrenciaLembrete) =>
-    ocorrencia && podeMarcarFeito(ocorrencia, proxima, agora)
-      ? () => alternarFeito(ocorrencia)
-      : undefined;
+    ocorrencia && podeMarcarFeito(ocorrencia, agora) ? () => alternarFeito(ocorrencia) : undefined;
 
   return {
+    agora,
     lembretes,
     secoes,
     pausados,
@@ -99,5 +110,7 @@ export const useAgenda = () => {
     quandoProxima: proxima ? descreverQuando(proxima.quando, agora) : '',
     feitos,
     acaoFeito,
+    todoFeito,
+    ocultarDaAgenda,
   };
 };

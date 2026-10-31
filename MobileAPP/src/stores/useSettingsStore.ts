@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { LIMITE_LEMBRETES_DEV } from '@/constants/limites';
 import { TextScale } from '@/constants/theme';
 import { defaultSettingsMock } from '@/mocks/settings.mock';
 import type { UserSettings } from '@/types/settings';
@@ -15,7 +16,9 @@ export interface SettingsState extends UserSettings {
   setLargeText: (enabled: boolean) => void;
   /** Marca a tela de boas-vindas como vista. Idempotente. */
   markSplashSeen: () => void;
-  /** Restaura as configurações visuais para os valores iniciais do mock preservando hasSeenSplash. */
+  /** Define o limite de lembretes, dentro da faixa de desenvolvimento. */
+  setReminderLimit: (limit: number) => void;
+  /** Restaura as configurações visuais para os valores iniciais do mock preservando hasSeenSplash e o limite de lembretes. */
   resetToDefaults: () => void;
 }
 
@@ -51,17 +54,29 @@ export const useSettingsStore = create<SettingsState>()(
           hasSeenSplash: true,
         })),
 
+      setReminderLimit: (limit) =>
+        set(() => ({
+          reminderLimit: Math.min(
+            LIMITE_LEMBRETES_DEV.maximo,
+            Math.max(LIMITE_LEMBRETES_DEV.minimo, Math.round(limit)),
+          ),
+        })),
+
       resetToDefaults: () =>
         set((state) => ({
           ...defaultSettingsMock,
           hasSeenSplash: state.hasSeenSplash,
+          reminderLimit: state.reminderLimit,
           textScaleFactor: defaultSettingsMock.isLargeText ? TextScale.large : TextScale.normal,
         })),
     }),
     {
       name: 'lembri-settings',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ hasSeenSplash: state.hasSeenSplash }),
+      partialize: (state) => ({
+        hasSeenSplash: state.hasSeenSplash,
+        reminderLimit: state.reminderLimit,
+      }),
     },
   ),
 );

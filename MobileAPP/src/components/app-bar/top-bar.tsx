@@ -2,10 +2,13 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { BarFrame } from '@/components/app-bar/bar-frame';
+import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type TopBarProps = {
+  /** Nome da tela; usado só nos formulários de lembrete. */
+  titulo?: string;
   onVoltar?: () => void;
   onAjuda?: () => void;
   onAudio?: () => void;
@@ -14,18 +17,21 @@ type TopBarProps = {
 const BOTAO = ComponentSize.topBarButton;
 
 /**
- * Barra superior sem título sobre o fundo da tela:
+ * Barra superior sobre o fundo da tela (título só nos formulários):
  * - Botão voltar à esquerda (alvo de toque TouchTarget = 56dp);
  * - Ações de ajuda e áudio à direita (alvos de toque TouchTarget = 56dp com círculo visual de 31px).
  *
  * Em conformidade com WCAG 2.2 AAA (Critério 2.5.5) sem sobreposição de hitSlop entre controles.
  */
-export const TopBar = ({ onVoltar, onAjuda, onAudio }: TopBarProps) => {
+export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
   const theme = useTheme();
   const acoes = [
     onAjuda && { icone: 'question_mark' as const, rotulo: 'Ajuda', onPress: onAjuda },
     onAudio && { icone: 'mic' as const, rotulo: 'Áudio', onPress: onAudio },
-  ].filter((acao): acao is { icone: 'question_mark' | 'mic'; rotulo: string; onPress: () => void } => !!acao);
+  ].filter(
+    (acao): acao is { icone: 'question_mark' | 'mic'; rotulo: string; onPress: () => void } =>
+      !!acao,
+  );
 
   const botoes = acoes.map((acao) => (
     <Pressable
@@ -54,7 +60,13 @@ export const TopBar = ({ onVoltar, onAjuda, onAudio }: TopBarProps) => {
         )}
       </View>
 
-      <View style={styles.espaco} />
+      <View style={styles.espaco}>
+        {titulo && (
+          <ThemedText type="subheading" accessibilityRole="header" numberOfLines={1}>
+            {titulo}
+          </ThemedText>
+        )}
+      </View>
 
       {botoes.length > 1 ? (
         <View style={[styles.grupo, { borderColor: theme.border }]}>{botoes}</View>

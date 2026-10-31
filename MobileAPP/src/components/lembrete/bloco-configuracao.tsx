@@ -2,23 +2,37 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ChipHorario } from '@/components/chip-horario';
+import { ValorDetalhe } from '@/components/lembrete/valor-detalhe';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { BorderWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Lembrete } from '@/types/lembrete';
-import { descreverFrequencia } from '@/utils/frequencia';
+import { detalhesDoLembrete } from '@/utils/detalhes-lembrete';
+import { descreverAgenda, horariosDoLembrete } from '@/utils/lembrete';
 
 type BlocoConfiguracaoProps = {
   lembrete: Lembrete;
   horarioDestacado?: string;
+  /** Horários de hoje já marcados como feitos. */
+  feitosHoje?: string[];
 };
 
-const Secao = ({ rotulo, divisor, children }: { rotulo: string; divisor: boolean; children: ReactNode }) => {
+const Secao = ({
+  rotulo,
+  divisor,
+  children,
+}: {
+  rotulo: string;
+  divisor: boolean;
+  children: ReactNode;
+}) => {
   const theme = useTheme();
 
   return (
-    <View style={[styles.secao, divisor && [styles.divisor, { borderColor: theme.borderSubtle }]]} accessible>
+    <View
+      style={[styles.secao, divisor && [styles.divisor, { borderColor: theme.borderSubtle }]]}
+      accessible>
       <ThemedText type="label" themeColor="textSecondary">
         {rotulo}
       </ThemedText>
@@ -27,25 +41,40 @@ const Secao = ({ rotulo, divisor, children }: { rotulo: string; divisor: boolean
   );
 };
 
-export const BlocoConfiguracao = ({ lembrete, horarioDestacado }: BlocoConfiguracaoProps) => (
-  <Card style={styles.bloco}>
-    <Secao rotulo="Horários" divisor>
-      <View style={styles.chips}>
-        {lembrete.horarios.map((horario) => (
-          <ChipHorario key={horario} horario={horario} destacado={horario === horarioDestacado} />
-        ))}
-      </View>
-    </Secao>
-    <Secao rotulo="Repete" divisor={!!lembrete.descricao}>
-      <ThemedText type="defaultBold">{descreverFrequencia(lembrete.dias)}</ThemedText>
-    </Secao>
-    {lembrete.descricao && (
-      <Secao rotulo="Descrição" divisor={false}>
-        <ThemedText>{lembrete.descricao}</ThemedText>
+export const BlocoConfiguracao = ({
+  lembrete,
+  horarioDestacado,
+  feitosHoje = [],
+}: BlocoConfiguracaoProps) => {
+  const detalhes = detalhesDoLembrete(lembrete);
+
+  return (
+    <Card style={styles.bloco}>
+      <Secao rotulo="Horários" divisor>
+        <View style={styles.chips}>
+          {horariosDoLembrete(lembrete).map((horario) => (
+            <ChipHorario
+              key={horario}
+              horario={horario}
+              destacado={horario === horarioDestacado}
+              feito={feitosHoje.includes(horario)}
+            />
+          ))}
+        </View>
       </Secao>
-    )}
-  </Card>
-);
+      <Secao
+        rotulo={lembrete.template === 'compromisso' ? 'Data' : 'Repete'}
+        divisor={detalhes.length > 0}>
+        <ThemedText type="defaultBold">{descreverAgenda(lembrete)}</ThemedText>
+      </Secao>
+      {detalhes.map(({ rotulo, valor, numerada }, indice) => (
+        <Secao key={rotulo} rotulo={rotulo} divisor={indice < detalhes.length - 1}>
+          <ValorDetalhe valor={valor} numerada={numerada} />
+        </Secao>
+      ))}
+    </Card>
+  );
+};
 
 const styles = StyleSheet.create({
   bloco: {

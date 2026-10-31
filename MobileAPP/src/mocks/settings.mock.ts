@@ -1,3 +1,4 @@
+import { LIMITE_LEMBRETES_PADRAO } from '@/constants/limites';
 import type { UserSettings } from '@/types/settings';
 
 /**
@@ -6,6 +7,7 @@ import type { UserSettings } from '@/types/settings';
 export const defaultSettingsMock: UserSettings = {
   isLargeText: false,
   hasSeenSplash: false,
+  reminderLimit: LIMITE_LEMBRETES_PADRAO,
 };
 
 /**

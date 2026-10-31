@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
+import { rotuloFeito } from '@/utils/lembrete';
 
 type ProximoLembreteCardProps = {
   ocorrencia: OcorrenciaLembrete | null;
@@ -27,17 +28,7 @@ export const ProximoLembreteCard = ({
     backgroundImage: Gradients.proximoLembrete(feito, theme),
   };
 
-  if (!ocorrencia) {
-    return (
-      <View style={[styles.card, fundo]} accessible>
-        <ThemedText type="label">Próximo lembrete</ThemedText>
-        <ThemedText type="subheading">Nenhum alerta programado</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          Ligue o “Alertar” de um lembrete para ele aparecer aqui.
-        </ThemedText>
-      </View>
-    );
-  }
+  if (!ocorrencia) return null;
 
   const { lembrete } = ocorrencia;
 
@@ -60,6 +51,7 @@ export const ProximoLembreteCard = ({
           feito={feito}
           onAlternar={onAlternarFeito}
           descricao={`${lembrete.titulo}, ${quando}`}
+          rotulo={rotuloFeito(lembrete)}
         />
       )}
     </View>

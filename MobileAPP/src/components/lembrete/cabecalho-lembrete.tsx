@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { EtiquetaTipo } from '@/components/etiqueta-tipo';
 import { Interruptor } from '@/components/interruptor';
+import { ListaEtiquetas } from '@/components/lista-etiquetas';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
@@ -10,9 +10,8 @@ import type { Lembrete } from '@/types/lembrete';
 
 export const CabecalhoLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
   const alternarAtivo = useLembretesStore((state) => state.alternarAtivo);
-  const tipo = useTiposLembreteStore((state) =>
-    state.tipos.find((item) => item.id === lembrete.tipoId)
-  );
+  const todosTipos = useTiposLembreteStore((state) => state.tipos);
+  const tipos = todosTipos.filter((tipo) => lembrete.tipoIds.includes(tipo.id));
 
   return (
     <View style={styles.cabecalho}>
@@ -20,7 +19,7 @@ export const CabecalhoLembrete = ({ lembrete }: { lembrete: Lembrete }) => {
         <ThemedText type="title" accessibilityRole="header">
           {lembrete.titulo}
         </ThemedText>
-        {tipo && <EtiquetaTipo tipo={tipo} />}
+        <ListaEtiquetas tipos={tipos} />
       </View>
       <View style={styles.alertar}>
         <Interruptor

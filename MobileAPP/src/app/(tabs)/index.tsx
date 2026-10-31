@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AgendaVazia } from '@/components/agenda/agenda-vazia';
 import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
+import { AvisoGlobal } from '@/components/aviso-global';
 import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
 import { FiltrosAgenda } from '@/components/agenda/filtros-agenda';
 import { ListaAgenda } from '@/components/agenda/lista-agenda';
@@ -14,7 +15,18 @@ import { useAgenda, type ChaveSecao } from '@/hooks/use-agenda';
 
 const HomeScreen = () => {
   const [secaoAtiva, setSecaoAtiva] = useState<ChaveSecao>('proximas');
-  const { lembretes, secoes, pausados, proxima, quandoProxima, feitos, acaoFeito } = useAgenda();
+  const {
+    agora,
+    lembretes,
+    secoes,
+    pausados,
+    proxima,
+    quandoProxima,
+    feitos,
+    acaoFeito,
+    todoFeito,
+    ocultarDaAgenda,
+  } = useAgenda();
   const secao = secoes.find((item) => item.chave === secaoAtiva) ?? secoes[0];
 
   const cabecalho = (
@@ -29,6 +41,7 @@ const HomeScreen = () => {
         }
       />
       <AvisoDesfazer />
+      <AvisoGlobal />
       <CabecalhoLista programados={lembretes.length - pausados.length} pausados={pausados.length} />
       {lembretes.length > 0 && (
         <FiltrosAgenda ativa={secaoAtiva} pausados={pausados.length} onSelecionar={setSecaoAtiva} />
@@ -47,7 +60,15 @@ const HomeScreen = () => {
 
   return (
     <MainContainer style={styles.container}>
-      <ListaAgenda secao={secao} cabecalho={cabecalho} feitos={feitos} acaoFeito={acaoFeito} />
+      <ListaAgenda
+        secao={secao}
+        cabecalho={cabecalho}
+        agora={agora}
+        feitos={feitos}
+        acaoFeito={acaoFeito}
+        todoFeito={todoFeito}
+        onOcultar={ocultarDaAgenda}
+      />
     </MainContainer>
   );
 };

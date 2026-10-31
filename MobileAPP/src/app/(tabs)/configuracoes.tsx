@@ -1,3 +1,4 @@
+import { SecaoDesenvolvimento } from '@/components/ajustes/secao-desenvolvimento';
 import { CartaoAjuste } from '@/components/cartao-ajuste';
 import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
@@ -23,6 +24,8 @@ const ConfiguracoesScreen = () => {
         ligado={isLargeText}
         onAlternar={toggleLargeText}
       />
+
+      {__DEV__ && <SecaoDesenvolvimento />}
     </MainContainer>
   );
 };
