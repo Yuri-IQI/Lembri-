@@ -15,6 +15,7 @@ export type BotaoProps = {
   icone?: AndroidSymbol;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+  desabilitado?: boolean;
 };
 
 /**
@@ -33,6 +34,7 @@ export const Botao = ({
   icone,
   accessibilityLabel,
   style,
+  desabilitado = false,
 }: BotaoProps) => {
   const theme = useTheme();
 
@@ -61,15 +63,17 @@ export const Botao = ({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={desabilitado ? undefined : onPress}
+      disabled={desabilitado}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? rotulo}
+      accessibilityState={{ disabled: desabilitado }}
       style={({ pressed }) => [
         styles.botao,
         {
-          backgroundColor: fundo,
-          borderColor: borda,
-          opacity: pressed ? 0.7 : 1,
+          backgroundColor: desabilitado ? theme.borderSubtle : fundo,
+          borderColor: desabilitado ? theme.borderSubtle : borda,
+          opacity: desabilitado ? 0.5 : pressed ? 0.7 : 1,
         },
         style,
       ]}>

@@ -38,6 +38,10 @@ export const Colors = {
   borderDashed: '#787878',
   tabActive: '#EAE28A',
   success: '#A8D5A2',
+  /** Fundo de destaque para resposta correta nos exercícios (Figma). */
+  answerCorrect: '#ECF3D9',
+  /** Fundo de destaque para resposta incorreta nos exercícios (Figma). */
+  answerWrong: '#F3D9D9',
   /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
   danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
