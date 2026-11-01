@@ -1,34 +1,43 @@
 import type { TentativaExercicio } from '@/types/exercicio';
 
+const criarDataRelativa = (diasAtras: number, horas: number, minutos: number): string => {
+  const data = new Date();
+  data.setDate(data.getDate() - diasAtras);
+  data.setHours(horas, minutos, 0, 0);
+  return data.toISOString();
+};
+
 /**
- * Histórico inicial mockado de tentativas de exercícios para o frame de detalhes/resumo.
+ * Histórico inicial mockado de tentativas de exercícios para o frame de detalhes e cálculo de streak.
+ * Totais coerentes com as rodadas reais (Sequências: 15 itens, Ordenação: 12, Associações: 12).
+ * Lista de compras (exercicio-4) deliberadamente não possui histórico para validar o estado C5.
  */
 export const historicoIniciaisMock: TentativaExercicio[] = [
   {
     id: 'tentativa-1',
     exercicioId: 'exercicio-1',
-    dataHora: '2026-10-27T09:15:00.000Z',
+    dataHora: criarDataRelativa(0, 9, 15),
     tempoGastoSegundos: 140,
-    acertos: 5,
-    totalQuestoes: 5,
+    acertos: 15,
+    totalQuestoes: 15,
     pontuacaoPercentual: 100,
   },
   {
     id: 'tentativa-2',
     exercicioId: 'exercicio-2',
-    dataHora: '2026-10-26T15:20:00.000Z',
+    dataHora: criarDataRelativa(1, 15, 20),
     tempoGastoSegundos: 210,
-    acertos: 4,
-    totalQuestoes: 5,
-    pontuacaoPercentual: 80,
+    acertos: 10,
+    totalQuestoes: 12,
+    pontuacaoPercentual: 83,
   },
   {
     id: 'tentativa-3',
     exercicioId: 'exercicio-3',
-    dataHora: '2026-10-25T11:00:00.000Z',
+    dataHora: criarDataRelativa(2, 11, 0),
     tempoGastoSegundos: 180,
-    acertos: 6,
-    totalQuestoes: 6,
+    acertos: 12,
+    totalQuestoes: 12,
     pontuacaoPercentual: 100,
   },
 ];

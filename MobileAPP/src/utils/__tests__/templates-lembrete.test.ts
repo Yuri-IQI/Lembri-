@@ -14,6 +14,28 @@ import { normalizarDados } from '@/utils/normalizar-lembrete';
 import { buscarSugestoes, esquecerSugestao, registrarSugestoes } from '@/utils/sugestoes';
 import { LIMITE_PASSOS, primeiroErro, validarLembrete } from '@/utils/validar-lembrete';
 
+if (typeof globalThis.window === 'undefined') {
+  const memoryStore = new Map<string, string>();
+  (globalThis as unknown as { window: { localStorage: Storage } }).window = {
+    localStorage: {
+      getItem: (key: string) => memoryStore.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        memoryStore.set(key, value);
+      },
+      removeItem: (key: string) => {
+        memoryStore.delete(key);
+      },
+      clear: () => {
+        memoryStore.clear();
+      },
+      key: (index: number) => Array.from(memoryStore.keys())[index] ?? null,
+      get length() {
+        return memoryStore.size;
+      },
+    },
+  };
+}
+
 function assert(condition: unknown, message?: string): asserts condition {
   if (!condition) {
     throw new Error(`Assertion failed: ${message ?? 'Condition not met'}`);
