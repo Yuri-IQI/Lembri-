@@ -113,6 +113,8 @@ const ResumoExercicioScreen = () => {
               rotulo={rodada.rotulo}
               itens={rodada.itens}
               dicas={rodada.dicas}
+              cor={rodada.cor}
+              numerada={rodada.numerada}
               resultado={resultado.rodadas[index]}
               mostrarPercentual={true}
             />

@@ -6,6 +6,7 @@ import type { UserSettings } from '@/types/settings';
  */
 export const defaultSettingsMock: UserSettings = {
   isLargeText: false,
+  showExerciseHints: true,
   hasSeenSplash: false,
   reminderLimit: LIMITE_LEMBRETES_PADRAO,
 };

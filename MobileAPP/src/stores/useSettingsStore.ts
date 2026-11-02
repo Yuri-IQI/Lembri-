@@ -14,6 +14,8 @@ export interface SettingsState extends UserSettings {
   toggleLargeText: () => void;
   /** Define explicitamente o estado do modo "Texto ampliado". */
   setLargeText: (enabled: boolean) => void;
+  /** Liga ou desliga as dicas nas casas dos exercícios. */
+  toggleExerciseHints: () => void;
   /** Marca a tela de boas-vindas como vista. Idempotente. */
   markSplashSeen: () => void;
   /** Define o limite de lembretes, dentro da faixa de desenvolvimento. */
@@ -49,6 +51,11 @@ export const useSettingsStore = create<SettingsState>()(
           textScaleFactor: enabled ? TextScale.large : TextScale.normal,
         })),
 
+      toggleExerciseHints: () =>
+        set((state) => ({
+          showExerciseHints: !state.showExerciseHints,
+        })),
+
       markSplashSeen: () =>
         set(() => ({
           hasSeenSplash: true,
@@ -74,6 +81,7 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'lembri-settings',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
+        showExerciseHints: state.showExerciseHints,
         hasSeenSplash: state.hasSeenSplash,
         reminderLimit: state.reminderLimit,
       }),

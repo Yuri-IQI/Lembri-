@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TopBar } from '@/components/app-bar/top-bar';
+import { AvisoSucesso } from '@/components/aviso-sucesso';
 import { Botao } from '@/components/botao';
 import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
 import { BarraAcoesExercicio } from '@/components/exercicio/barra-acoes-exercicio';
@@ -9,21 +11,24 @@ import { CartaoRodada } from '@/components/exercicio/cartao-rodada';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
+import { useAvisoStore } from '@/stores/useAvisoStore';
 
 const semAcao = () => {};
 
 /**
  * Fase de memorização prévia do exercício cognitivo (CARD-37 / frame exercicios_preview).
  *
- * Apresenta todos os cartões de rodadas com os itens em estado neutro para fixação visual.
+ * Apresenta o cartão da rodada atual com os itens em estado neutro para fixação visual.
  * Sem cronômetro limitante (WCAG 2.2.3): a pessoa decide quando tocar em CONTINUAR.
  */
 const MemorizarExercicioScreen = () => {
-  const { sessaoValida, exercicio, pedirSaida, dialogoSaida } = useSessaoExercicio({
-    confirmarSaida: true,
-  });
+  const { sessaoValida, exercicio, rodadaAtual, indiceRodada, totalRodadas, pedirSaida, dialogoSaida } =
+    useSessaoExercicio({ confirmarSaida: true });
 
-  if (!sessaoValida || !exercicio) {
+  const aviso = useAvisoStore((state) => state.mensagem);
+  const fecharAviso = useAvisoStore((state) => state.fechar);
+
+  if (!sessaoValida || !exercicio || !rodadaAtual) {
     return (
       <View style={styles.tela}>
         <TopBar
@@ -50,6 +55,7 @@ const MemorizarExercicioScreen = () => {
   }
 
   const handleContinuar = () => {
+    fecharAviso();
     router.replace(`/exercicio/${exercicio.id}/responder`);
   };
 
@@ -62,34 +68,38 @@ const MemorizarExercicioScreen = () => {
         onAudio={semAcao}
       />
 
-      <ScrollView contentContainerStyle={styles.conteudo}>
+      <ScrollView style={styles.rolagem} contentContainerStyle={styles.conteudo}>
+        {aviso && <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />}
+
+        <ThemedText type="label" themeColor="textSecondary" style={styles.progresso}>
+          RODADA {indiceRodada + 1} DE {totalRodadas}
+        </ThemedText>
+
         <View style={styles.cabecalho}>
           <ThemedText type="title" accessibilityRole="header">
             {exercicio.tituloMemorizacao}
           </ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
-            Observe os cartões com atenção e memorize a sequência. Quando estiver pronto, toque em CONTINUAR.
+            Observe o cartão com atenção e memorize. Quando estiver pronto, toque em CONTINUAR.
           </ThemedText>
         </View>
 
-        <View style={styles.rodadas}>
-          {exercicio.rodadas.map((rodada) => (
-            <CartaoRodada
-              key={rodada.id}
-              rotulo={rodada.rotulo}
-              itens={rodada.itens}
-              dicas={rodada.dicas}
-              estadoPadrao="neutra"
-            />
-          ))}
-        </View>
+        <CartaoRodada
+          rotulo={rodadaAtual.rotulo}
+          itens={rodadaAtual.itens}
+          dicas={rodadaAtual.dicas}
+          cor={rodadaAtual.cor}
+          numerada={rodadaAtual.numerada}
+          estadoPadrao="neutra"
+        />
+      </ScrollView>
 
+      <SafeAreaView edges={['bottom']} style={styles.rodape}>
         <BarraAcoesExercicio
-          onSair={pedirSaida}
           onContinuar={handleContinuar}
           continuarHabilitado={true}
         />
-      </ScrollView>
+      </SafeAreaView>
 
       <DialogoConfirmacao
         visivel={dialogoSaida.visivel}
@@ -109,6 +119,16 @@ const styles = StyleSheet.create({
   tela: {
     flex: 1,
   },
+  rolagem: {
+    flex: 1,
+  },
+  rodape: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+  },
+  progresso: {
+    textAlign: 'center',
+  },
   conteudo: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
@@ -117,9 +137,6 @@ const styles = StyleSheet.create({
   },
   cabecalho: {
     gap: Spacing.one,
-  },
-  rodadas: {
-    gap: Spacing.three,
   },
   conteudoVazio: {
     flex: 1,
