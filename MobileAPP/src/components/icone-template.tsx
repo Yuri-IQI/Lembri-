@@ -19,7 +19,7 @@ export const IconeTemplate = ({ template }: { template: TemplateId }) => {
       importantForAccessibility="no-hide-descendants">
       <MaterialSymbol
         name={obterTemplate(template).icone}
-        size={24}
+        size={32}
         tintColor={theme.text}
       />
     </View>

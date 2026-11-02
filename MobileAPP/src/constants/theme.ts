@@ -34,9 +34,10 @@ export const Colors = {
   tagLilas: '#CDB8F5',
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
+  chipBackground: '#fcfcfc',
   /** Borda tracejada do chip "+ Novo tipo" (Figma). */
-  borderDashed: '#787878',
-  tabActive: '#EAE28A',
+  borderDashed: '#292626',
+  tabActive: '#F8EB5C',
   success: '#A8D5A2',
   /** Fundo de destaque para resposta correta nos exercícios (Figma). */
   answerCorrect: '#ECF3D9',
@@ -267,6 +268,10 @@ export const ComponentSize = {
 
   /** Espessura da linha do texto riscado/tachado. */
   strikethroughHeight: 2,
+
+  /** Medidor de volume do diálogo de voz. */
+  medidorVozAltura: 40,
+  medidorVozBarra: 12,
 
   /** Dimensões e áreas de apoio da barra superior. */
   topBarButton: 31,

@@ -37,7 +37,7 @@ export default function HelpScreen() {
   }, []);
   return (
     <ThemedView style={styles.screen}>
-      <TopBar titulo="Ajuda" onVoltar={goBack} />
+      <TopBar semAjuda titulo="Ajuda" onVoltar={goBack} />
       <MainContainer>
         <ScrollView ref={scrollRef} contentContainerStyle={styles.content}
           onContentSizeChange={(_width, height) => setContentHeight(height)}>

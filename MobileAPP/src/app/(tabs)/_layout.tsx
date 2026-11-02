@@ -1,20 +1,20 @@
-import { router } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { TabList, TabSlot, Tabs, TabTrigger, useTabTrigger } from 'expo-router/ui';
 import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 
 import { BottomBar, BottomBarItem } from '@/components/app-bar/bottom-bar';
 import { TopBar } from '@/components/app-bar/top-bar';
+import { useVozStore } from '@/stores/useVozStore';
 
 import { navigationTabs as ABAS } from '@/constants/navigation';
-
-const semAcao = () => { };
 
 /**
  * Top bar com histórico de abas próprio: o backBehavior das abas headless do expo-router
  * quebra a aba Home. Fica dentro de <Tabs> para trocar de aba pelo próprio navegador.
  */
 const BarraSuperior = () => {
+  const navigation = useNavigation();
   const { switchTab, getTrigger } = useTabTrigger({ name: ABAS[0].name });
   const abaAtual = ABAS.find((aba) => getTrigger(aba.name)?.isFocused)?.name ?? ABAS[0].name;
 
@@ -41,11 +41,24 @@ const BarraSuperior = () => {
   };
 
   useEffect(() => {
-    const assinatura = BackHandler.addEventListener('hardwareBackPress', voltar);
+    // Com outra tela por cima das abas, o botão voltar do Android é dela.
+    const assinatura = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => navigation.isFocused() && voltar()
+    );
     return () => assinatura.remove();
   });
 
-  return <TopBar onVoltar={podeVoltar ? voltar : undefined} onAjuda={() => router.navigate('/ajuda')} onAudio={semAcao} />;
+  const abaPedida = useVozStore((state) => state.abaPedida);
+  const limparAbaPedida = useVozStore((state) => state.limparAbaPedida);
+
+  useEffect(() => {
+    if (!abaPedida) return;
+    switchTab(abaPedida, {});
+    limparAbaPedida();
+  }, [abaPedida, switchTab, limparAbaPedida]);
+
+  return <TopBar onVoltar={podeVoltar ? voltar : undefined} />;
 };
 
 const TabsLayout = () => {

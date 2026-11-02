@@ -1,16 +1,19 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { MaterialSymbol } from '@/components/material-symbol';
 import { Botao } from '@/components/botao';
+import { IconeExercicio } from '@/components/exercicio/icone-exercicio';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Exercicio } from '@/types/exercicio';
+import { plural } from '@/utils/texto';
 
 export interface ExercicioCardProps {
   exercicio: Exercicio;
   ultimaAtividade: string;
+  /** Dias consecutivos praticando este exercício; 0 oculta a informação. */
+  diasSeguidos: number;
   onComecar: () => void;
   onDetalhes: () => void;
 }
@@ -18,49 +21,47 @@ export interface ExercicioCardProps {
 /**
  * Card padronizado de estímulo cognitivo do Lembri (CARD-35 / frame exercicios_lista).
  *
- * Apresenta área de ícone de 64x64, título do exercício, descrição da última atividade
- * e botões de ação de 56dp (DETALHES secundário e COMEÇAR primário).
+ * Apresenta área de ícone de 64x64, título do exercício, descrição da última atividade,
+ * sequência de dias e o botão COMEÇAR de 56dp. Tocar no restante do card abre os detalhes.
  */
 export const ExercicioCard = ({
   exercicio,
   ultimaAtividade,
+  diasSeguidos,
   onComecar,
   onDetalhes,
 }: ExercicioCardProps) => {
   const theme = useTheme();
+  const sequencia = plural(diasSeguidos, 'dia seguido', 'dias seguidos');
 
   return (
-    <Card style={styles.card}>
-      <View style={styles.cabecalho}>
-        <View
-          style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}
-          importantForAccessibility="no-hide-descendants"
-          accessibilityElementsHidden={true}>
-          <MaterialSymbol
-            name={exercicio.icone}
-            size={32}
-            tintColor={theme.text}
-          />
+    <Pressable
+      onPress={onDetalhes}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}. ${ultimaAtividade}`}
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+      <Card style={styles.card}>
+        <View style={styles.cabecalho}>
+          <View
+            style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}
+            importantForAccessibility="no-hide-descendants"
+            accessibilityElementsHidden={true}>
+            <IconeExercicio icone={exercicio.icone} />
+          </View>
+
+          <View style={styles.info}>
+            <ThemedText type="subheading" style={styles.titulo}>
+              {exercicio.titulo}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {ultimaAtividade}
+            </ThemedText>
+            {diasSeguidos > 0 && (
+              <ThemedText type="small">{sequencia}</ThemedText>
+            )}
+          </View>
         </View>
 
-        <View style={styles.info}>
-          <ThemedText type="subheading" style={styles.titulo}>
-            {exercicio.titulo}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {ultimaAtividade}
-          </ThemedText>
-        </View>
-      </View>
-
-      <View style={styles.botoes}>
-        <Botao
-          rotulo="DETALHES"
-          variante="secundario"
-          onPress={onDetalhes}
-          accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}`}
-          style={styles.botao}
-        />
         <Botao
           rotulo="COMEÇAR"
           variante="primario"
@@ -68,8 +69,8 @@ export const ExercicioCard = ({
           accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
           style={styles.botao}
         />
-      </View>
-    </Card>
+      </Card>
+    </Pressable>
   );
 };
 
@@ -97,12 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 30,
   },
-  botoes: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    marginTop: Spacing.one,
-  },
   botao: {
-    flex: 1,
+    marginTop: Spacing.one,
   },
 });

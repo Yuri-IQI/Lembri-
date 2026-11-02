@@ -11,7 +11,7 @@ export interface CampoBuscaProps {
 }
 
 /**
- * Campo de busca padronizado para a listagem de exercícios (Figma exercicios_lista).
+ * Campo de busca padronizado para a listagem de lembretes.
  *
  * Contém ícone de lupa, entrada de texto com contraste AAA e botão acessível de limpar (TouchTarget = 56).
  */
@@ -45,7 +45,7 @@ export const CampoBusca = ({ valor, aoMudar, aoLimpar }: CampoBuscaProps) => {
         placeholder="Buscar..."
         placeholderTextColor={theme.textSecondary}
         accessibilityRole="search"
-        accessibilityLabel="Buscar exercícios pelo nome"
+        accessibilityLabel="Buscar lembretes pelo nome"
         returnKeyType="search"
         autoCapitalize="none"
         autoCorrect={false}

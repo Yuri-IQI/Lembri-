@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
+import type { ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type EstadoCasaItem = 'neutra' | 'vazia' | 'correta' | 'errada';
@@ -10,6 +11,10 @@ export interface CasaItemProps {
   valor: string;
   estado: EstadoCasaItem;
   dica?: string;
+  /** Cor do contexto da rodada: preenche a casa neutra e contorna a casa avaliada. */
+  cor?: ThemeColor;
+  /** Posição do item na atividade, exibida antes do valor. */
+  ordem?: number;
 }
 
 /**
@@ -21,7 +26,7 @@ export interface CasaItemProps {
  * - `correta`: resposta avaliada como certa (fundo verde claro e indicador visual ✓);
  * - `errada`: resposta avaliada como incorreta (fundo vermelho claro e indicador visual ✗).
  */
-export const CasaItem = ({ valor, estado, dica }: CasaItemProps) => {
+export const CasaItem = ({ valor, estado, dica, cor, ordem }: CasaItemProps) => {
   const theme = useTheme();
 
   let estiloFundo: string = theme.chipSelected;
@@ -55,7 +60,16 @@ export const CasaItem = ({ valor, estado, dica }: CasaItemProps) => {
       break;
   }
 
-  const textoExibido = estado === 'vazia' ? '?' : valor;
+  if (cor) {
+    if (estado === 'neutra') {
+      estiloFundo = theme[cor];
+    } else {
+      estiloBorda = theme[cor];
+    }
+  }
+
+  const textoItem = estado === 'vazia' ? '?' : valor;
+  const textoExibido = ordem ? `${ordem}º ${textoItem}` : textoItem;
   const labelAcessivel = dica
     ? `${dica}: ${textoExibido}${sufixoAcessivel ? `, ${sufixoAcessivel}` : ''}`
     : `${textoExibido}${sufixoAcessivel ? `, ${sufixoAcessivel}` : ''}`;

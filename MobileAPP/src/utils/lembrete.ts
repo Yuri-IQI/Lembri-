@@ -1,6 +1,7 @@
 import type { DiaSemana, Lembrete } from '@/types/lembrete';
 import { chaveData, formatarData } from '@/utils/data';
 import { descreverRepeticao } from '@/utils/frequencia';
+import { normalizarBusca } from '@/utils/texto';
 
 /** Horários em que o lembrete alerta (o compromisso tem um só). */
 export const horariosDoLembrete = (lembrete: Lembrete): string[] =>
@@ -32,3 +33,11 @@ export const textoDeApoio = (lembrete: Lembrete): string | undefined =>
     : lembrete.template === 'tarefa'
       ? undefined
       : lembrete.observacao;
+
+/** Lembretes cujo título contém o termo, ignorando caixa e acentos. */
+export const filtrarLembretes = (lembretes: Lembrete[], busca: string): Lembrete[] => {
+  const termo = normalizarBusca(busca);
+  return termo
+    ? lembretes.filter((lembrete) => normalizarBusca(lembrete.titulo).includes(termo))
+    : lembretes;
+};

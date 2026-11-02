@@ -17,4 +17,29 @@ export const helpMock: readonly FaqItem[] = [
     question: 'Como excluir lembrete?',
     answer: 'Abra Lembretes e deslize o lembrete para excluir. Confira o nome e confirme a exclusão. Se mudar de ideia, use Desfazer na lista. Você também pode abrir o lembrete e usar o botão Excluir, ou usar a ação Excluir lembrete do leitor de tela.',
   },
+  {
+    id: 'edit-reminder',
+    question: 'Como editar ou pausar um lembrete?',
+    answer: 'Na página Lembretes, toque no lembrete e depois em Editar. Para pausar os avisos sem excluir, desligue o interruptor ao lado do lembrete. Ligue de novo quando quiser.',
+  },
+  {
+    id: 'complete-reminder',
+    question: 'Como marcar que já fiz?',
+    answer: 'Na página Home, toque em Marcar como tomado ou Marcar como feito no próximo lembrete, ou no horário de um lembrete da lista. Você também pode usar os botões da notificação.',
+  },
+  {
+    id: 'exercise',
+    question: 'Como fazer um exercício?',
+    answer: 'Na página Exercícios, escolha um exercício e toque em COMEÇAR. Memorize o que aparece e toque em CONTINUAR. Depois preencha as casas. Ao continuar, cada casa mostra se a resposta está certa. Você pode corrigir ou seguir para a próxima rodada.',
+  },
+  {
+    id: 'large-text',
+    question: 'Como aumentar as letras?',
+    answer: 'Acesse a página Ajustes e ligue Texto ampliado.',
+  },
+  {
+    id: 'delete-data',
+    question: 'Como apagar meus dados?',
+    answer: 'Acesse a página Ajustes e toque em Apagar todos os dados. Depois de confirmar, não é possível desfazer.',
+  },
 ];

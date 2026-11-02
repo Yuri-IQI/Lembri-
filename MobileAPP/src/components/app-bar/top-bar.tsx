@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { MaterialSymbol } from '@/components/material-symbol';
@@ -5,33 +6,34 @@ import { BarFrame } from '@/components/app-bar/bar-frame';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useVozStore } from '@/stores/useVozStore';
 
 type TopBarProps = {
-  /** Nome da tela em rotas com cabeçalho próprio, como formulários e Ajuda. */
+  /** Título opcional para telas com cabeçalho próprio. */
   titulo?: string;
   onVoltar?: () => void;
-  onAjuda?: () => void;
-  onAudio?: () => void;
+  /** Esconde o botão de ajuda, para a própria tela de ajuda. */
+  semAjuda?: boolean;
+  /** Comandos de voz de navegação passam por onVoltar, que confirma a saída. */
+  saidaProtegida?: boolean;
 };
 
-const BOTAO = ComponentSize.topBarButton;
+const abrirAjuda = () => router.push('/ajuda');
 
 /**
- * Barra superior sobre o fundo da tela, com título opcional:
+ * Barra superior com fundo próprio:
  * - Botão voltar à esquerda (alvo de toque TouchTarget = 56dp);
- * - Ações de ajuda e áudio à direita (alvos de toque TouchTarget = 56dp com círculo visual de 31px).
+ * - Ações de ajuda e áudio à direita, em pílulas com ícone e rótulo (alvo de toque TouchTarget = 56dp).
  *
  * Em conformidade com WCAG 2.2 AAA (Critério 2.5.5) sem sobreposição de hitSlop entre controles.
  */
-export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
+export const TopBar = ({ titulo, onVoltar, semAjuda = false, saidaProtegida = false }: TopBarProps) => {
   const theme = useTheme();
+  const abrirVoz = useVozStore((state) => state.abrir);
   const acoes = [
-    onAjuda && { icone: 'question_mark' as const, rotulo: 'Ajuda', onPress: onAjuda },
-    onAudio && { icone: 'mic' as const, rotulo: 'Áudio', onPress: onAudio },
-  ].filter(
-    (acao): acao is { icone: 'question_mark' | 'mic'; rotulo: string; onPress: () => void } =>
-      !!acao,
-  );
+    { icone: 'question_mark' as const, rotulo: 'Ajuda', onPress: abrirAjuda },
+    { icone: 'mic' as const, rotulo: 'Áudio', onPress: () => abrirVoz({ voltar: onVoltar, saidaProtegida }) },
+  ].slice(semAjuda ? 1 : 0);
 
   const botoes = acoes.map((acao) => (
     <Pressable
@@ -40,14 +42,15 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
       accessibilityRole="button"
       accessibilityLabel={acao.rotulo}
       style={({ pressed }) => [styles.areaToqueAcao, { opacity: pressed ? 0.6 : 1 }]}>
-      <View style={[styles.circulo, { borderColor: theme.border }]}>
-        <MaterialSymbol name={acao.icone} size={22} tintColor={theme.text} />
+      <View style={[styles.pilula, { borderColor: theme.border, backgroundColor: theme.chipBackground }]}>
+        <MaterialSymbol name={acao.icone} size={24} tintColor={theme.text} />
+        <ThemedText type="smallBold">{acao.rotulo}</ThemedText>
       </View>
     </Pressable>
   ));
 
   return (
-    <BarFrame posicao="top" fundo="background" style={styles.barra}>
+    <BarFrame posicao="top" style={styles.barra}>
       <View style={styles.voltarContainer}>
         {onVoltar && (
           <Pressable
@@ -55,24 +58,16 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
             accessibilityRole="button"
             accessibilityLabel="Voltar"
             style={({ pressed }) => [styles.areaToqueVoltar, { opacity: pressed ? 0.6 : 1 }]}>
-            <MaterialSymbol name="arrow_back" size={32} tintColor={theme.text} />
+            <MaterialSymbol name={'arrow_back'} size={32} tintColor={theme.text} />
           </Pressable>
         )}
       </View>
 
       <View style={styles.espaco}>
-        {titulo && (
-          <ThemedText type="subheading" accessibilityRole="header" numberOfLines={1}>
-            {titulo}
-          </ThemedText>
-        )}
+        {titulo && <ThemedText type="subheading" accessibilityRole="header" numberOfLines={1}>{titulo}</ThemedText>}
       </View>
 
-      {botoes.length > 1 ? (
-        <View style={[styles.grupo, { borderColor: theme.border }]}>{botoes}</View>
-      ) : (
-        botoes
-      )}
+      {botoes}
     </BarFrame>
   );
 };
@@ -96,23 +91,17 @@ const styles = StyleSheet.create({
   espaco: {
     flex: 1,
   },
-  grupo: {
+  areaToqueAcao: {
+    height: TouchTarget,
+    justifyContent: 'center',
+  },
+  pilula: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: BorderWidth.hairline,
-    borderRadius: Radius.full,
-  },
-  areaToqueAcao: {
-    width: TouchTarget,
-    height: TouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  circulo: {
-    width: BOTAO,
-    height: BOTAO,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing.one,
+    paddingVertical: Spacing.one,
+    paddingLeft: Spacing.one,
+    paddingRight: Spacing.two,
     borderWidth: BorderWidth.hairline,
     borderRadius: Radius.full,
   },

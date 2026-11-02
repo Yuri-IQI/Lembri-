@@ -81,15 +81,13 @@ export const GrupoAgendaCard = ({
             complemento,
             feito ? 'feito' : undefined,
             atrasado ? 'tem horário não marcado' : undefined,
-          ]
-            .filter(Boolean)
-            .join('. ')}
+          ].filter(Boolean).join('. ')}
           accessibilityHint="Abre os detalhes do lembrete"
           accessibilityActions={onRemover ? [{ name: 'remover', label: rotuloRemover }] : undefined}
           onAccessibilityAction={(evento) =>
             evento.nativeEvent.actionName === 'remover' && onRemover?.()
           }
-          style={({ pressed }) => [styles.principal, { opacity: pressed ? 0.7 : 1 }]}>
+          style={({ pressed }) => [styles.principal, { opacity: pressed ? 0.6 : 0.8 }]}>
           <IconeTemplate template={lembrete.template} />
           <View style={styles.textos}>
             <TextoRiscado riscado={feito}>
@@ -107,7 +105,7 @@ export const GrupoAgendaCard = ({
           {!interruptor && (
             <MaterialSymbol
               name="chevron_right"
-              size={28}
+              size={32}
               tintColor={theme.textSecondary}
             />
           )}

@@ -16,7 +16,6 @@ import { proximaOcorrenciaDoLembrete } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { chaveData } from '@/utils/data';
 
-const semAcao = () => {};
 const voltar = () => router.back();
 
 const DetalheLembreteScreen = () => {
@@ -51,7 +50,7 @@ const DetalheLembreteScreen = () => {
 
   return (
     <View style={styles.tela}>
-      <TopBar onVoltar={voltar} onAjuda={semAcao} onAudio={semAcao} />
+      <TopBar onVoltar={voltar} />
       <ScrollView contentContainerStyle={styles.conteudo}>
         <AvisoGlobal />
         <CabecalhoLembrete lembrete={lembrete} />

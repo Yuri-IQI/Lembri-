@@ -1,6 +1,9 @@
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { StatusBar } from 'react-native';
+
+import { DialogoVoz } from '@/components/voz/dialogo-voz';
 
 import { Splash } from '@/components/splash';
 import { SettingsPersistenceFeedback } from '@/components/ajustes/settings-persistence-feedback';
@@ -38,8 +41,10 @@ const RootLayout = () => {
 
   return (
     <ThemeProvider value={navigationTheme}>
+      <StatusBar barStyle="dark-content" />
       <Stack screenOptions={{ headerShown: false }} />
       <SettingsPersistenceFeedback />
+      <DialogoVoz />
       {!hasSeenSplash && !settingsError && <Splash onFim={markSplashSeen} />}
     </ThemeProvider>
   );

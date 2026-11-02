@@ -475,3 +475,43 @@ test('background: aguarda settings durante hidratação fria antes de validar ad
     storage.getItem = getItem;
   }
 });
+
+
+test('merge: migra avisos legados e preserva dicas desativadas', async () => {
+  assert.equal(restoreSettings({ reminderAlerts: false }).reminderNotificationsEnabled, false);
+  assert.equal(restoreSettings({ reminderAlerts: false, reminderNotificationsEnabled: true }).reminderNotificationsEnabled, true);
+  assert.equal(restoreSettings({ showExerciseHints: false }).showExerciseHints, false);
+  await flushWrites();
+  memory.set('lembri-settings', JSON.stringify({ version: 0, state: {
+    reminderAlerts: false, showExerciseHints: false, isLargeText: true,
+  } }));
+  await useSettingsStore.persist.rehydrate();
+  assert.equal(useSettingsStore.getState().reminderNotificationsEnabled, false);
+  assert.equal(useSettingsStore.getState().showExerciseHints, false);
+  assert.equal(useSettingsStore.getState().textScaleFactor, TextScale.large);
+  await flushWrites();
+  const saved = JSON.parse(memory.get('lembri-settings')).state;
+  assert.equal('reminderAlerts' in saved, false);
+  assert.equal(saved.showExerciseHints, false);
+});
+
+test('merge: apagar dados restaura dicas e avisos mantendo boas-vindas e limite', () => {
+  useSettingsStore.setState({
+    hasSeenSplash: true, reminderLimit: 17, showExerciseHints: false,
+    reminderNotificationsEnabled: false, exerciseNotificationsEnabled: true,
+  });
+  fromSource('utils/apagar-dados.ts').apagarTodosOsDados();
+  const settings = useSettingsStore.getState();
+  assert.equal(settings.showExerciseHints, true);
+  assert.equal(settings.reminderNotificationsEnabled, true);
+  assert.equal(settings.exerciseNotificationsEnabled, false);
+  assert.equal(settings.hasSeenSplash, true);
+  assert.equal(settings.reminderLimit, 17);
+  assert.deepEqual(useLembretesStore.getState().lembretes, []);
+  useSettingsStore.setState({ ...defaultSettingsMock, textScaleFactor: TextScale.normal });
+});
+
+test('merge: regressões de stores e comandos de voz recebidos de main', () => {
+  fromSource('stores/__tests__/stores.test.ts');
+  fromSource('utils/__tests__/reconhecer-comando.test.ts');
+});

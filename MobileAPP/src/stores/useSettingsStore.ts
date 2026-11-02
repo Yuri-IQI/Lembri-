@@ -50,6 +50,8 @@ export interface SettingsState extends UserSettings {
   toggleLargeText: () => void;
   /** Define explicitamente o estado do modo "Texto ampliado". */
   setLargeText: (enabled: boolean) => void;
+  /** Liga ou desliga as dicas nas casas dos exercícios. */
+  toggleExerciseHints: () => void;
   /** Marca a tela de boas-vindas como vista. Idempotente. */
   markSplashSeen: () => void;
   /** Define o limite de lembretes, dentro da faixa de desenvolvimento. */
@@ -58,6 +60,8 @@ export interface SettingsState extends UserSettings {
   setNotificationPreference: (key: NotificationPreference, enabled: boolean) => void;
   /** Restaura a escala visual preservando boas-vindas, limite e preferências de avisos. */
   resetToDefaults: () => void;
+  /** Restaura preferências ao apagar os dados, preservando boas-vindas e limite. */
+  resetPreferences: () => void;
 }
 
 /**
@@ -87,6 +91,11 @@ export const useSettingsStore = create<SettingsState>()(
           textScaleFactor: enabled ? TextScale.large : TextScale.normal,
         })),
 
+      toggleExerciseHints: () =>
+        set((state) => ({
+          showExerciseHints: !state.showExerciseHints,
+        })),
+
       markSplashSeen: () =>
         set(() => ({
           hasSeenSplash: true,
@@ -100,6 +109,15 @@ export const useSettingsStore = create<SettingsState>()(
             LIMITE_LEMBRETES_DEV.maximo,
             Math.max(LIMITE_LEMBRETES_DEV.minimo, Math.round(limit)),
           ),
+        })),
+
+      resetPreferences: () =>
+        set(() => ({
+          isLargeText: defaultSettingsMock.isLargeText,
+          textScaleFactor: defaultSettingsMock.isLargeText ? TextScale.large : TextScale.normal,
+          showExerciseHints: defaultSettingsMock.showExerciseHints,
+          reminderNotificationsEnabled: defaultSettingsMock.reminderNotificationsEnabled,
+          exerciseNotificationsEnabled: defaultSettingsMock.exerciseNotificationsEnabled,
         })),
 
       resetToDefaults: () =>
@@ -118,9 +136,10 @@ export const useSettingsStore = create<SettingsState>()(
         return { ...current, ...settings, textScaleFactor: settings.isLargeText ? TextScale.large : TextScale.normal };
       },
       partialize: (state) => ({
+        isLargeText: state.isLargeText,
+        showExerciseHints: state.showExerciseHints,
         hasSeenSplash: state.hasSeenSplash,
         reminderLimit: state.reminderLimit,
-        isLargeText: state.isLargeText,
         reminderNotificationsEnabled: state.reminderNotificationsEnabled,
         exerciseNotificationsEnabled: state.exerciseNotificationsEnabled,
       }),
