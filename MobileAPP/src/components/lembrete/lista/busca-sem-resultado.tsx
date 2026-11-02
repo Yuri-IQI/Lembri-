@@ -7,19 +7,22 @@ import { Spacing } from '@/constants/theme';
 
 export type BuscaSemResultadoProps = {
   busca: string;
+  comFiltros: boolean;
   onLimpar: () => void;
 };
 
-export const BuscaSemResultado = ({ busca, onLimpar }: BuscaSemResultadoProps) => (
+export const BuscaSemResultado = ({ busca, comFiltros, onLimpar }: BuscaSemResultadoProps) => (
   <Card style={styles.card}>
     <ThemedText type="subheading">Nenhum lembrete encontrado</ThemedText>
     <ThemedText type="small" themeColor="textSecondary">
-      Não há resultados para &ldquo;{busca}&rdquo;.
+      {comFiltros
+        ? 'Não há resultados com os filtros escolhidos.'
+        : `Não há resultados para “${busca}”.`}
     </ThemedText>
     <Botao
-      rotulo="Limpar busca"
+      rotulo={comFiltros ? 'Limpar busca e filtros' : 'Limpar busca'}
       variante="secundario"
-      accessibilityLabel="Limpar termo de busca"
+      accessibilityLabel={comFiltros ? 'Limpar busca e filtros' : 'Limpar termo de busca'}
       onPress={onLimpar}
       style={styles.botao}
     />

@@ -2,7 +2,6 @@ import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
 import { CampoAutocompletar } from '@/components/formulario/texto/campo-autocompletar';
-import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
 import { CampoData } from '@/components/formulario/data-hora/campo-data';
 import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
 import { CampoTexto } from '@/components/formulario/texto/campo-texto';
@@ -89,10 +88,6 @@ export const FormularioCompromisso = ({
         placeholder="Ex.: Exames anteriores"
         valores={dados.oQueLevar}
         onAlterar={(itens) => alterar('oQueLevar', itens)}
-      />
-      <CampoConfirmacao
-        ligado={dados.exigeConfirmacao}
-        onAlterar={(ligado) => alterar('exigeConfirmacao', ligado)}
       />
       <View onLayout={registrar('observacao')}>
         <CampoTexto

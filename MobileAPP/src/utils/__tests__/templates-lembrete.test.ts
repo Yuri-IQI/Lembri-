@@ -61,7 +61,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   });
   assert(migrado.template === 'livre', 'Deve virar Livre');
   igual(migrado.repeticao.modo, 'todo_dia');
-  igual(migrado.exigeConfirmacao, false);
 
   const parcial = migrarLembrete({ ...migrado, id: 'x', template: undefined } as never);
   igual(parcial.template, 'livre', 'Sem template também vira Livre');
@@ -89,7 +88,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     participantes: [],
     oQueLevar: [],
     tipoIds: [],
-    exigeConfirmacao: false,
     ativo: true,
     criadoEm: '',
     atualizadoEm: '',
@@ -124,7 +122,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     reavisoMin: 10,
     observacao: '   ',
     tipoIds: [],
-    exigeConfirmacao: false,
   });
   assert(remedio.template === 'remedio');
   igual(remedio.titulo, 'Losartana');
@@ -132,7 +129,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   assert(remedio.repeticao.modo === 'dias');
   igual(remedio.repeticao.dias.join(','), '1,5');
   igual(remedio.observacao, undefined);
-  igual(remedio.exigeConfirmacao, true, 'Remédio sempre exige confirmação');
 }
 
 {
@@ -160,7 +156,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     horarios: ['08:00'],
     repeticao: { modo: 'todo_dia' },
     tipoIds: [],
-    exigeConfirmacao: false,
   });
   igual(recusado, null, 'Deve recusar ao atingir o limite');
   igual(useLembretesStore.getState().lembretes.length, total);
@@ -246,10 +241,8 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     titulo: 'Dipirona',
     horarios: ['08:00'],
     tipoIds: [],
-    exigeConfirmacao: false,
   });
   assert(criado?.template === 'remedio');
-  igual(criado.exigeConfirmacao, true, 'Remédio é salvo exigindo confirmação');
 
   useLembretesStore.getState().editarLembrete(criado.id, {
     ...dadosDoLembrete(criado),
@@ -264,7 +257,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     horarios: ['08:00'],
     repeticao: { modo: 'todo_dia' },
     tipoIds: [],
-    exigeConfirmacao: false,
   });
   const mantido = useLembretesStore.getState().lembretes.find((l) => l.id === criado.id);
   igual(mantido?.template, 'remedio', 'Edição não troca o template');
@@ -283,7 +275,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
     reavisoMin: 10,
     tipoIds: undefined,
     tipoId: 'tipo-saude',
-    exigeConfirmacao: true,
   } as never);
   assert(antigo.template === 'remedio');
   igual(antigo.tipoIds.join(), 'tipo-saude');

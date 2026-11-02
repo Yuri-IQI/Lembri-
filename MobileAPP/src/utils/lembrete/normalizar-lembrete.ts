@@ -25,7 +25,6 @@ export const normalizarDados = (entrada: DadosLembrete): DadosLembrete => {
         repeticao: normalizarRepeticao(dados.repeticao),
         comoTomar: textoOpcional(dados.comoTomar),
         observacao: textoOpcional(dados.observacao),
-        exigeConfirmacao: true,
       };
     case 'compromisso':
       return {

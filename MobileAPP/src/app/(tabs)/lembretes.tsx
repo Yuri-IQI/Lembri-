@@ -5,9 +5,11 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
 import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
+import { Botao } from '@/components/controles/botao';
 import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { BuscaSemResultado } from '@/components/lembrete/lista/busca-sem-resultado';
 import { CampoBusca } from '@/components/lembrete/lista/campo-busca';
+import { DialogoFiltros } from '@/components/lembrete/lista/dialogo-filtros';
 import { ItemLembrete } from '@/components/lembrete/lista/item-lembrete';
 import { ListaVaziaLembretes } from '@/components/lembrete/lista/lista-vazia-lembretes';
 import { MainContainer } from '@/components/main-container';
@@ -15,7 +17,7 @@ import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { Lembrete } from '@/types/lembrete';
-import { filtrarLembretes, horariosDoLembrete } from '@/utils/lembrete/lembrete';
+import { FILTROS_VAZIOS, filtrarLembretes, horariosDoLembrete } from '@/utils/lembrete/lembrete';
 
 const LembretesScreen = () => {
   const { lembretes, alternarAtivo, removerLembrete } = useLembretesStore(
@@ -29,7 +31,21 @@ const LembretesScreen = () => {
   const mapaTipos = useMemo(() => new Map(tipos.map((tipo) => [tipo.id, tipo])), [tipos]);
   const [paraExcluir, setParaExcluir] = useState<Lembrete | null>(null);
   const [busca, setBusca] = useState('');
-  const encontrados = useMemo(() => filtrarLembretes(lembretes, busca), [lembretes, busca]);
+  const [filtros, setFiltros] = useState(FILTROS_VAZIOS);
+  const [filtrando, setFiltrando] = useState(false);
+  const filtrosValidos = useMemo(
+    () => ({ ...filtros, tipoIds: filtros.tipoIds.filter((id) => mapaTipos.has(id)) }),
+    [filtros, mapaTipos]
+  );
+  const totalFiltros = filtrosValidos.tipoIds.length + filtrosValidos.templates.length;
+  const encontrados = useMemo(
+    () => filtrarLembretes(lembretes, busca, filtrosValidos),
+    [lembretes, busca, filtrosValidos]
+  );
+  const limparBuscaEFiltros = () => {
+    setBusca('');
+    setFiltros(FILTROS_VAZIOS);
+  };
 
   const ativos = lembretes.filter((lembrete) => lembrete.ativo).length;
   const pedirExclusao = (id: string) =>
@@ -52,13 +68,33 @@ const LembretesScreen = () => {
             <AvisoDesfazer />
             <CabecalhoLista resumo={`${ativos} de ${lembretes.length} ativos`} />
             {lembretes.length > 0 && (
-              <CampoBusca valor={busca} aoMudar={setBusca} aoLimpar={() => setBusca('')} />
+              <View style={styles.areaBusca}>
+                <View style={styles.campoBusca}>
+                  <CampoBusca valor={busca} aoMudar={setBusca} aoLimpar={() => setBusca('')} />
+                </View>
+                <Botao
+                  rotulo={totalFiltros > 0 ? `Filtros (${totalFiltros})` : 'Filtros'}
+                  variante="secundario"
+                  tamanho="compacto"
+                  icone="filter_list"
+                  accessibilityLabel={
+                    totalFiltros > 0
+                      ? `Abrir filtros, ${totalFiltros} selecionados`
+                      : 'Abrir filtros por tipo e modelo'
+                  }
+                  onPress={() => setFiltrando(true)}
+                />
+              </View>
             )}
           </View>
         }
         ListEmptyComponent={
           lembretes.length > 0 ? (
-            <BuscaSemResultado busca={busca} onLimpar={() => setBusca('')} />
+            <BuscaSemResultado
+              busca={busca}
+              comFiltros={totalFiltros > 0}
+              onLimpar={limparBuscaEFiltros}
+            />
           ) : (
             <ListaVaziaLembretes onNovo={() => router.push('/lembrete/novo')} />
           )
@@ -86,6 +122,14 @@ const LembretesScreen = () => {
         onConfirmar={excluir}
         onCancelar={() => setParaExcluir(null)}
       />
+
+      <DialogoFiltros
+        visivel={filtrando}
+        tipos={tipos}
+        filtros={filtrosValidos}
+        onAlterar={setFiltros}
+        onFechar={() => setFiltrando(false)}
+      />
     </MainContainer>
   );
 };
@@ -105,6 +149,14 @@ const styles = StyleSheet.create({
   cabecalho: {
     gap: Spacing.three,
     marginBottom: Spacing.two,
+  },
+  areaBusca: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  campoBusca: {
+    flex: 1,
   },
 });
 

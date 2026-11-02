@@ -1,7 +1,6 @@
 import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
-import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
 import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
 import { CampoRepeticao } from '@/components/formulario/data-hora/campo-repeticao';
 import { CampoTexto } from '@/components/formulario/texto/campo-texto';
@@ -39,10 +38,6 @@ export const FormularioLivre = ({ form, registrar, tipos }: PropsFormulario<'liv
         erroDias={erros.dias}
         erroData={erros.dataRepeticao}
         onLayout={registrar('dias')}
-      />
-      <CampoConfirmacao
-        ligado={dados.exigeConfirmacao}
-        onAlterar={(ligado) => alterar('exigeConfirmacao', ligado)}
       />
       <CampoTexto
         rotulo="Descrição"

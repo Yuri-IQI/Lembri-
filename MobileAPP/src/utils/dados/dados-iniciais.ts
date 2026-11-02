@@ -17,7 +17,6 @@ export const dadosIniciais = (
         repeticao: { modo: 'todo_dia' },
         iniciadoEm: chaveData(hoje),
         reavisoMin: 10,
-        exigeConfirmacao: true,
       };
     case 'compromisso':
       return {
@@ -28,7 +27,6 @@ export const dadosIniciais = (
         avisarAntes: ['1h', '1d'],
         participantes: [],
         oQueLevar: [],
-        exigeConfirmacao: false,
       };
     case 'tarefa':
       return {
@@ -38,7 +36,6 @@ export const dadosIniciais = (
         repeticao: { modo: 'todo_dia' },
         materiais: [],
         passos: [],
-        exigeConfirmacao: false,
       };
     case 'livre':
       return {
@@ -46,7 +43,6 @@ export const dadosIniciais = (
         template,
         horarios: [],
         repeticao: { modo: 'nao_repete', data: chaveData(hoje) },
-        exigeConfirmacao: false,
       };
   }
 };

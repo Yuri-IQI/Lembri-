@@ -69,7 +69,6 @@ useExerciciosStore.getState().resetarParaMocks();
     horarios: ['15:30'],
     repeticao: { modo: 'dias', dias: [1, 3, 5] },
     tipoIds: ['tipo-saude'],
-    exigeConfirmacao: false,
   });
   assert(novo, 'Deve criar dentro do limite');
 
@@ -92,7 +91,6 @@ useExerciciosStore.getState().resetarParaMocks();
     horarios: ['17:00', '08:00', '17:00'],
     repeticao: { modo: 'todo_dia' },
     tipoIds: [],
-    exigeConfirmacao: false,
   });
 
   const atualizado = useLembretesStore.getState().lembretes.find((l) => l.id === primeiro.id);
@@ -147,7 +145,6 @@ useExerciciosStore.getState().resetarParaMocks();
     horarios: ['12:00'],
     repeticao: { modo: 'todo_dia' },
     tipoIds: [tipo.id],
-    exigeConfirmacao: false,
   });
   assert(lembreteVinculado, 'Deve criar dentro do limite');
 
@@ -455,7 +452,6 @@ useExerciciosStore.getState().resetarParaMocks();
     titulo: 'Vitamina C',
   });
   if (!remedio) throw new Error('Deve caber mais um lembrete');
-  assert.strictEqual(remedio.exigeConfirmacao, true, 'Exige confirmação deve estar ativo');
   assert.strictEqual(remedio.template, 'remedio', 'Template deve ser remédio');
   assert.strictEqual(useLembretesStore.getState().obterContagemPorTipo('tipo-saude'), 2);
 

@@ -1,4 +1,4 @@
-import type { DiaSemana, Lembrete } from '@/types/lembrete';
+import type { DiaSemana, Lembrete, TemplateId } from '@/types/lembrete';
 import { chaveData, formatarData } from '@/utils/tempo/data';
 import { descreverRepeticao } from '@/utils/lembrete/frequencia';
 import { normalizarBusca } from '@/utils/texto/texto';
@@ -29,9 +29,23 @@ export const textoDeApoio = (lembrete: Lembrete): string | undefined =>
       ? undefined
       : lembrete.observacao;
 
-export const filtrarLembretes = (lembretes: Lembrete[], busca: string): Lembrete[] => {
+export type FiltrosLembrete = {
+  tipoIds: string[];
+  templates: TemplateId[];
+};
+
+export const FILTROS_VAZIOS: FiltrosLembrete = { tipoIds: [], templates: [] };
+
+export const filtrarLembretes = (
+  lembretes: Lembrete[],
+  busca: string,
+  filtros: FiltrosLembrete = FILTROS_VAZIOS
+): Lembrete[] => {
   const termo = normalizarBusca(busca);
-  return termo
-    ? lembretes.filter((lembrete) => normalizarBusca(lembrete.titulo).includes(termo))
-    : lembretes;
+  return lembretes.filter(
+    (lembrete) =>
+      (!termo || normalizarBusca(lembrete.titulo).includes(termo)) &&
+      (filtros.templates.length === 0 || filtros.templates.includes(lembrete.template)) &&
+      (filtros.tipoIds.length === 0 || lembrete.tipoIds.some((id) => filtros.tipoIds.includes(id)))
+  );
 };

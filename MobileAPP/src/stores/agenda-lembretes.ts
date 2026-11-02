@@ -1,3 +1,4 @@
+import { JANELA_REMEDIO_MINUTOS } from '@/constants/limites';
 import type { Lembrete, OcorrenciaLembrete, RegistroFeito } from '@/types/lembrete';
 import {
   chaveData,
@@ -123,7 +124,17 @@ export type RegraMarcarFeito = 'ate-amanha' | 'passados' | 'todos';
 
 export const MARCAR_FEITO_EM = 'ate-amanha' as RegraMarcarFeito;
 
+const MS_MINUTO = 60 * 1000;
+
+const dentroDaJanelaDoRemedio = (quando: Date, agora: Date): boolean => {
+  const minutos = (inicioDoMinuto(agora) - quando.getTime()) / MS_MINUTO;
+  return minutos >= -JANELA_REMEDIO_MINUTOS.antes && minutos <= JANELA_REMEDIO_MINUTOS.depois;
+};
+
 export const podeMarcarFeito = (ocorrencia: OcorrenciaLembrete, agora: Date): boolean => {
+  if (ocorrencia.lembrete.template === 'remedio') {
+    return dentroDaJanelaDoRemedio(ocorrencia.quando, agora);
+  }
   if (MARCAR_FEITO_EM === 'todos') return true;
   if (ocorrencia.quando.getTime() < inicioDoMinuto(agora)) return true;
   return MARCAR_FEITO_EM === 'ate-amanha' && ateAmanha(ocorrencia, agora);

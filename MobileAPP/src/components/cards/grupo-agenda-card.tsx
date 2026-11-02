@@ -7,6 +7,7 @@ import { Interruptor } from '@/components/controles/interruptor';
 import { ListaEtiquetas } from '@/components/etiquetas/lista-etiquetas';
 import { TextoRiscado } from '@/components/itens/texto-riscado';
 import { ThemedText } from '@/components/themed-text';
+import { JANELA_REMEDIO_MINUTOS } from '@/constants/limites';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { obterTemplate } from '@/mocks/templates-lembrete.mock';
@@ -53,6 +54,8 @@ export const GrupoAgendaCard = ({
     : consulta
       ? [descreverAgenda(lembrete), resumoDoLembrete(lembrete)].filter(Boolean).join(' · ')
       : resumoDoLembrete(lembrete);
+  const foraDaJanela =
+    !consulta && lembrete.template === 'remedio' && horarios.some((item) => !item.onAlternar);
 
   return (
     <View
@@ -123,6 +126,12 @@ export const GrupoAgendaCard = ({
             />
           ))}
         </View>
+      )}
+
+      {foraDaJanela && (
+        <ThemedText type="small" themeColor="textSecondary">
+          {`Dá para marcar de ${JANELA_REMEDIO_MINUTOS.antes} minutos antes até ${JANELA_REMEDIO_MINUTOS.depois} minutos depois do horário.`}
+        </ThemedText>
       )}
     </View>
   );

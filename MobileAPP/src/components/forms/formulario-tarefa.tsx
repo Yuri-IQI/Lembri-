@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import type { PropsFormulario } from '@/components/forms/props-formulario';
 import { CampoAutocompletar } from '@/components/formulario/texto/campo-autocompletar';
 import { CampoChecklist } from '@/components/formulario/checklist/campo-checklist';
-import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
 import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
 import { CampoRepeticao } from '@/components/formulario/data-hora/campo-repeticao';
 import { SeletorTipo } from '@/components/formulario/selecao/seletor-tipo';
@@ -61,10 +60,6 @@ export const FormularioTarefa = ({ form, registrar, tipos }: PropsFormulario<'ta
         maximoCaracteres={LIMITE_TEXTO_PASSO}
         erro={erros.passos}
         onLayout={registrar('passos')}
-      />
-      <CampoConfirmacao
-        ligado={dados.exigeConfirmacao}
-        onAlterar={(ligado) => alterar('exigeConfirmacao', ligado)}
       />
     </>
   );

@@ -14,7 +14,6 @@ interface LembreteBase {
   template: TemplateId;
   titulo: string;
   tipoIds: string[];
-  exigeConfirmacao: boolean;
   ativo: boolean;
   criadoEm: string;
   atualizadoEm: string;

@@ -60,7 +60,6 @@ export const migrarLembrete = (bruto: LembreteV2 | LembreteLegado): Lembrete => 
     tipoIds: bruto.tipoId ? [bruto.tipoId] : [],
     horarios: [...bruto.horarios],
     repeticao: repeticaoDeDias(bruto.dias),
-    exigeConfirmacao: false,
     ativo: bruto.ativo,
     criadoEm: bruto.criadoEm,
     atualizadoEm: bruto.criadoEm,

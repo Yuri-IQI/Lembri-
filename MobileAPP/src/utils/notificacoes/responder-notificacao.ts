@@ -1,6 +1,7 @@
 import type * as Notifications from 'expo-notifications';
 
 import { publicarAgendaAtual } from '@/services/wear/sincronizar-agenda';
+import { podeMarcarFeito } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import {
   adiarNotificacao,
@@ -38,7 +39,7 @@ export const responderNotificacao = async (
     await esperarHidratacao(useLembretesStore);
     const { lembretes, marcarFeito } = useLembretesStore.getState();
     const ocorrencia = ocorrenciaDaChave(dados.ocorrencia, lembretes);
-    if (ocorrencia) marcarFeito(ocorrencia);
+    if (ocorrencia && podeMarcarFeito(ocorrencia, new Date())) marcarFeito(ocorrencia);
     await encerrarOcorrencia(notificacao, dados);
     await publicarAgendaAtual().catch((erro) =>
       console.warn('Não foi possível publicar a agenda do relógio', erro)

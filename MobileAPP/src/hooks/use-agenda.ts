@@ -93,7 +93,9 @@ export const useAgenda = () => {
     feitos.has(ocorrencia.chave) ? desmarcarFeito(ocorrencia.chave) : marcarFeito(ocorrencia);
 
   const acaoFeito = (ocorrencia?: OcorrenciaLembrete) =>
-    ocorrencia && podeMarcarFeito(ocorrencia, agora) ? () => alternarFeito(ocorrencia) : undefined;
+    ocorrencia && (feitos.has(ocorrencia.chave) || podeMarcarFeito(ocorrencia, agora))
+      ? () => alternarFeito(ocorrencia)
+      : undefined;
 
   return {
     agora,
