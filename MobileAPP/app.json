@@ -7,13 +7,13 @@
     "icon": "./assets/icon/icon.png",
     "scheme": "mobileapp",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#FAF7EC",
     "android": {
       "package": "com.borabill.lembriwearable",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/icon/android-icon-foreground.png",
-        "backgroundImage": "./assets/icon/android-icon-background.png",
-        "monochromeImage": "./assets/icon/android-icon-monochrome.png"
+        "backgroundColor": "#E8E08A",
+        "foregroundImage": "./assets/icon/adaptive-icon.png",
+        "monochromeImage": "./assets/icon/adaptive-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -27,7 +27,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F2F2F2",
+          "backgroundColor": "#FAF7EC",
           "image": "./assets/splash/splash-native.png",
           "imageWidth": 240
         }
@@ -60,6 +60,15 @@
                   {
                     "path": "./node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf",
                     "weight": 900
+                  }
+                ]
+              },
+              {
+                "fontFamily": "EBGaramond",
+                "fontDefinitions": [
+                  {
+                    "path": "./node_modules/@expo-google-fonts/eb-garamond/500Medium/EBGaramond_500Medium.ttf",
+                    "weight": 500
                   }
                 ]
               }

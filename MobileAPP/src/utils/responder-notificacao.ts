@@ -1,11 +1,13 @@
 import type * as Notifications from 'expo-notifications';
 
+import { publicarAgendaAtual } from '@/services/wear/sincronizar-agenda';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import {
   adiarNotificacao,
   encerrarOcorrencia,
   type DadosNotificacao,
 } from '@/utils/agendar-notificacoes';
+import { esperarHidratacao } from '@/utils/esperar-hidratacao';
 import { ocorrenciaDaChave } from '@/utils/notificacoes';
 import { ACAO_ADIAR, ACAO_FEITO } from '@/utils/preparar-notificacoes';
 
@@ -21,16 +23,6 @@ const lerDados = (notificacao: Notifications.Notification): DadosNotificacao | n
   const lidos: unknown = conteudo.dataString ? JSON.parse(conteudo.dataString) : null;
   return ehDados(lidos) ? lidos : null;
 };
-
-const storeCarregada = () =>
-  useLembretesStore.persist.hasHydrated()
-    ? Promise.resolve()
-    : new Promise<void>((pronto) => {
-        const parar = useLembretesStore.persist.onFinishHydration(() => {
-          parar();
-          pronto();
-        });
-      });
 
 /**
  * Trata o toque na notificação ou num botão dela. "Tomei"/"Fiz" marca o horário como feito;
@@ -48,11 +40,14 @@ export const responderNotificacao = async (
     return null;
   }
   if (resposta.actionIdentifier === ACAO_FEITO) {
-    await storeCarregada();
+    await esperarHidratacao(useLembretesStore);
     const { lembretes, marcarFeito } = useLembretesStore.getState();
     const ocorrencia = ocorrenciaDaChave(dados.ocorrencia, lembretes);
     if (ocorrencia) marcarFeito(ocorrencia);
     await encerrarOcorrencia(notificacao, dados);
+    await publicarAgendaAtual().catch((erro) =>
+      console.warn('Não foi possível publicar a agenda do relógio', erro)
+    );
     return null;
   }
   return dados.lembreteId;

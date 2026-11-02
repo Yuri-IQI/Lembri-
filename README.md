@@ -180,35 +180,44 @@ No celular, o app companion deve mostrar o relógio como **Conectado**.
 ```
 Celular                                         Relógio
 ───────                                         ───────
-[Enviar ao relógio] ── /lembri/lembrete ──────▶ LembriWearListenerService
-                         {id, titulo, horario}        │
+Stores de lembretes ── /lembri/agenda ────────▶ LembriWearListenerService
+  (hoje + amanhã)        DataItem único               │
                                                       ▼
-                                                LembreteRepository ─▶ tela atualiza
+                                                AgendaRepository ─▶ tela atualiza
                                                       │
-Lembrete "Concluído ✓" ◀── /lembri/confirmacao ── toque no lembrete
-                         {lembreteId, concluidoEm}
+EventosRelogioService ◀── /lembri/eventos/<uuid> ── Feito ou exercício concluído
+  └▶ processa e apaga    um DataItem por evento
 ```
+
+Tudo trafega por DataItems: o que for gravado sem conexão é entregue quando os aparelhos se
+reencontram. O serviço do celular acorda o app mesmo com o processo morto (tarefa headless).
 
 ## Arquitetura
 
 ### Contrato compartilhado
 O "idioma" entre os apps (paths, capabilities, JSON) fica definido em **dois arquivos espelhados**:
 
-- `WearableAPP/.../data/comunicacao/ContratoComunicacao.kt` (+ `data/model/Lembrete.kt`)
+- `WearableAPP/.../data/comunicacao/ContratoComunicacao.kt` (+ `data/model/AgendaRelogio.kt` e `EventoRelogio.kt`)
 - `MobileAPP/src/services/wear/contrato.ts`
 
 Mudou um? Mude o outro.
 
 ### MobileAPP (camadas)
 ```
-src/app/index.tsx                 Tela: só usa o hook
-src/hooks/use-wear.ts             Estado React (relógios, lembretes enviados)
+src/hooks/use-sincronizar-relogio.ts   Publica a agenda e lê eventos com o app aberto
 src/services/wear/
   ├─ contrato.ts                  Paths, capabilities e tipos
-  └─ wear-service.ts              Regras: monta JSON, envia, filtra respostas
+  ├─ wear-service.ts              Publica a agenda, lista e apaga eventos
+  ├─ montar-agenda.ts             Ocorrências de hoje e amanhã para o relógio
+  ├─ sincronizar-agenda.ts        Publica só quando a agenda muda
+  ├─ ler-evento.ts                Valida o JSON recebido
+  ├─ processar-eventos.ts         Aplica nas stores, cancela avisos, republica e apaga
+  └─ tarefa-eventos.ts            Registra a tarefa headless (importado em index.ts)
 modules/wear-connector/           Módulo nativo Expo (Kotlin), transporte genérico
   ├─ index.ts                     API JS tipada (null no iOS/web/Expo Go)
-  └─ android/.../WearConnectorModule.kt   MessageClient + CapabilityClient + NodeClient
+  └─ android/.../
+      ├─ WearConnectorModule.kt   DataClient + CapabilityClient + NodeClient
+      └─ EventosRelogioService.kt Acorda o app quando chega um evento
 plugins/with-shared-debug-keystore.js     Alinha a assinatura de debug com o relógio
 ```
 
@@ -218,14 +227,18 @@ LembriWearApplication.kt          Cria o AppContainer (DI manual)
 di/AppContainer.kt                Instâncias únicas compartilhadas
 data/comunicacao/
   ├─ ContratoComunicacao.kt       Paths e capabilities
-  ├─ CelularDataSource.kt         Envia mensagens ao celular
-  └─ LembriWearListenerService.kt Recebe mensagens (mesmo com o app fechado)
-data/model/Lembrete.kt            Modelos + JSON
-data/repository/LembreteRepository.kt   Fonte única da verdade (StateFlow)
+  ├─ CelularDataSource.kt         Lê a agenda, grava eventos, checa a conexão
+  └─ LembriWearListenerService.kt Recebe a agenda (mesmo com o app fechado)
+data/model/                       Agenda, lembrete e evento + JSON
+data/repository/
+  ├─ AgendaRepository.kt          Fonte única da verdade (StateFlow)
+  └─ FeitosLocais.kt              Feitos e desfazer pendente (SharedPreferences)
 presentation/
-  ├─ MainActivity.kt              Liga ViewModel → tela
-  ├─ LembretesViewModel.kt        UiState + ações
-  └─ LembretesScreen.kt           UI stateless (com preview)
+  ├─ MainActivity.kt              Ponto de entrada
+  ├─ navigation/                  Rotas e navegação
+  ├─ inicio/ sequencia/ guardar/ resumo/   Telas e ViewModels
+  ├─ comum/                       Componentes reutilizados
+  └─ theme/                       Cores, tipografia e dimensões
 ```
 
 ## Requisitos para a comunicação funcionar
@@ -242,10 +255,4 @@ presentation/
 
 ## Próximos passos sugeridos
 
-- **Persistência**: trocar o `MutableStateFlow` do `LembreteRepository` por Room/DataStore
-  e o `useState` do `use-wear.ts` por `expo-sqlite`.
-- **Sincronizar estado** (não só eventos): usar `DataClient` (DataItems), que entrega mesmo
-  se o outro lado estiver offline no momento do envio. `MessageClient` é "dispare e esqueça".
-- **Receber no celular com o app fechado**: criar um `WearableListenerService` dentro do
-  módulo `wear-connector` (hoje o celular só ouve enquanto a tela está aberta).
 - **iOS**: Apple Watch não usa Wear OS; exigiria um app watchOS + WatchConnectivity.

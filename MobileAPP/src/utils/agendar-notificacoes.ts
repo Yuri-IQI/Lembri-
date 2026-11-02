@@ -3,7 +3,6 @@ import * as Notifications from 'expo-notifications';
 import {
   MINUTOS_ADIAR,
   SUFIXO_ADIADA,
-  SUFIXO_REAVISO,
   type NotificacaoLembrete,
 } from '@/utils/notificacoes';
 import { CANAL, prepararAvisos } from '@/utils/preparar-notificacoes';
@@ -76,12 +75,29 @@ export const adiarNotificacao = async (
   );
 };
 
+const ehDaOcorrencia = (conteudo: { data?: unknown }, ocorrencia: string) =>
+  (conteudo.data as DadosNotificacao | undefined)?.ocorrencia === ocorrencia;
+
+/** Tira da tela e cancela todos os avisos desse horário, como depois de um "Feito" no relógio. */
+export const cancelarAvisosDaOcorrencia = async (ocorrencia: string) => {
+  const agendadas = await Notifications.getAllScheduledNotificationsAsync();
+  for (const agendada of agendadas) {
+    if (ehDaOcorrencia(agendada.content, ocorrencia)) {
+      await Notifications.cancelScheduledNotificationAsync(agendada.identifier);
+    }
+  }
+  for (const { request } of await Notifications.getPresentedNotificationsAsync()) {
+    if (ehDaOcorrencia(request.content, ocorrencia)) {
+      await Notifications.dismissNotificationAsync(request.identifier);
+    }
+  }
+};
+
 /** Depois do "Tomei"/"Fiz": tira da tela e cancela o que ainda viria para esse horário. */
 export const encerrarOcorrencia = async (
   notificacao: Notifications.Notification,
   { ocorrencia }: DadosNotificacao
 ) => {
   await Notifications.dismissNotificationAsync(notificacao.request.identifier);
-  await Notifications.cancelScheduledNotificationAsync(`${ocorrencia}${SUFIXO_REAVISO}`);
-  await Notifications.cancelScheduledNotificationAsync(`${ocorrencia}${SUFIXO_ADIADA}`);
+  await cancelarAvisosDaOcorrencia(ocorrencia);
 };

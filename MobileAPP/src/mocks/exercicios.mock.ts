@@ -104,6 +104,22 @@ export const exerciciosIniciaisMock: Exercicio[] = [
     duracaoEstimadaMinutos: 10,
     rodadas: [],
   },
+  {
+    id: 'exercicio-relogio-guardar',
+    titulo: 'Guardar no lugar',
+    descricao: 'Lembre onde cada objeto foi guardado. Disponível no relógio.',
+    instrucoes: [
+      'Este exercício é feito no relógio. Abra o Lembri no relógio e escolha "Guardar no lugar".',
+      'Os resultados aparecem aqui quando o relógio se conecta ao celular.',
+    ],
+    icone: 'associacao',
+    tituloMemorizacao: 'Lembre-se dos Lugares!',
+    modoResposta: 'opcoes',
+    nivel: 'facil',
+    duracaoEstimadaMinutos: 2,
+    rodadas: [],
+    somenteRelogio: true,
+  },
 ];
 
 /**
