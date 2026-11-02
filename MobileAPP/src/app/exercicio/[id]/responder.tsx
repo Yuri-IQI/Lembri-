@@ -22,8 +22,6 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 import type { Exercicio, RodadaExercicio } from '@/types/exercicio';
 import { avaliarCasa } from '@/utils/exercicio';
 
-const semAcao = () => {};
-
 interface FormularioRodadaProps {
   exercicio: Exercicio;
   rodadaAtual: RodadaExercicio;
@@ -242,12 +240,7 @@ const ResponderExercicioScreen = () => {
   if (!sessaoValida || !exercicio || !rodadaAtual) {
     return (
       <View style={styles.tela}>
-        <TopBar
-          titulo="Exercícios"
-          onVoltar={() => router.replace('/exercicios')}
-          onAjuda={semAcao}
-          onAudio={semAcao}
-        />
+        <TopBar onVoltar={() => router.replace('/exercicios')} />
         <View style={styles.conteudoVazio}>
           <ThemedText type="title">Este exercício não está em andamento</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
@@ -297,12 +290,7 @@ const ResponderExercicioScreen = () => {
 
   return (
     <View style={styles.tela}>
-      <TopBar
-        titulo="Exercícios"
-        onVoltar={pedirSaida}
-        onAjuda={semAcao}
-        onAudio={semAcao}
-      />
+      <TopBar onVoltar={pedirSaida} saidaProtegida />
 
       {aviso && (
         <View style={styles.aviso}>

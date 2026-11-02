@@ -1,6 +1,8 @@
 import { useExerciciosStore } from '../useExerciciosStore';
 import { useLembretesStore } from '../useLembretesStore';
+import { useSettingsStore } from '../useSettingsStore';
 import { useTiposLembreteStore } from '../useTiposLembreteStore';
+import { apagarTodosOsDados } from '../../utils/apagar-dados';
 import { dadosIniciais } from '../../utils/dados-iniciais';
 import {
   avaliarCasa,
@@ -448,6 +450,24 @@ useExerciciosStore.getState().resetarParaMocks();
     5,
     'Deve restaurar os 5 exercícios'
   );
+}
+
+// Teste: apagar todos os dados
+{
+  useSettingsStore.getState().toggleReminderAlerts();
+  useSettingsStore.getState().setLargeText(true);
+  apagarTodosOsDados();
+
+  assert.strictEqual(useLembretesStore.getState().lembretes.length, 0, 'Sem lembretes');
+  assert.strictEqual(useLembretesStore.getState().ultimoExcluido, null, 'Sem exclusão para desfazer');
+  assert.strictEqual(useExerciciosStore.getState().historico.length, 0, 'Sem histórico');
+  assert.strictEqual(useExerciciosStore.getState().exercicios.length, 5, 'Mantém o catálogo');
+  assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Tipos iniciais');
+  assert.strictEqual(useSettingsStore.getState().reminderAlerts, true, 'Avisos voltam ao padrão');
+  assert.strictEqual(useSettingsStore.getState().isLargeText, false, 'Texto volta ao padrão');
+
+  useLembretesStore.getState().resetarParaMocks();
+  useExerciciosStore.getState().resetarParaMocks();
 }
 
 // Teste RN-08: Contadores de Ativos e Por Categoria (CARD-31 e CARD-34)

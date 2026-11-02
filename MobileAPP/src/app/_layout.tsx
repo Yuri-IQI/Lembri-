@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { StatusBar, useColorScheme } from 'react-native';
 
 import { Splash } from '@/components/splash';
+import { DialogoVoz } from '@/components/voz/dialogo-voz';
 import { useRespostasNotificacao } from '@/hooks/use-respostas-notificacao';
 import { useSincronizarNotificacoes } from '@/hooks/use-sincronizar-notificacoes';
 import { useStoresHidratadas } from '@/hooks/use-stores-hidratadas';
@@ -33,6 +34,7 @@ const RootLayout = () => {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
       <Stack screenOptions={{ headerShown: false }} />
+      <DialogoVoz />
       {!hasSeenSplash && <Splash onFim={markSplashSeen} />}
     </ThemeProvider>
   );

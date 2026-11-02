@@ -11,6 +11,7 @@ import { FormularioLivre } from '@/components/forms/formulario-livre';
 import { FormularioRemedio } from '@/components/forms/formulario-remedio';
 import { FormularioTarefa } from '@/components/forms/formulario-tarefa';
 import type { PropsFormulario } from '@/components/forms/props-formulario';
+import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useFormularioLembrete } from '@/hooks/formulario/use-formulario-lembrete';
 import { useOpcoesTipo } from '@/hooks/formulario/use-opcoes-tipo';
@@ -34,7 +35,7 @@ type TelaFormularioProps<T extends TemplateId> = {
 };
 
 /**
- * Estrutura comum aos formulários de criar e editar: barra superior com título, campos do
+ * Estrutura comum aos formulários de criar e editar: barra superior, título, campos do
  * template, botão de salvar e confirmação ao sair sem salvar.
  */
 export const TelaFormulario = <T extends TemplateId>({
@@ -62,11 +63,14 @@ export const TelaFormulario = <T extends TemplateId>({
 
   return (
     <View style={styles.tela}>
-      <TopBar titulo={titulo} onVoltar={pedirSaida} />
+      <TopBar onVoltar={pedirSaida} saidaProtegida />
       <ScrollView
         ref={rolagem}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.conteudo}>
+        <ThemedText type="title" accessibilityRole="header">
+          {titulo}
+        </ThemedText>
         <Corpo form={form} registrar={registrar} tipos={opcoes} />
       </ScrollView>
       <SafeAreaView edges={['bottom']} style={styles.acoes}>

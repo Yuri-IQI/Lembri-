@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
+import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import type { Exercicio } from '@/types/exercicio';
 import {
@@ -39,6 +40,18 @@ const ExerciciosScreen = () => {
   );
 
   const itensDaLista = useMemo(() => agruparExercicios(exercicios), [exercicios]);
+
+  const comandosVoz = useMemo(
+    () =>
+      exercicios.map((exercicio) => ({
+        id: `exercicio-${exercicio.id}`,
+        rotulo: exercicio.titulo,
+        frases: exercicio.grupo ? [exercicio.titulo, exercicio.grupo] : [exercicio.titulo],
+        executar: () => router.push(`/exercicio/${exercicio.id}`),
+      })),
+    [exercicios]
+  );
+  useComandosDeVoz(comandosVoz);
 
   const handleComecar = (exercicio: Exercicio) => {
     iniciarSessao(exercicio.id);

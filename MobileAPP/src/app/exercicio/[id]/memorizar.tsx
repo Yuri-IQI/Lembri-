@@ -13,8 +13,6 @@ import { Spacing } from '@/constants/theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useAvisoStore } from '@/stores/useAvisoStore';
 
-const semAcao = () => {};
-
 /**
  * Fase de memorização prévia do exercício cognitivo (CARD-37 / frame exercicios_preview).
  *
@@ -31,12 +29,7 @@ const MemorizarExercicioScreen = () => {
   if (!sessaoValida || !exercicio || !rodadaAtual) {
     return (
       <View style={styles.tela}>
-        <TopBar
-          titulo="Exercícios"
-          onVoltar={() => router.replace('/exercicios')}
-          onAjuda={semAcao}
-          onAudio={semAcao}
-        />
+        <TopBar onVoltar={() => router.replace('/exercicios')} />
         <View style={styles.conteudoVazio}>
           <ThemedText type="title">Este exercício não está em andamento</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
@@ -61,12 +54,7 @@ const MemorizarExercicioScreen = () => {
 
   return (
     <View style={styles.tela}>
-      <TopBar
-        titulo="Exercícios"
-        onVoltar={pedirSaida}
-        onAjuda={semAcao}
-        onAudio={semAcao}
-      />
+      <TopBar onVoltar={pedirSaida} saidaProtegida />
 
       <ScrollView style={styles.rolagem} contentContainerStyle={styles.conteudo}>
         {aviso && <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />}
