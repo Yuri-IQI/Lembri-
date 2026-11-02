@@ -14,8 +14,6 @@ import { descreverAgenda, horariosDoLembrete } from '@/utils/lembrete';
 type BlocoConfiguracaoProps = {
   lembrete: Lembrete;
   horarioDestacado?: string;
-  /** Horários de hoje já marcados como feitos. */
-  feitosHoje?: string[];
 };
 
 const Secao = ({
@@ -41,11 +39,7 @@ const Secao = ({
   );
 };
 
-export const BlocoConfiguracao = ({
-  lembrete,
-  horarioDestacado,
-  feitosHoje = [],
-}: BlocoConfiguracaoProps) => {
+export const BlocoConfiguracao = ({ lembrete, horarioDestacado }: BlocoConfiguracaoProps) => {
   const detalhes = detalhesDoLembrete(lembrete);
 
   return (
@@ -53,12 +47,7 @@ export const BlocoConfiguracao = ({
       <Secao rotulo="Horários" divisor>
         <View style={styles.chips}>
           {horariosDoLembrete(lembrete).map((horario) => (
-            <ChipHorario
-              key={horario}
-              horario={horario}
-              destacado={horario === horarioDestacado}
-              feito={feitosHoje.includes(horario)}
-            />
+            <ChipHorario key={horario} horario={horario} destacado={horario === horarioDestacado} />
           ))}
         </View>
       </Secao>
