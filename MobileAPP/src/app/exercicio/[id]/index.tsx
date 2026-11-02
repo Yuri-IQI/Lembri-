@@ -10,6 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { estatisticasDoExercicio, historicoDoExercicio } from '@/utils/exercicio';
 
 const semAcao = () => {};
@@ -26,6 +27,7 @@ const ExercicioDetalheScreen = () => {
   const exercicios = useExerciciosStore((state) => state.exercicios);
   const historico = useExerciciosStore((state) => state.historico);
   const iniciarSessao = useExerciciosStore((state) => state.iniciarSessao);
+  const comDicas = useSettingsStore((state) => state.showExerciseHints);
 
   const exercicio = useMemo(
     () => exercicios.find((item) => item.id === id),
@@ -99,6 +101,11 @@ const ExercicioDetalheScreen = () => {
                 {paragrafo}
               </ThemedText>
             ))}
+            {comDicas && exercicio.instrucaoDicas && (
+              <ThemedText type="default" style={styles.textoInstrucao}>
+                {exercicio.instrucaoDicas}
+              </ThemedText>
+            )}
           </View>
         </Card>
 

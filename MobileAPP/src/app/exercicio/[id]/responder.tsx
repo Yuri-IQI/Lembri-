@@ -1,6 +1,8 @@
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TopBar } from '@/components/app-bar/top-bar';
 import { AvisoSucesso } from '@/components/aviso-sucesso';
@@ -16,7 +18,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useAvisoStore } from '@/stores/useAvisoStore';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import type { Exercicio, RodadaExercicio } from '@/types/exercicio';
+import { avaliarCasa } from '@/utils/exercicio';
 
 const semAcao = () => {};
 
@@ -27,8 +31,8 @@ interface FormularioRodadaProps {
   totalRodadas: number;
   respostasIniciais: string[];
   opcoesRodada: string[];
-  pedirSaida: () => boolean;
   onConcluirRodada: (respostas: string[]) => void;
+  onSeguirSemCorrigir: () => void;
 }
 
 /**
@@ -42,8 +46,8 @@ const FormularioRodada = ({
   totalRodadas,
   respostasIniciais,
   opcoesRodada,
-  pedirSaida,
   onConcluirRodada,
+  onSeguirSemCorrigir,
 }: FormularioRodadaProps) => {
   const theme = useTheme();
   const totalCasas = rodadaAtual.itens.length;
@@ -60,6 +64,23 @@ const FormularioRodada = ({
   });
 
   const [bufferDigitos, setBufferDigitos] = useState('');
+  const [conferidas, setConferidas] = useState<string[] | null>(null);
+  const modoTeclado = exercicio.modoResposta === 'teclado';
+  const comDicas = useSettingsStore((state) => state.showExerciseHints);
+  const avaliacoes = conferidas
+    ? respostas.map((valor, i) =>
+        valor && valor === conferidas[i] ? avaliarCasa(valor, i, rodadaAtual.itens, comDicas) : null
+      )
+    : undefined;
+
+  const handleContinuar = () => {
+    if (conferidas?.every((valor, i) => valor === respostas[i])) {
+      onSeguirSemCorrigir();
+      return;
+    }
+    onConcluirRodada(respostas);
+    setConferidas(respostas);
+  };
 
   const tamanhoEsperadoDigitos = rodadaAtual.itens[0]?.length ?? 2;
   const todasPreenchidas = respostas.every((r) => r.trim().length > 0);
@@ -128,42 +149,60 @@ const FormularioRodada = ({
 
   return (
     <>
-      <View style={styles.progresso}>
-        <ThemedText type="label" themeColor="textSecondary" accessibilityRole="header">
-          RODADA {indiceRodada + 1} DE {totalRodadas}
-        </ThemedText>
-      </View>
+      <ScrollView
+        style={styles.rolagem}
+        contentContainerStyle={styles.conteudo}
+        keyboardShouldPersistTaps="handled">
+        <View style={styles.progresso}>
+          <ThemedText type="label" themeColor="textSecondary" accessibilityRole="header">
+            RODADA {indiceRodada + 1} DE {totalRodadas}
+          </ThemedText>
+        </View>
 
-      <CasasResposta
-        respostas={respostas}
-        casaAtiva={casaAtiva}
-        dicas={rodadaAtual.dicas}
-        aoSelecionarCasa={handleSelecionarCasa}
-      />
-
-      <View style={[styles.divisor, { backgroundColor: theme.divider }]} />
-
-      {exercicio.modoResposta === 'teclado' ? (
-        <TecladoNumerico
-          bufferDigitos={bufferDigitos}
-          tamanhoEsperado={tamanhoEsperadoDigitos}
-          aoDigitar={handleDigitar}
-          aoApagar={handleApagar}
+        <CasasResposta
+          respostas={respostas}
+          casaAtiva={casaAtiva}
+          dicas={rodadaAtual.dicas}
+          rascunho={bufferDigitos}
+          avaliacoes={avaliacoes}
+          colunas={modoTeclado ? totalCasas : rodadaAtual.numerada ? 1 : 2}
+          cor={rodadaAtual.cor}
+          numerada={rodadaAtual.numerada}
+          aoSelecionarCasa={handleSelecionarCasa}
         />
-      ) : (
-        <OpcoesResposta
-          opcoes={opcoesRodada}
-          respostasAtuais={respostas}
-          aoSelecionarOpcao={handleSelecionarOpcao}
-        />
-      )}
 
-      <BarraAcoesExercicio
-        onSair={pedirSaida}
-        onContinuar={() => onConcluirRodada(respostas)}
-        continuarHabilitado={todasPreenchidas}
-        mensagemAviso={!todasPreenchidas ? 'Preencha todas as casas para continuar' : undefined}
-      />
+        {conferidas && (
+          <ThemedText type="small" themeColor="textSecondary" accessibilityLiveRegion="polite">
+            {comDicas &&
+              `Amarelo: ${modoTeclado ? 'número' : rodadaAtual.numerada ? 'passo' : 'palavra'} de outra posição. `}
+            Corrija e toque em CONTINUAR, ou toque de novo para seguir.
+          </ThemedText>
+        )}
+
+        <View style={[styles.divisor, { backgroundColor: theme.divider }]} />
+
+        {modoTeclado ? (
+          <TecladoNumerico
+            aoDigitar={handleDigitar}
+            aoApagar={handleApagar}
+          />
+        ) : (
+          <OpcoesResposta
+            opcoes={opcoesRodada}
+            respostasAtuais={respostas}
+            aoSelecionarOpcao={handleSelecionarOpcao}
+          />
+        )}
+
+      </ScrollView>
+
+      <SafeAreaView edges={['bottom']} style={styles.rodape}>
+        <BarraAcoesExercicio
+          onContinuar={handleContinuar}
+          continuarHabilitado={todasPreenchidas}
+          mensagemAviso={!todasPreenchidas ? 'Preencha todas as casas para continuar' : undefined}
+        />
+      </SafeAreaView>
     </>
   );
 };
@@ -172,8 +211,8 @@ const FormularioRodada = ({
  * Tela de resposta interativa da rodada do exercício cognitivo (CARD-37 / frame exercicios_exec).
  *
  * Suporta modo teclado numérico (Sequências) e modo seleção de chips embaralhados (Ordenação,
- * Associações e Lista de compras), com navegação automática entre casas, revisão por toque e
- * confirmação com prevenção de avanço incompleto (RN-EX-08, RN-EX-09, RN-EX-10).
+ * Associações e Lista de compras), com navegação automática entre casas, revisão por toque,
+ * feedback nas próprias casas e confirmação com prevenção de avanço incompleto (RN-EX-08, RN-EX-09, RN-EX-10).
  */
 const ResponderExercicioScreen = () => {
   const {
@@ -226,28 +265,31 @@ const ResponderExercicioScreen = () => {
     );
   }
 
+  const irParaProximaRodada = () => {
+    if (avancarRodada()) {
+      router.replace(`/exercicio/${exercicio.id}/memorizar`);
+    } else {
+      concluirSessao();
+      router.replace(`/exercicio/${exercicio.id}/resumo`);
+    }
+  };
+
   // Confirmação da rodada
   const handleConcluirRodada = (respostasFinais: string[]) => {
     const resultado = responderRodada(respostasFinais);
     if (!resultado) return;
 
+    void Haptics.notificationAsync(
+      resultado.percentual === 100
+        ? Haptics.NotificationFeedbackType.Success
+        : Haptics.NotificationFeedbackType.Error
+    );
+
     if (resultado.percentual === 100) {
-      // Rodada toda correta
       mostrarAviso('Tudo certo!');
       AccessibilityInfo.announceForAccessibility('Tudo certo!');
 
-      const temProxima = avancarRodada();
-      if (temProxima) {
-        // Próxima rodada
-        router.replace(`/exercicio/${exercicio.id}/responder`);
-      } else {
-        // Conclui a sessão e abre o resumo
-        concluirSessao();
-        router.replace(`/exercicio/${exercicio.id}/resumo`);
-      }
-    } else {
-      // Teve erro: direciona para tela de correção da rodada
-      router.replace(`/exercicio/${exercicio.id}/correcao`);
+      irParaProximaRodada();
     }
   };
 
@@ -262,21 +304,23 @@ const ResponderExercicioScreen = () => {
         onAudio={semAcao}
       />
 
-      <ScrollView contentContainerStyle={styles.conteudo} keyboardShouldPersistTaps="handled">
-        {aviso && <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />}
+      {aviso && (
+        <View style={styles.aviso}>
+          <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />
+        </View>
+      )}
 
-        <FormularioRodada
-          key={`${exercicio.id}-rodada-${indiceRodada}`}
-          exercicio={exercicio}
-          rodadaAtual={rodadaAtual}
-          indiceRodada={indiceRodada}
-          totalRodadas={totalRodadas}
-          respostasIniciais={respostasSalvas}
-          opcoesRodada={opcoesRodada}
-          pedirSaida={pedirSaida}
-          onConcluirRodada={handleConcluirRodada}
-        />
-      </ScrollView>
+      <FormularioRodada
+        key={`${exercicio.id}-rodada-${indiceRodada}`}
+        exercicio={exercicio}
+        rodadaAtual={rodadaAtual}
+        indiceRodada={indiceRodada}
+        totalRodadas={totalRodadas}
+        respostasIniciais={respostasSalvas}
+        opcoesRodada={opcoesRodada}
+        onConcluirRodada={handleConcluirRodada}
+        onSeguirSemCorrigir={irParaProximaRodada}
+      />
 
       <DialogoConfirmacao
         visivel={dialogoSaida.visivel}
@@ -295,6 +339,16 @@ const ResponderExercicioScreen = () => {
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
+  },
+  rolagem: {
+    flex: 1,
+  },
+  aviso: {
+    paddingHorizontal: Spacing.four,
+  },
+  rodape: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
   },
   conteudo: {
     paddingHorizontal: Spacing.four,

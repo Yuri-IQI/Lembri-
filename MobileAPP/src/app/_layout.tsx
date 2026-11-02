@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 
 import { Splash } from '@/components/splash';
 import { useRespostasNotificacao } from '@/hooks/use-respostas-notificacao';
@@ -31,6 +31,7 @@ const RootLayout = () => {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
       <Stack screenOptions={{ headerShown: false }} />
       {!hasSeenSplash && <Splash onFim={markSplashSeen} />}
     </ThemeProvider>

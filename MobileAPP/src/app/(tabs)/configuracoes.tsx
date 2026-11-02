@@ -13,6 +13,8 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 const ConfiguracoesScreen = () => {
   const isLargeText = useSettingsStore((state) => state.isLargeText);
   const toggleLargeText = useSettingsStore((state) => state.toggleLargeText);
+  const showExerciseHints = useSettingsStore((state) => state.showExerciseHints);
+  const toggleExerciseHints = useSettingsStore((state) => state.toggleExerciseHints);
 
   return (
     <MainContainer>
@@ -23,6 +25,13 @@ const ConfiguracoesScreen = () => {
         descricao="Aumenta em 20% o tamanho de todos os textos do Lembri para melhorar o conforto visual e a legibilidade."
         ligado={isLargeText}
         onAlternar={toggleLargeText}
+      />
+
+      <CartaoAjuste
+        titulo="Dicas nos exercícios"
+        descricao="Depois de conferir a resposta, mostra se o número está acima ou abaixo do valor certo e marca em amarelo o que é de outra posição. Desligado, cada casa mostra só certo ou errado."
+        ligado={showExerciseHints}
+        onAlternar={toggleExerciseHints}
       />
 
       {__DEV__ && <SecaoDesenvolvimento />}

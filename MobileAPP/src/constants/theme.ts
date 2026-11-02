@@ -36,7 +36,7 @@ export const Colors = {
   chipSelected: '#CCCCCC',
   /** Borda tracejada do chip "+ Novo tipo" (Figma). */
   borderDashed: '#787878',
-  tabActive: '#EAE28A',
+  tabActive: '#F8EB5C',
   success: '#A8D5A2',
   /** Fundo de destaque para resposta correta nos exercícios (Figma). */
   answerCorrect: '#ECF3D9',

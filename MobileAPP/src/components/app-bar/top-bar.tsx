@@ -17,9 +17,9 @@ type TopBarProps = {
 const BOTAO = ComponentSize.topBarButton;
 
 /**
- * Barra superior sobre o fundo da tela (título só nos formulários):
+ * Barra superior com fundo próprio (título só nos formulários):
  * - Botão voltar à esquerda (alvo de toque TouchTarget = 56dp);
- * - Ações de ajuda e áudio à direita (alvos de toque TouchTarget = 56dp com círculo visual de 31px).
+ * - Ações de ajuda e áudio à direita, em pílulas com ícone e rótulo (alvo de toque TouchTarget = 56dp).
  *
  * Em conformidade com WCAG 2.2 AAA (Critério 2.5.5) sem sobreposição de hitSlop entre controles.
  */
@@ -40,14 +40,17 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
       accessibilityRole="button"
       accessibilityLabel={acao.rotulo}
       style={({ pressed }) => [styles.areaToqueAcao, { opacity: pressed ? 0.6 : 1 }]}>
-      <View style={[styles.circulo, { borderColor: theme.border }]}>
-        <SymbolView name={{ android: acao.icone }} size={22} tintColor={theme.text} />
+      <View style={[styles.pilula, { borderColor: theme.border }]}>
+        <View style={[styles.circulo, { borderColor: theme.border }]}>
+          <SymbolView name={{ android: acao.icone }} size={22} tintColor={theme.text} />
+        </View>
+        <ThemedText type="small">{acao.rotulo}</ThemedText>
       </View>
     </Pressable>
   ));
 
   return (
-    <BarFrame posicao="top" fundo="background" style={styles.barra}>
+    <BarFrame posicao="top" style={styles.barra}>
       <View style={styles.voltarContainer}>
         {onVoltar && (
           <Pressable
@@ -68,11 +71,7 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
         )}
       </View>
 
-      {botoes.length > 1 ? (
-        <View style={[styles.grupo, { borderColor: theme.border }]}>{botoes}</View>
-      ) : (
-        botoes
-      )}
+      {botoes}
     </BarFrame>
   );
 };
@@ -96,17 +95,19 @@ const styles = StyleSheet.create({
   espaco: {
     flex: 1,
   },
-  grupo: {
+  areaToqueAcao: {
+    height: TouchTarget,
+    justifyContent: 'center',
+  },
+  pilula: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.one,
+    paddingVertical: Spacing.one,
+    paddingLeft: Spacing.one,
+    paddingRight: Spacing.two,
     borderWidth: BorderWidth.hairline,
     borderRadius: Radius.full,
-  },
-  areaToqueAcao: {
-    width: TouchTarget,
-    height: TouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   circulo: {
     width: BOTAO,
