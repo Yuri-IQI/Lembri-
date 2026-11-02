@@ -68,7 +68,15 @@
         }
       ],
       "./plugins/with-fast-gradle",
-      "./plugins/with-windows-cmake"
+      "./plugins/with-windows-cmake",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "O Lembri usa o microfone para entender seus comandos de voz.",
+          "speechRecognitionPermission": "O Lembri usa o reconhecimento de fala para entender seus comandos de voz.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

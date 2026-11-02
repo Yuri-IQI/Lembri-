@@ -16,6 +16,8 @@ export interface SettingsState extends UserSettings {
   setLargeText: (enabled: boolean) => void;
   /** Liga ou desliga as dicas nas casas dos exercícios. */
   toggleExerciseHints: () => void;
+  /** Liga ou desliga as notificações dos lembretes. */
+  toggleReminderAlerts: () => void;
   /** Marca a tela de boas-vindas como vista. Idempotente. */
   markSplashSeen: () => void;
   /** Define o limite de lembretes, dentro da faixa de desenvolvimento. */
@@ -56,6 +58,11 @@ export const useSettingsStore = create<SettingsState>()(
           showExerciseHints: !state.showExerciseHints,
         })),
 
+      toggleReminderAlerts: () =>
+        set((state) => ({
+          reminderAlerts: !state.reminderAlerts,
+        })),
+
       markSplashSeen: () =>
         set(() => ({
           hasSeenSplash: true,
@@ -81,7 +88,10 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'lembri-settings',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
+        isLargeText: state.isLargeText,
+        textScaleFactor: state.textScaleFactor,
         showExerciseHints: state.showExerciseHints,
+        reminderAlerts: state.reminderAlerts,
         hasSeenSplash: state.hasSeenSplash,
         reminderLimit: state.reminderLimit,
       }),

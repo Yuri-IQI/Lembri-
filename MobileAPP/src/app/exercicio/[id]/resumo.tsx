@@ -12,8 +12,6 @@ import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import { formatarDuracao, resultadoDaSessao } from '@/utils/exercicio';
 
-const semAcao = () => {};
-
 /**
  * Tela de resumo e consolidação do desempenho no exercício cognitivo (CARD-38 / frame exercicios_review).
  *
@@ -52,12 +50,7 @@ const ResumoExercicioScreen = () => {
   if (!sessaoValida || !exercicio || !resultado) {
     return (
       <View style={styles.tela}>
-        <TopBar
-          titulo="Exercícios"
-          onVoltar={() => router.replace('/exercicios')}
-          onAjuda={semAcao}
-          onAudio={semAcao}
-        />
+        <TopBar onVoltar={() => router.replace('/exercicios')} />
         <View style={styles.conteudoVazio}>
           <ThemedText type="title">Nenhum resumo disponível</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
@@ -86,12 +79,7 @@ const ResumoExercicioScreen = () => {
 
   return (
     <View style={styles.tela}>
-      <TopBar
-        titulo="Exercícios"
-        onVoltar={handleVoltarExercicios}
-        onAjuda={semAcao}
-        onAudio={semAcao}
-      />
+      <TopBar onVoltar={handleVoltarExercicios} />
 
       <ScrollView contentContainerStyle={styles.conteudo}>
         <View style={styles.cabecalho}>
