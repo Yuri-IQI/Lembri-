@@ -30,7 +30,6 @@ const animarPonto = (ponto: Animated.Value) =>
     Animated.sequence([mover(ponto, 1, pulsoMs), mover(ponto, opacidadePonto, pulsoMs)])
   );
 
-/** Sombra passando sobre a lua. Com "Reduzir movimento", fica parada no centro (WCAG 2.3.3). */
 export const Eclipse = () => {
   const [sombra] = useState(() => new Animated.Value(0));
   const [ponto] = useState(() => new Animated.Value(1));

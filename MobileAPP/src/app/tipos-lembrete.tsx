@@ -4,9 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { AvisoSucesso } from '@/components/aviso-sucesso';
-import { Botao } from '@/components/botao';
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { AvisoSucesso } from '@/components/feedback/aviso-sucesso';
+import { Botao } from '@/components/controles/botao';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { CriarTipo } from '@/components/tipos/criar-tipo';
@@ -18,14 +18,10 @@ import { useSelecaoTiposStore } from '@/stores/useSelecaoTiposStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import { LIMITE_TIPOS } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
-import { plural } from '@/utils/texto';
+import { plural } from '@/utils/texto/texto';
 
 const voltar = () => router.back();
 
-/**
- * Tipos de Lembretes (CARD-34, Figma 152:1608): criar, excluir e, vindo do formulário, escolher
- * até LIMITE_TIPOS para o lembrete. Cada toque já chega ao formulário.
- */
 const TiposLembreteScreen = () => {
   const theme = useTheme();
   const { tipos, removerTipo } = useTiposLembreteStore(

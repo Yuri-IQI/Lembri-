@@ -11,9 +11,6 @@ type CardTemplateProps = {
   onEscolher: () => void;
 };
 
-/**
- * Card de um template na tela "Novo lembrete": ícone, nome e exemplo de uso.
- */
 export const CardTemplate = ({ template, onEscolher }: CardTemplateProps) => {
   const theme = useTheme();
 

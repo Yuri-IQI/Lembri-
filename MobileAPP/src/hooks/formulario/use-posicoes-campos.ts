@@ -1,11 +1,8 @@
 import { useRef } from 'react';
 import type { LayoutChangeEvent, ScrollViewInstance } from 'react-native';
 
-import type { CampoComErro } from '@/utils/validar-lembrete';
+import type { CampoComErro } from '@/utils/lembrete/validar-lembrete';
 
-/**
- * Guarda onde cada campo está no formulário para rolar até o primeiro erro.
- */
 export const usePosicoesCampos = () => {
   const rolagem = useRef<ScrollViewInstance>(null);
   const posicoes = useRef<Partial<Record<CampoComErro, number>>>({});

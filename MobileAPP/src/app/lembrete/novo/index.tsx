@@ -5,7 +5,7 @@ import { TopBar } from '@/components/app-bar/top-bar';
 import { CardTemplate } from '@/components/forms/card-template';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
+import { useComandosDeVoz } from '@/hooks/voz/use-comandos-de-voz';
 import { templatesLembreteMock } from '@/mocks/templates-lembrete.mock';
 import type { ComandoVoz } from '@/types/comando-voz';
 import type { TemplateLembrete } from '@/types/template-lembrete';

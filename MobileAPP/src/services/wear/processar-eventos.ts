@@ -1,8 +1,8 @@
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import { useLembretesStore } from '@/stores/useLembretesStore';
-import { cancelarAvisosDaOcorrencia } from '@/utils/agendar-notificacoes';
-import { esperarHidratacao } from '@/utils/esperar-hidratacao';
-import { ocorrenciaDaChave } from '@/utils/notificacoes';
+import { cancelarAvisosDaOcorrencia } from '@/utils/notificacoes/agendar-notificacoes';
+import { esperarHidratacao } from '@/utils/dados/esperar-hidratacao';
+import { ocorrenciaDaChave } from '@/utils/notificacoes/notificacoes';
 
 import type { EventoRelogio } from './contrato';
 import { lerEvento } from './ler-evento';
@@ -50,7 +50,6 @@ const processar = async () => {
 
 let fila = Promise.resolve();
 
-/** Aplica o que veio do relógio, um processamento por vez. Pode rodar sem nenhuma tela aberta. */
 export const processarEventos = () => {
   fila = fila
     .then(processar)

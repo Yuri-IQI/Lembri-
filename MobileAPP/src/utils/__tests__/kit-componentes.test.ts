@@ -1,11 +1,10 @@
 import { Colors, PaletaTipos } from '@/constants/theme';
 import type { TentativaExercicio } from '@/types/exercicio';
-import { razaoDeContraste } from '@/utils/contraste';
-import { corLegivelDoMatiz, hslParaHex, matizDaCor } from '@/utils/cor';
-import { descreverUltimaAtividade, ultimaTentativa } from '@/utils/exercicio';
-import { ajustarHorario } from '@/utils/horario';
+import { razaoDeContraste } from '@/utils/cor/contraste';
+import { corLegivelDoMatiz, hslParaHex, matizDaCor } from '@/utils/cor/cor';
+import { descreverUltimaAtividade, ultimaTentativa } from '@/utils/exercicio/exercicio';
+import { ajustarHorario } from '@/utils/tempo/horario';
 
-// Asserções leves sem dependência de runner ou tipos externos de Node
 function assert(condition: unknown, message?: string): asserts condition {
   if (!condition) {
     throw new Error(`Assertion failed: ${message ?? 'Condition not met'}`);
@@ -24,7 +23,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   }
 };
 
-// T01: Contraste da cor de perigo (Colors.onPrimary sobre Colors.danger) >= 7:1 (WCAG 2.2 AAA)
 {
   const contraste = razaoDeContraste(Colors.onPrimary, Colors.danger);
   assert.ok(
@@ -33,7 +31,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   );
 }
 
-// T02: Contraste de todas as cores da PaletaTipos contra Colors.text (preto) >= 7:1
 {
   for (const cor of PaletaTipos) {
     const contraste = razaoDeContraste(Colors.text, cor.corHex);
@@ -44,7 +41,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   }
 }
 
-// T03: ajustarHorario com wrap de horas sem alterar minutos
 {
   const avancado = ajustarHorario('23:00', 'hora', 1);
   assert.strictEqual(avancado, '00:00', '23:00 + 1 hora deve dar a volta para 00:00');
@@ -53,7 +49,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   assert.strictEqual(recuado, '23:00', '00:00 - 1 hora deve dar a volta para 23:00');
 }
 
-// T04: ajustarHorario com wrap de minutos em passos de 5 sem alterar horas
 {
   const avancado = ajustarHorario('08:55', 'minuto', 1, 5);
   assert.strictEqual(
@@ -70,7 +65,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   );
 }
 
-// T05: ajustarHorario com entrada inválida (normaliza a partir de 00:00)
 {
   const resultado = ajustarHorario('abc', 'hora', 1);
   assert.strictEqual(
@@ -80,7 +74,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   );
 }
 
-// T06: ultimaTentativa com histórico fora de ordem
 {
   const historicoDesordenado: TentativaExercicio[] = [
     {
@@ -130,14 +123,12 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   );
 }
 
-// T07: descreverUltimaAtividade quando não há tentativas
 {
   const agora = new Date(2026, 9, 31, 14, 0, 0);
   const descricao = descreverUltimaAtividade(undefined, agora);
   assert.strictEqual(descricao, 'Ainda não praticado');
 }
 
-// T08: descreverUltimaAtividade com tentativa de ontem às 09:15
 {
   const agora = new Date(2026, 9, 31, 14, 0, 0);
   const dataOntem = new Date(2026, 9, 30, 9, 15, 0);
@@ -155,7 +146,6 @@ assert.ok = (condition: unknown, message?: string): asserts condition => {
   assert.strictEqual(descricao, 'Última atividade: ontem às 09:15');
 }
 
-// Cores da faixa de matizes: texto preto sempre com contraste AAA
 {
   for (let matiz = 0; matiz < 360; matiz += 5) {
     const cor = corLegivelDoMatiz(matiz);

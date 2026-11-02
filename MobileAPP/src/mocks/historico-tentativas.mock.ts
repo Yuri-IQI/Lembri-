@@ -7,11 +7,6 @@ const criarDataRelativa = (diasAtras: number, horas: number, minutos: number): s
   return data.toISOString();
 };
 
-/**
- * Histórico inicial mockado de tentativas de exercícios para o frame de detalhes e cálculo de streak.
- * Totais coerentes com as rodadas reais (Sequências: 15 itens, Ordenação: 12, Associações: 12).
- * Lista de compras (exercicio-4) deliberadamente não possui histórico para validar o estado C5.
- */
 export const historicoIniciaisMock: TentativaExercicio[] = [
   {
     id: 'tentativa-1',
@@ -42,9 +37,6 @@ export const historicoIniciaisMock: TentativaExercicio[] = [
   },
 ];
 
-/**
- * Fábrica para geração de tentativas de exercício mockadas.
- */
 export const criarTentativaMock = (
   override: Partial<TentativaExercicio> = {}
 ): TentativaExercicio => {

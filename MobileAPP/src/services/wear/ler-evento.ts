@@ -8,7 +8,6 @@ const ehEvento = (valor: Partial<EventoRelogio> | null): valor is EventoRelogio 
   return valor.tipo === 'exercicio' && IDS_EXERCICIO.includes(valor.exercicioId ?? '');
 };
 
-/** Retorna `null` quando o conteúdo não é um evento que esta versão do app entende. */
 export const lerEvento = (payload: string): EventoRelogio | null => {
   try {
     const valor: Partial<EventoRelogio> | null = JSON.parse(payload);

@@ -10,7 +10,6 @@ import {
 import { createSettingsMock, defaultSettingsMock } from '@/mocks/settings.mock';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
-// Prover mock leve de localStorage caso executado em ambiente Node puro (sem Jest/browser)
 if (typeof globalThis.window === 'undefined') {
   const memoryStore = new Map<string, string>();
   (globalThis as unknown as { window: { localStorage: Storage } }).window = {
@@ -33,37 +32,19 @@ if (typeof globalThis.window === 'undefined') {
   };
 }
 
-/**
- * Valida igualdade estrita entre o valor obtido e o esperado nos testes unitários.
- *
- * @param actual - Valor produzido na execução.
- * @param expected - Valor esperado pelo contrato.
- * @param message - Descrição da asserção em caso de falha.
- */
 function assertEqual<T>(actual: T, expected: T, message: string): void {
   if (actual !== expected) {
     throw new Error(`${message}: esperado ${String(expected)}, recebido ${String(actual)}`);
   }
 }
 
-/**
- * Valida uma condição booleana nos testes unitários.
- *
- * @param condition - Expressão booleana avaliada.
- * @param message - Descrição da asserção em caso de falha.
- */
 function assertOk(condition: boolean, message: string): void {
   if (!condition) {
     throw new Error(message);
   }
 }
 
-/**
- * Executa a suíte de testes unitários da `useSettingsStore` e do cálculo de escala
- * tipográfica (`getScaledTypography`) conforme especificado na Seção 9.1 do SDD do CARD-22.
- */
 export function runSettingsStoreTests(): void {
-  // 1. Inicialização da useSettingsStore
   useSettingsStore.setState({
     ...defaultSettingsMock,
     textScaleFactor: TextScale.normal,
@@ -73,7 +54,6 @@ export function runSettingsStoreTests(): void {
   assertEqual(state.hasSeenSplash, false, 'Estado inicial de hasSeenSplash');
   assertEqual(state.textScaleFactor, TextScale.normal, 'Estado inicial de textScaleFactor');
 
-  // 2. Ação markSplashSeen() e idempotência (R2, R7)
   useSettingsStore.getState().markSplashSeen();
   state = useSettingsStore.getState();
   assertEqual(state.hasSeenSplash, true, 'markSplashSeen deve definir hasSeenSplash como true');
@@ -82,7 +62,6 @@ export function runSettingsStoreTests(): void {
   state = useSettingsStore.getState();
   assertEqual(state.hasSeenSplash, true, 'markSplashSeen deve ser idempotente');
 
-  // 3. Alternância imutável via toggleLargeText()
   useSettingsStore.getState().toggleLargeText();
   state = useSettingsStore.getState();
   assertEqual(state.isLargeText, true, 'Primeiro toggleLargeText deve ativar isLargeText');
@@ -101,7 +80,6 @@ export function runSettingsStoreTests(): void {
     'Segundo toggleLargeText deve restaurar escala 1.0x'
   );
 
-  // 4. Atribuição explícita e idempotente via setLargeText()
   useSettingsStore.getState().setLargeText(true);
   useSettingsStore.getState().setLargeText(true);
   state = useSettingsStore.getState();
@@ -113,7 +91,6 @@ export function runSettingsStoreTests(): void {
   assertEqual(state.isLargeText, false, 'setLargeText(false)');
   assertEqual(state.textScaleFactor, TextScale.normal, 'textScaleFactor em setLargeText(false)');
 
-  // 5. Reset via resetToDefaults() preservando hasSeenSplash (R10) e factory createSettingsMock()
   useSettingsStore.getState().setLargeText(true);
   useSettingsStore.getState().resetToDefaults();
   state = useSettingsStore.getState();
@@ -134,7 +111,6 @@ export function runSettingsStoreTests(): void {
   assertEqual(defaultSettingsMock.isLargeText, false, 'defaultSettingsMock permanece imutável');
   assertEqual(defaultSettingsMock.hasSeenSplash, false, 'defaultSettingsMock.hasSeenSplash permanece false');
 
-  // 5. Cálculo de getScaledTypography(variant, isLargeText)
   const normalDefault = getScaledTypography('default', false);
   assertEqual(normalDefault.fontSize, 19, 'default normal fontSize');
   assertEqual(normalDefault.lineHeight, 29, 'default normal lineHeight');
@@ -151,7 +127,6 @@ export function runSettingsStoreTests(): void {
   assertEqual(largeTitle.fontSize, 34, 'title ampliado respeita teto maxFontSize: 34');
   assertEqual(largeTitle.lineHeight, 51, 'title ampliado lineHeight proporcional');
 
-  // 6. Conformidade WCAG 1.4.8 AAA: lineHeight >= 1.5x em todas as variantes de leitura
   const readingVariants: TextVariant[] = [
     'default',
     'defaultBold',
@@ -179,7 +154,6 @@ export function runSettingsStoreTests(): void {
     );
   }
 
-  // 7. Tokens estruturais e bordas consolidadas
   assertEqual(BorderWidth.hairline, 1, 'BorderWidth.hairline deve ser 1');
   assertEqual(BorderWidth.thin, 1.5, 'BorderWidth.thin deve ser 1.5');
   assertEqual(BorderWidth.regular, 2, 'BorderWidth.regular deve ser 2');

@@ -12,9 +12,6 @@ type PerguntaFrequenteProps = {
   abertaAoIniciar?: boolean;
 };
 
-/**
- * Pergunta da tela de ajuda: tocar na linha mostra ou esconde a resposta.
- */
 export const PerguntaFrequente = ({
   pergunta,
   resposta,

@@ -1,16 +1,16 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { ChipHorario } from '@/components/chip-horario';
-import { EtiquetaTipo } from '@/components/etiqueta-tipo';
-import { MarcadorFeito } from '@/components/marcador-feito';
-import { TextoRiscado } from '@/components/texto-riscado';
+import { ChipHorario } from '@/components/etiquetas/chip-horario';
+import { EtiquetaTipo } from '@/components/etiquetas/etiqueta-tipo';
+import { MarcadorFeito } from '@/components/itens/marcador-feito';
+import { TextoRiscado } from '@/components/itens/texto-riscado';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Lembrete } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
-import { descreverAgenda, horariosDoLembrete, rotuloFeito, textoDeApoio } from '@/utils/lembrete';
+import { descreverAgenda, horariosDoLembrete, rotuloFeito, textoDeApoio } from '@/utils/lembrete/lembrete';
 
 export type LembreteCardProps = {
   lembrete: Lembrete;
@@ -20,13 +20,6 @@ export type LembreteCardProps = {
   onAbrir: () => void;
 };
 
-/**
- * Card completo de exibição de lembrete (CARD-24).
- *
- * Apresenta título, etiqueta de categoria (se houver), descrição curta opcional,
- * chips de horários programados, repetição descritiva e sinalização acessível de status
- * feito/pendente com texto e ícone (WCAG 1.4.1).
- */
 export const LembreteCard = ({
   lembrete,
   tipo,

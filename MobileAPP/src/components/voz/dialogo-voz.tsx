@@ -1,12 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Botao } from '@/components/botao';
-import { CaixaDialogo } from '@/components/caixa-dialogo';
+import { Botao } from '@/components/controles/botao';
+import { CaixaDialogo } from '@/components/feedback/caixa-dialogo';
 import { ThemedText } from '@/components/themed-text';
 import { FalaAoVivo } from '@/components/voz/fala-ao-vivo';
 import { Spacing } from '@/constants/theme';
-import type { EstadoEscuta } from '@/hooks/use-escuta-voz';
-import { useSessaoVoz } from '@/hooks/use-sessao-voz';
+import type { EstadoEscuta } from '@/hooks/voz/use-escuta-voz';
+import { useSessaoVoz } from '@/hooks/voz/use-sessao-voz';
 import { useVozStore } from '@/stores/useVozStore';
 
 const FALHAS: Partial<Record<EstadoEscuta, { titulo: string; mensagem: string }>> = {

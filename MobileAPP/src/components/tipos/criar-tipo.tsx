@@ -1,26 +1,22 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { Botao } from '@/components/botao';
-import { CampoTexto } from '@/components/formulario/campo-texto';
-import { SeletorCor } from '@/components/formulario/seletor-cor';
+import { Botao } from '@/components/controles/botao';
+import { CampoTexto } from '@/components/formulario/texto/campo-texto';
+import { SeletorCor } from '@/components/formulario/cor/seletor-cor';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { BorderWidth, PaletaTipos, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
-import { normalizarBusca } from '@/utils/texto';
+import { normalizarBusca } from '@/utils/texto/texto';
 
 type CriarTipoProps = {
-  /** Nomes já usados, inclusive o tipo padrão do template que ainda não foi criado. */
   nomesExistentes: string[];
   onCriado: (tipo: TipoLembrete) => void;
 };
 
-/**
- * Card "Criar Tipo" (Figma 152:1608): nome e cor, com aviso de nome vazio ou repetido.
- */
 export const CriarTipo = ({ nomesExistentes, onCriado }: CriarTipoProps) => {
   const theme = useTheme();
   const adicionarTipo = useTiposLembreteStore((state) => state.adicionarTipo);

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 
@@ -11,12 +11,6 @@ export interface BarraAcoesExercicioProps {
   rotuloContinuar?: string;
 }
 
-/**
- * Rodapé fixo de ações durante as fases do exercício cognitivo (Figma exercicios_exec).
- *
- * Apresenta o botão primário CONTINUAR.
- * Quando o avanço estiver bloqueado, exibe mensagem contextual explicativa (RN-EX-10).
- */
 export const BarraAcoesExercicio = ({
   onContinuar,
   continuarHabilitado = true,

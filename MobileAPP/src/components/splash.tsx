@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AccessibilityInfo, Animated, Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { ThemedText } from '@/components/themed-text';
 import { ComponentSize, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -10,20 +10,9 @@ import { useTheme } from '@/hooks/use-theme';
 const FADE = 400;
 
 export type SplashProps = {
-  /** Callback acionado após o fechamento da splash para notificar a conclusão. */
   onFim: () => void;
 };
 
-/**
- * Componente de tela de boas-vindas exibido na primeira abertura do aplicativo.
- *
- * Em total conformidade com WCAG 2.2 AAA:
- * - Não fecha por tempo (Critério 2.2.3: controle total pelo usuário).
- * - Botão de entrada com alvo mínimo de 56dp (Critério 2.5.5).
- * - Cabe na tela sem rolagem: o logo encolhe para dar espaço ao texto ampliado (Critério 1.4.8).
- * - Respeito à configuração de "Reduzir movimento" (Critério 2.3.3).
- * - Contêiner modal para focar leitores de tela exclusivamente na splash.
- */
 export const Splash = ({ onFim }: SplashProps) => {
   const theme = useTheme();
   const [opacidade] = useState(() => new Animated.Value(1));
@@ -40,7 +29,6 @@ export const Splash = ({ onFim }: SplashProps) => {
         return;
       }
     } catch {
-      // Em caso de falha na consulta de acessibilidade, segue com a animação padrão
     }
 
     Animated.timing(opacidade, {

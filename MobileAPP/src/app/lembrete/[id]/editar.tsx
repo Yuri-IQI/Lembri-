@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TelaFormulario } from '@/components/forms/tela-formulario';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { Lembrete } from '@/types/lembrete';
-import { dadosDoLembrete } from '@/utils/dados-iniciais';
+import { dadosDoLembrete } from '@/utils/dados/dados-iniciais';
 
 const FormularioEdicao = ({ lembrete }: { lembrete: Lembrete }) => {
   const [original] = useState(() => dadosDoLembrete(lembrete));

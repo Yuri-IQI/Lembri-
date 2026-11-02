@@ -5,22 +5,18 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
 import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
-import { BuscaSemResultado } from '@/components/lembrete/busca-sem-resultado';
-import { CampoBusca } from '@/components/lembrete/campo-busca';
-import { ItemLembrete } from '@/components/lembrete/item-lembrete';
-import { ListaVaziaLembretes } from '@/components/lembrete/lista-vazia-lembretes';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
+import { BuscaSemResultado } from '@/components/lembrete/lista/busca-sem-resultado';
+import { CampoBusca } from '@/components/lembrete/lista/campo-busca';
+import { ItemLembrete } from '@/components/lembrete/lista/item-lembrete';
+import { ListaVaziaLembretes } from '@/components/lembrete/lista/lista-vazia-lembretes';
 import { MainContainer } from '@/components/main-container';
 import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { Lembrete } from '@/types/lembrete';
-import { filtrarLembretes, horariosDoLembrete } from '@/utils/lembrete';
+import { filtrarLembretes, horariosDoLembrete } from '@/utils/lembrete/lembrete';
 
-/**
- * Aba Lembretes (CARD-31, Figma 152:1440 e 152:1538): todos os lembretes, inclusive pausados,
- * com busca pelo nome, o contador de ativos, o switch de alertas e deslizar para excluir.
- */
 const LembretesScreen = () => {
   const { lembretes, alternarAtivo, removerLembrete } = useLembretesStore(
     useShallow((state) => ({

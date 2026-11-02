@@ -4,19 +4,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { TentativaExercicio } from '@/types/exercicio';
-import { formatarData } from '@/utils/data';
-import { formatarDuracao } from '@/utils/exercicio';
+import { formatarData } from '@/utils/tempo/data';
+import { formatarDuracao } from '@/utils/exercicio/exercicio';
 
 export interface HistoricoTentativasProps {
   tentativas: TentativaExercicio[];
 }
 
-/**
- * Seção de histórico de execuções anteriores do exercício (Figma exercicios_detalhe).
- *
- * Apresenta a lista cronológica de tentativas com data, acertos e tempo consumido,
- * exibindo mensagem informativa caso o exercício ainda não tenha sido praticado (cenário C5).
- */
 export const HistoricoTentativas = ({ tentativas }: HistoricoTentativasProps) => {
   return (
     <Card style={styles.card}>

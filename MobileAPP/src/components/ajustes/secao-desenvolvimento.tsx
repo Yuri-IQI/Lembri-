@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { Botao } from '@/components/botao';
-import { Contador } from '@/components/formulario/contador';
+import { Botao } from '@/components/controles/botao';
+import { Contador } from '@/components/formulario/selecao/contador';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { LIMITE_LEMBRETES_DEV, LIMITE_LEMBRETES_PADRAO } from '@/constants/limites';
@@ -10,9 +10,6 @@ import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
-/**
- * Ajustes visíveis só em builds de desenvolvimento: limite de lembretes salvos e lembretes de exemplo.
- */
 export const SecaoDesenvolvimento = () => {
   const { limite, definirLimite } = useSettingsStore(
     useShallow((state) => ({ limite: state.reminderLimit, definirLimite: state.setReminderLimit })),

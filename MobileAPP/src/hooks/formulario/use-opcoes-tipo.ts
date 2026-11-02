@@ -1,17 +1,13 @@
 import { useShallow } from 'zustand/react/shallow';
 
-import type { OpcaoTipo } from '@/components/formulario/seletor-tipo';
+import type { OpcaoTipo } from '@/components/formulario/selecao/seletor-tipo';
 import { obterTemplate } from '@/mocks/templates-lembrete.mock';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { TemplateId } from '@/types/lembrete';
-import { normalizarBusca } from '@/utils/texto';
+import { normalizarBusca } from '@/utils/texto/texto';
 
-/** Chave do tipo padrão do template quando ele ainda não existe (é criado ao salvar). */
 export const CHAVE_TIPO_PADRAO = 'tipo-padrao-pendente';
 
-/**
- * Tipos para o seletor, com o tipo padrão do template mesmo antes de existir na store.
- */
 export const useOpcoesTipo = (template: TemplateId) => {
   const { tipos, garantirTipo } = useTiposLembreteStore(
     useShallow((state) => ({ tipos: state.tipos, garantirTipo: state.garantirTipo }))

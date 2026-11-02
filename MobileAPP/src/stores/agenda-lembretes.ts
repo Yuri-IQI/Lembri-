@@ -6,8 +6,8 @@ import {
   juntarDataHorario,
   lerHorario,
   somarDias,
-} from '@/utils/data';
-import { horariosDoLembrete, ocorreNoDia } from '@/utils/lembrete';
+} from '@/utils/tempo/data';
+import { horariosDoLembrete, ocorreNoDia } from '@/utils/lembrete/lembrete';
 
 const MS_DIA = 24 * 60 * 60 * 1000;
 
@@ -57,14 +57,11 @@ export const proximasOcorrencias = (
   return null;
 };
 
-/** Dias depois de hoje em que o card de próximo lembrete procura. */
 export const DIAS_PROXIMO_LEMBRETE = 3;
 
-/** "A seguir" mostra só hoje e amanhã: os dias em que dá para marcar como feito. */
 export const ateAmanha = (ocorrencia: OcorrenciaLembrete, agora: Date): boolean =>
   ocorrencia.quando < somarDias(agora, 2);
 
-/** O que ainda vai acontecer: o resto de hoje e os próximos `dias` dias, em ordem. */
 export const ocorrenciasFuturas = (
   lembretes: Lembrete[],
   agora: Date,
@@ -78,7 +75,6 @@ export const ocorrenciasFuturas = (
   return futuras;
 };
 
-/** O que já passou de hoje e tudo de ontem, do mais recente para o mais antigo. */
 export const ocorrenciasPassadas = (lembretes: Lembrete[], agora: Date): OcorrenciaLembrete[] => {
   const minutoAtual = inicioDoMinuto(agora);
   const passadasHoje = ocorrenciasDoDia(lembretes, agora).filter(
@@ -153,7 +149,6 @@ export const descreverQuando = (data: Date, agora: Date): string => {
 
 export type StatusCompromisso = 'agendado' | 'concluido' | 'nao_confirmado';
 
-/** Depois que a data passa, o compromisso fica "Concluído" (com registro de feito) ou "Não confirmado". */
 export const statusCompromisso = (
   lembrete: Lembrete,
   registros: RegistroFeito[],

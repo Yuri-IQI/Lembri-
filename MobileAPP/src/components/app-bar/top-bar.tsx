@@ -10,9 +10,7 @@ import { useVozStore } from '@/stores/useVozStore';
 
 type TopBarProps = {
   onVoltar?: () => void;
-  /** Esconde o botão de ajuda, para a própria tela de ajuda. */
   semAjuda?: boolean;
-  /** Comandos de voz de navegação passam por onVoltar, que confirma a saída. */
   saidaProtegida?: boolean;
 };
 
@@ -20,13 +18,6 @@ const BOTAO = ComponentSize.topBarButton;
 
 const abrirAjuda = () => router.push('/ajuda');
 
-/**
- * Barra superior com fundo próprio:
- * - Botão voltar à esquerda (alvo de toque TouchTarget = 56dp);
- * - Ações de ajuda e áudio à direita, em pílulas com ícone e rótulo (alvo de toque TouchTarget = 56dp).
- *
- * Em conformidade com WCAG 2.2 AAA (Critério 2.5.5) sem sobreposição de hitSlop entre controles.
- */
 export const TopBar = ({ onVoltar, semAjuda = false, saidaProtegida = false }: TopBarProps) => {
   const theme = useTheme();
   const abrirVoz = useVozStore((state) => state.abrir);

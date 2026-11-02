@@ -13,14 +13,6 @@ export type ThemedTextProps = TextProps & {
   themeColor?: ThemeColor;
 };
 
-/**
- * Componente tipográfico padronizado do Lembri com suporte automático ao tema de
- * alto contraste (WCAG 2.2 Nível AAA) e ao modo "Texto ampliado" (1.2x).
- *
- * @param style - Estilos adicionais opcionais via StyleSheet.
- * @param type - Variante tipográfica do catálogo Typography (padrão: 'default').
- * @param themeColor - Token de cor opcional do tema.
- */
 export const ThemedText = ({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) => {
   const theme = useTheme();
   const color = theme[themeColor ?? (type === 'label' ? 'textSecondary' : 'text')];

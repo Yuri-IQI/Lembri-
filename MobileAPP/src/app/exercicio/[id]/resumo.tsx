@@ -3,21 +3,15 @@ import { useEffect, useMemo } from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { CartaoRodada } from '@/components/exercicio/cartao-rodada';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
-import { formatarDuracao, resultadoDaSessao } from '@/utils/exercicio';
+import { formatarDuracao, resultadoDaSessao } from '@/utils/exercicio/exercicio';
 
-/**
- * Tela de resumo e consolidação do desempenho no exercício cognitivo (CARD-38 / frame exercicios_review).
- *
- * Apresenta o tempo gasto, detalhamento por rodada com status visual por casa (✓/✗),
- * pontuação final consolidada e opções para REFAZER ou voltar aos exercícios.
- */
 const ResumoExercicioScreen = () => {
   const { sessao, exercicio, sessaoValida } = useSessaoExercicio({
     confirmarSaida: false,

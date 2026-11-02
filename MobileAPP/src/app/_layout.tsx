@@ -6,11 +6,11 @@ import { Loading } from '@/components/loading/loading';
 import { Splash } from '@/components/splash';
 import { DialogoVoz } from '@/components/voz/dialogo-voz';
 import { LoadingEclipse } from '@/constants/theme';
-import { useRespostasNotificacao } from '@/hooks/use-respostas-notificacao';
-import { useSincronizarNotificacoes } from '@/hooks/use-sincronizar-notificacoes';
-import { useSincronizarRelogio } from '@/hooks/use-sincronizar-relogio';
+import { useRespostasNotificacao } from '@/hooks/sincronizacao/use-respostas-notificacao';
+import { useSincronizarNotificacoes } from '@/hooks/sincronizacao/use-sincronizar-notificacoes';
+import { useSincronizarRelogio } from '@/hooks/sincronizacao/use-sincronizar-relogio';
 import { useStoresHidratadas } from '@/hooks/use-stores-hidratadas';
-import { useTempoMinimo } from '@/hooks/use-tempo-minimo';
+import { useTempoMinimo } from '@/hooks/tempo/use-tempo-minimo';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 SplashScreen.preventAutoHideAsync();

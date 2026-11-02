@@ -5,9 +5,9 @@ import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { AvisoSucesso } from '@/components/aviso-sucesso';
-import { Botao } from '@/components/botao';
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { AvisoSucesso } from '@/components/feedback/aviso-sucesso';
+import { Botao } from '@/components/controles/botao';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { BarraAcoesExercicio } from '@/components/exercicio/barra-acoes-exercicio';
 import { CasasResposta } from '@/components/exercicio/casas-resposta';
 import { OpcoesResposta } from '@/components/exercicio/opcoes-resposta';
@@ -20,7 +20,7 @@ import { useAvisoStore } from '@/stores/useAvisoStore';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import type { Exercicio, RodadaExercicio } from '@/types/exercicio';
-import { avaliarCasa } from '@/utils/exercicio';
+import { avaliarCasa } from '@/utils/exercicio/exercicio';
 
 interface FormularioRodadaProps {
   exercicio: Exercicio;
@@ -33,10 +33,6 @@ interface FormularioRodadaProps {
   onSeguirSemCorrigir: () => void;
 }
 
-/**
- * Componente interno chaveado pela rodada (`key={indiceRodada}`) para inicialização
- * limpa e sem efeitos colaterais de estado no React 19 (elimina cascading renders).
- */
 const FormularioRodada = ({
   exercicio,
   rodadaAtual,
@@ -83,7 +79,6 @@ const FormularioRodada = ({
   const tamanhoEsperadoDigitos = rodadaAtual.itens[0]?.length ?? 2;
   const todasPreenchidas = respostas.every((r) => r.trim().length > 0);
 
-  // Manipulação no modo Teclado
   const handleDigitar = (digito: string) => {
     const novoBuffer = bufferDigitos + digito;
     if (novoBuffer.length === tamanhoEsperadoDigitos) {
@@ -92,7 +87,6 @@ const FormularioRodada = ({
       setRespostas(novasRespostas);
       setBufferDigitos('');
 
-      // Avança o foco para a próxima casa vazia ou próxima posição
       const proximaVazia = novasRespostas.findIndex(
         (val, idx) => idx > casaAtiva && val === ''
       );
@@ -119,13 +113,11 @@ const FormularioRodada = ({
     }
   };
 
-  // Manipulação no modo Opções (chips)
   const handleSelecionarOpcao = (opcao: string) => {
     const novasRespostas = [...respostas];
     novasRespostas[casaAtiva] = opcao;
     setRespostas(novasRespostas);
 
-    // Avança para a próxima casa vazia se existir
     const proximaVazia = novasRespostas.findIndex((val) => val === '');
     if (proximaVazia !== -1) {
       setCasaAtiva(proximaVazia);
@@ -133,7 +125,6 @@ const FormularioRodada = ({
   };
 
   const handleSelecionarCasa = (indice: number) => {
-    // Tocar na casa ativa que já possui resposta limpa o campo (devolve o chip no modo opções)
     if (casaAtiva === indice && respostas[indice]) {
       const novasRespostas = [...respostas];
       novasRespostas[indice] = '';
@@ -205,13 +196,6 @@ const FormularioRodada = ({
   );
 };
 
-/**
- * Tela de resposta interativa da rodada do exercício cognitivo (CARD-37 / frame exercicios_exec).
- *
- * Suporta modo teclado numérico (Sequências) e modo seleção de chips embaralhados (Ordenação,
- * Associações e Lista de compras), com navegação automática entre casas, revisão por toque,
- * feedback nas próprias casas e confirmação com prevenção de avanço incompleto (RN-EX-08, RN-EX-09, RN-EX-10).
- */
 const ResponderExercicioScreen = () => {
   const {
     sessao,
@@ -267,7 +251,6 @@ const ResponderExercicioScreen = () => {
     }
   };
 
-  // Confirmação da rodada
   const handleConcluirRodada = (respostasFinais: string[]) => {
     const resultado = responderRodada(respostasFinais);
     if (!resultado) return;

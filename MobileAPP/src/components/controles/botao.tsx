@@ -1,0 +1,91 @@
+import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+
+import { ThemedText } from '@/components/themed-text';
+import { BorderWidth, Radius, Spacing, TouchTarget, type ThemeColor } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+
+export type BotaoVariante = 'primario' | 'secundario' | 'perigo';
+
+export type BotaoProps = {
+  rotulo: string;
+  onPress: () => void;
+  variante?: BotaoVariante;
+  tamanho?: 'normal' | 'compacto';
+  icone?: AndroidSymbol;
+  accessibilityLabel?: string;
+  style?: StyleProp<ViewStyle>;
+  desabilitado?: boolean;
+};
+
+export const Botao = ({
+  rotulo,
+  onPress,
+  variante = 'primario',
+  tamanho = 'normal',
+  icone,
+  accessibilityLabel,
+  style,
+  desabilitado = false,
+}: BotaoProps) => {
+  const theme = useTheme();
+
+  const mapaCores: Record<
+    BotaoVariante,
+    { fundo: string; borda: string; corTexto: ThemeColor }
+  > = {
+    primario: {
+      fundo: theme.primary,
+      borda: theme.primary,
+      corTexto: 'onPrimary',
+    },
+    secundario: {
+      fundo: theme.surface,
+      borda: theme.primary,
+      corTexto: 'text',
+    },
+    perigo: {
+      fundo: theme.danger,
+      borda: theme.danger,
+      corTexto: 'onPrimary',
+    },
+  };
+
+  const { fundo, borda, corTexto } = mapaCores[variante];
+
+  return (
+    <Pressable
+      onPress={desabilitado ? undefined : onPress}
+      disabled={desabilitado}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? rotulo}
+      accessibilityState={{ disabled: desabilitado }}
+      style={({ pressed }) => [
+        styles.botao,
+        {
+          backgroundColor: desabilitado ? theme.borderSubtle : fundo,
+          borderColor: desabilitado ? theme.borderSubtle : borda,
+          opacity: desabilitado ? 0.5 : pressed ? 0.7 : 1,
+        },
+        style,
+      ]}>
+      {icone && <SymbolView name={{ android: icone }} size={28} tintColor={theme[corTexto]} />}
+      <ThemedText type={tamanho === 'normal' ? 'button' : 'smallBold'} themeColor={corTexto}>
+        {rotulo}
+      </ThemedText>
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  botao: {
+    minHeight: TouchTarget,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.one,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.sm,
+    borderWidth: BorderWidth.thick,
+  },
+});

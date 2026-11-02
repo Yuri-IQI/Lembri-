@@ -3,15 +3,15 @@ import { useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { ExercicioCard } from '@/components/cards/exercicio-card';
 import { GrupoExerciciosCard } from '@/components/cards/grupo-exercicios-card';
 import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { useAgora } from '@/hooks/use-agora';
-import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
+import { useAgora } from '@/hooks/tempo/use-agora';
+import { useComandosDeVoz } from '@/hooks/voz/use-comandos-de-voz';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import type { Exercicio } from '@/types/exercicio';
 import {
@@ -20,13 +20,8 @@ import {
   descreverUltimaAtividade,
   historicoDoExercicio,
   ultimaTentativa,
-} from '@/utils/exercicio';
+} from '@/utils/exercicio/exercicio';
 
-/**
- * Tela principal de catálogo e acompanhamento dos exercícios cognitivos do Lembri (CARD-35 / frame exercicios_lista).
- *
- * Apresenta o catálogo "Treine sua memória" em cartões padronizados, com a sequência de dias de cada exercício e navegação direta para Começar ou Detalhes.
- */
 const ExerciciosScreen = () => {
   const agora = useAgora();
 

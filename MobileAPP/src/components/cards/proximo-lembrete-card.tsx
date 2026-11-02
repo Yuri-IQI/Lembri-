@@ -1,11 +1,11 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { MarcadorFeito } from '@/components/marcador-feito';
+import { MarcadorFeito } from '@/components/itens/marcador-feito';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
-import { rotuloFeito } from '@/utils/lembrete';
+import { rotuloFeito } from '@/utils/lembrete/lembrete';
 
 type ProximoLembreteCardProps = {
   ocorrencia: OcorrenciaLembrete | null;

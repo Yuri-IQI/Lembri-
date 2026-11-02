@@ -7,12 +7,8 @@ import {
   validarLembrete,
   type CampoComErro,
   type ErrosFormulario,
-} from '@/utils/validar-lembrete';
+} from '@/utils/lembrete/validar-lembrete';
 
-/**
- * Estado de um formulário de template: valores, erros (só depois da primeira tentativa de
- * salvar), se houve alteração e a validação ao salvar.
- */
 export const useFormularioLembrete = <T extends DadosLembrete>(inicial: T, original?: T) => {
   const [dados, setDados] = useState<T>(inicial);
   const [tentou, setTentou] = useState(false);
@@ -22,7 +18,6 @@ export const useFormularioLembrete = <T extends DadosLembrete>(inicial: T, origi
   const alterar = <K extends keyof T>(campo: K, valor: T[K]) =>
     setDados((atual) => ({ ...atual, [campo]: valor }));
 
-  /** Devolve os dados se estiverem válidos; senão, mostra os erros e diz qual é o primeiro. */
   const validar = (): { dados: T } | { erro: CampoComErro } => {
     setTentou(true);
     const erros = validarLembrete(dados, new Date(), original);

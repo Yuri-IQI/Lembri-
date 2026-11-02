@@ -17,12 +17,6 @@ export interface CartaoRodadaProps {
   mostrarPercentual?: boolean;
 }
 
-/**
- * Card padronizado para exibição de uma rodada de itens (Figma exercicios_preview, exercicios_res_err e exercicios_review).
- *
- * Utilizado tanto na fase de memorização (itens em estado neutro), quanto na correção
- * e no resumo final (com indicação visual por casa e percentual da rodada).
- */
 export const CartaoRodada = ({
   rotulo,
   itens,

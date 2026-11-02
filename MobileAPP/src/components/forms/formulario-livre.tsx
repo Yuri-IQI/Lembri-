@@ -1,15 +1,12 @@
 import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
-import { CampoConfirmacao } from '@/components/formulario/campo-confirmacao';
-import { CampoHorarios } from '@/components/formulario/campo-horarios';
-import { CampoRepeticao } from '@/components/formulario/campo-repeticao';
-import { CampoTexto } from '@/components/formulario/campo-texto';
-import { SeletorTipo } from '@/components/formulario/seletor-tipo';
+import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
+import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
+import { CampoRepeticao } from '@/components/formulario/data-hora/campo-repeticao';
+import { CampoTexto } from '@/components/formulario/texto/campo-texto';
+import { SeletorTipo } from '@/components/formulario/selecao/seletor-tipo';
 
-/**
- * Formulário do template Livre (frame `criar lembrete` do Figma).
- */
 export const FormularioLivre = ({ form, registrar, tipos }: PropsFormulario<'livre'>) => {
   const { dados, alterar, erros } = form;
 

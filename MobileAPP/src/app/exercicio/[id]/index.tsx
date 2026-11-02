@@ -3,23 +3,18 @@ import { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
+import { BotaoLembreteExercicio } from '@/components/exercicio/botao-lembrete-exercicio';
 import { HistoricoTentativas } from '@/components/exercicio/historico-tentativas';
 import { IndicadoresExercicio } from '@/components/exercicio/indicadores-exercicio';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
+import { useComandosDeVoz } from '@/hooks/voz/use-comandos-de-voz';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
-import { estatisticasDoExercicio, historicoDoExercicio } from '@/utils/exercicio';
+import { estatisticasDoExercicio, historicoDoExercicio } from '@/utils/exercicio/exercicio';
 
-/**
- * Tela de detalhes e histórico do exercício cognitivo (CARD-36 / frame exercicios_detalhe).
- *
- * Apresenta o objetivo do exercício, indicadores médios de desempenho, parágrafos explicativos
- * de instruções, histórico persistido de tentativas e botão fixo para iniciar a prática.
- */
 const ExercicioDetalheScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -121,6 +116,8 @@ const ExercicioDetalheScreen = () => {
             )}
           </View>
         </Card>
+
+        <BotaoLembreteExercicio titulo={exercicio.titulo} />
 
         <HistoricoTentativas tentativas={tentativas} />
       </ScrollView>

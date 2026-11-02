@@ -2,9 +2,6 @@ import { Colors } from '@/constants/theme';
 import type { TemplateId } from '@/types/lembrete';
 import type { TemplateLembrete } from '@/types/template-lembrete';
 
-/**
- * Os quatro templates de lembrete, na ordem da tela "Escolher template".
- */
 export const templatesLembreteMock: TemplateLembrete[] = [
   {
     id: 'remedio',

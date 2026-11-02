@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { BotaoIcone } from '@/components/botao-icone';
+import { BotaoIcone } from '@/components/controles/botao-icone';
 import { DialogoLimite } from '@/components/forms/dialogo-limite';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -10,7 +10,6 @@ import { podeCriarLembrete, useLembretesStore } from '@/stores/useLembretesStore
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 type CabecalhoListaProps = {
-  /** Linha de contagem abaixo do título (ex.: "4 programados · 1 pausado"). */
   resumo: string;
 };
 

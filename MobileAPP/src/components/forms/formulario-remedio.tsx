@@ -1,26 +1,23 @@
 import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
-import { Calendario } from '@/components/formulario/calendario';
-import { CampoAutocompletar } from '@/components/formulario/campo-autocompletar';
-import { CampoHorarios } from '@/components/formulario/campo-horarios';
-import { CampoQuantidade } from '@/components/formulario/campo-quantidade';
-import { CampoRepeticao } from '@/components/formulario/campo-repeticao';
-import { CampoRotulado } from '@/components/formulario/campo-rotulado';
-import { CampoSelecao } from '@/components/formulario/campo-selecao';
-import { CampoTexto } from '@/components/formulario/campo-texto';
-import { SeletorTipo } from '@/components/formulario/seletor-tipo';
+import { Calendario } from '@/components/formulario/data-hora/calendario';
+import { CampoAutocompletar } from '@/components/formulario/texto/campo-autocompletar';
+import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
+import { CampoQuantidade } from '@/components/formulario/texto/campo-quantidade';
+import { CampoRepeticao } from '@/components/formulario/data-hora/campo-repeticao';
+import { CampoRotulado } from '@/components/formulario/base/campo-rotulado';
+import { CampoSelecao } from '@/components/formulario/selecao/campo-selecao';
+import { CampoTexto } from '@/components/formulario/texto/campo-texto';
+import { SeletorTipo } from '@/components/formulario/selecao/seletor-tipo';
 import type { MinutosReaviso } from '@/types/lembrete';
-import { LIMITE_OBSERVACAO } from '@/utils/validar-lembrete';
+import { LIMITE_OBSERVACAO } from '@/utils/lembrete/validar-lembrete';
 
 const REAVISOS = ([5, 10, 15] as MinutosReaviso[]).map((minutos) => ({
   valor: minutos,
   rotulo: `${minutos} minutos depois`,
 }));
 
-/**
- * Formulário do template Remédio. Não tem "Exige confirmação": remédio sempre exige.
- */
 export const FormularioRemedio = ({ form, registrar, tipos }: PropsFormulario<'remedio'>) => {
   const { dados, alterar, erros } = form;
 

@@ -10,9 +10,6 @@ type BotaoFiltroProps = {
   onPress: () => void;
 };
 
-/**
- * Aba de filtro da agenda; a selecionada fica preenchida de preto.
- */
 export const BotaoFiltro = ({ rotulo, selecionado, onPress }: BotaoFiltroProps) => {
   const theme = useTheme();
 

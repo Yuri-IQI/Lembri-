@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';

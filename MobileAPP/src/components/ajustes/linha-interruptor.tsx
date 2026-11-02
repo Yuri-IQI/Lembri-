@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Interruptor } from '@/components/interruptor';
+import { Interruptor } from '@/components/controles/interruptor';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, TouchTarget } from '@/constants/theme';
 
@@ -11,9 +11,6 @@ type LinhaInterruptorProps = {
   onAlternar: () => void;
 };
 
-/**
- * Linha de ajuste com título, descrição sempre visível e interruptor à direita.
- */
 export const LinhaInterruptor = ({ titulo, descricao, ligado, onAlternar }: LinhaInterruptorProps) => (
   <View style={styles.linha}>
     <View style={styles.textos}>

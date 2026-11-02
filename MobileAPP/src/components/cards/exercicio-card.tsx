@@ -1,29 +1,22 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { IconeExercicio } from '@/components/exercicio/icone-exercicio';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Exercicio } from '@/types/exercicio';
-import { plural } from '@/utils/texto';
+import { plural } from '@/utils/texto/texto';
 
 export interface ExercicioCardProps {
   exercicio: Exercicio;
   ultimaAtividade: string;
-  /** Dias consecutivos praticando este exercício; 0 oculta a informação. */
   diasSeguidos: number;
   onComecar: () => void;
   onDetalhes: () => void;
 }
 
-/**
- * Card padronizado de estímulo cognitivo do Lembri (CARD-35 / frame exercicios_lista).
- *
- * Apresenta área de ícone de 64x64, título do exercício, descrição da última atividade,
- * sequência de dias e o botão COMEÇAR de 56dp. Tocar no restante do card abre os detalhes.
- */
 export const ExercicioCard = ({
   exercicio,
   ultimaAtividade,

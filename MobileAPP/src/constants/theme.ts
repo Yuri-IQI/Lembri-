@@ -1,10 +1,7 @@
 import type { TextStyle } from 'react-native';
 
 /**
- * Paleta oficial de cores de alto contraste (WCAG 2.2 Nível AAA) extraída do protótipo do Figma.
- *
- * O tema principal do Lembri é preto no branco com detalhes em cinza e amarelo de destaque.
- * Atenção: `textMuted` (#949494) possui contraste ~3.06:1 e deve ser restrito exclusivamente
+ * Aviso: `textMuted` (#949494) possui contraste ~3.06:1 e deve ser restrito exclusivamente
  * a placeholders de input ou elementos desabilitados (isento pela WCAG 1.4.6).
  */
 export const Colors = {
@@ -14,7 +11,6 @@ export const Colors = {
 
   background: '#F2F2F2',
   surface: '#FFFFFF',
-  /** Fundo das caixas de texto (Figma). */
   inputBackground: '#F9F9F9',
 
   border: '#949494',
@@ -35,19 +31,14 @@ export const Colors = {
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
   chipBackground: '#fcfcfc',
-  /** Borda tracejada do chip "+ Novo tipo" (Figma). */
   borderDashed: '#292626',
   tabActive: '#F8EB5C',
   success: '#A8D5A2',
-  /** Fundo de destaque para resposta correta nos exercícios (Figma). */
   answerCorrect: '#ECF3D9',
-  /** Fundo de destaque para resposta incorreta nos exercícios (Figma). */
   answerWrong: '#F3D9D9',
-  /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
   danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
 
-  /** Tela de carregamento. Texto sobre o fundo: 8,3:1 (AAA). */
   loadingFundo: '#FAF7EC',
   loadingLua: '#E8E08A',
   loadingSombra: '#1B1B1B',
@@ -55,7 +46,6 @@ export const Colors = {
   loadingTexto: '#4A4A4A',
 } as const;
 
-/** Cores oferecidas no seletor de cor de tipos. Todas com contraste ≥ 7:1 contra Colors.text. */
 export const PaletaTipos = [
   { nome: 'Vermelho', corHex: Colors.tagSaude },
   { nome: 'Verde', corHex: Colors.tag },
@@ -71,7 +61,6 @@ export const FontFamily = 'Inter';
 
 const ESCALA_LOADING = 240 / 1024;
 
-/** Medidas e tempos da tela de carregamento: a arte de referência é um quadro de 1024 x 1024. */
 export const LoadingEclipse = {
   arte: 240,
   lua: 660 * ESCALA_LOADING,
@@ -89,13 +78,9 @@ export const LoadingEclipse = {
   movimentoMs: 1350,
   pausaMs: 300,
   pulsoMs: 1500,
-  /** Evita um piscar de tela quando os dados carregam quase na hora. */
   tempoMinimoMs: 2500,
 } as const;
 
-/**
- * Fatores multiplicadores para o modo padrão (1.0x) e modo "Texto ampliado" (1.2x).
- */
 export const TextScale = {
   normal: 1,
   large: 1.2,
@@ -121,13 +106,9 @@ export interface TypographyToken {
   letterSpacing?: number;
   textTransform?: TextStyle['textTransform'];
   textDecorationLine?: TextStyle['textDecorationLine'];
-  /** Teto opcional de fontSize no modo Texto Ampliado para evitar quebra de layout. */
   maxFontSize?: number;
 }
 
-/**
- * Escala tipográfica extraída do Figma com lineHeight adequado para WCAG 2.2 AAA (>= 1.5x).
- */
 export const Typography: Record<TextVariant, TypographyToken> = {
   default: {
     fontSize: 19,
@@ -139,33 +120,28 @@ export const Typography: Record<TextVariant, TypographyToken> = {
     lineHeight: 29,
     fontWeight: 600,
   },
-  /** Horário em destaque no card de próximo lembrete (18:00). */
   display: {
     fontSize: 52,
     lineHeight: 62,
     fontWeight: 400,
     maxFontSize: 56,
   },
-  /** Título de tela e de lembrete (Home, Lavar roupas). */
   title: {
     fontSize: 30,
     lineHeight: 45,
     fontWeight: 700,
     maxFontSize: 34,
   },
-  /** Título de card de navegação (Lembretes, Exercícios). */
   headline: {
     fontSize: 26,
     lineHeight: 39,
     fontWeight: 700,
   },
-  /** Título de item de lista (Tomar Remédio). */
   subheading: {
     fontSize: 22,
     lineHeight: 33,
     fontWeight: 700,
   },
-  /** Informações de apoio (Há 25 min.). */
   small: {
     fontSize: 15,
     lineHeight: 23,
@@ -176,7 +152,6 @@ export const Typography: Record<TextVariant, TypographyToken> = {
     lineHeight: 23,
     fontWeight: 700,
   },
-  /** Rótulo de seção em caixa alta (PRÓXIMO LEMBRETE, HORÁRIOS). */
   label: {
     fontSize: 15,
     lineHeight: 23,
@@ -184,7 +159,6 @@ export const Typography: Record<TextVariant, TypographyToken> = {
     letterSpacing: 0.3,
     textTransform: 'uppercase',
   },
-  /** Texto de botão (Ver, Editar, Excluir). */
   button: {
     fontSize: 22,
     lineHeight: 33,
@@ -198,14 +172,6 @@ export const Typography: Record<TextVariant, TypographyToken> = {
   },
 };
 
-/**
- * Calcula os valores tipográficos escalados para o modo padrão (1.0x) ou "Texto ampliado" (1.2x),
- * respeitando o teto maxFontSize nas variantes de destaque e preservando a proporção de entrelinha.
- *
- * @param variant - Variante tipográfica do catálogo Typography.
- * @param isLargeText - Indica se o modo "Texto ampliado" está ativo.
- * @returns Objeto de estilo tipográfico pronto para aplicação em componentes Text.
- */
 export function getScaledTypography(variant: TextVariant, isLargeText: boolean): TextStyle {
   const token = Typography[variant];
   const scale = isLargeText ? TextScale.large : TextScale.normal;
@@ -253,73 +219,43 @@ export const BorderWidth = {
 
 export const TouchTarget = 56;
 
-/**
- * Dimensões estruturais e áreas de toque de componentes padronizados.
- */
 export const ComponentSize = {
-  /** Altura mínima da barra superior (TopBar). */
   topBarHeight: 64,
-  /** Altura mínima da moldura base das barras (BarFrame). */
   barFrameHeight: 72,
-  /** Altura mínima da barra inferior de abas (BottomBar). */
   bottomBarHeight: 80,
 
-  /** Dimensões estruturais do interruptor customizado (Switch). */
   switchWidth: 56,
   switchHeight: 32,
   switchKnob: 28,
 
-  /** Diâmetro do marcador circular de conclusão (mínimo visual WCAG AAA). */
   marcadorCirculo: 44,
 
-  /** Largura mínima da coluna de horário na listagem de lembretes. */
   horarioMinWidth: 76,
-  /** Largura/altura da caixa de exibição dos dígitos de hora/minuto no seletor de horário. */
   horarioDigitos: 64,
 
-  /** Tamanho máximo do logo da tela de boas-vindas; em telas menores ele encolhe. */
   splashLogoMax: 400,
 
-  /** Célula do calendário: o mês inteiro precisa caber no diálogo (mínimo AAA de 44dp). */
   calendarioCelula: 44,
 
-  /** Altura das etiquetas de horário que podem ser tocadas para marcar como feito (AAA: 44dp). */
   chipMarcavel: 48,
 
-  /** Círculo do ícone nos cards de escolha de template. */
   iconeTemplate: 56,
-  /** Círculo do ícone do template nos cards da agenda. */
   iconeTemplateCard: 40,
-  /** Círculo com a cor do tipo na tela de tipos. */
   bolinhaTipo: 24,
 
-  /** Faixa de cores do seletor de matiz e o marcador que desliza sobre ela. */
   faixaMatiz: 48,
   marcadorMatiz: 16,
 
-  /** Espessura da linha do texto riscado/tachado. */
   strikethroughHeight: 2,
 
-  /** Medidor de volume do diálogo de voz. */
   medidorVozAltura: 40,
   medidorVozBarra: 12,
 
-  /** Dimensões e áreas de apoio da barra superior. */
   topBarButton: 31,
   topBarBackWidth: 40,
 } as const;
 
-/**
- * Fórmulas de gradientes visuais extraídas do protótipo Figma.
- */
 export const Gradients = {
-  /**
-   * Gradiente do card de próximo lembrete na Home.
-   *
-   * @param feito - Indica se o lembrete foi concluído.
-   * @param theme - Objeto com tokens de cor do tema.
-   * @returns Declaração CSS de linear-gradient.
-   */
   proximoLembrete: (feito: boolean, theme: { success: string; accent: string; surface: string }) =>
     `linear-gradient(-59.4deg, ${feito ? theme.success : theme.accent} 18.9%, ${theme.surface} 114.5%)`,
 } as const;

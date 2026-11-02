@@ -4,7 +4,7 @@ import { useAvisoStore } from '@/stores/useAvisoStore';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useSugestoesStore } from '@/stores/useSugestoesStore';
 import type { DadosLembrete } from '@/types/lembrete';
-import { pedirPermissaoNotificacoes } from '@/utils/preparar-notificacoes';
+import { pedirPermissaoNotificacoes } from '@/utils/notificacoes/preparar-notificacoes';
 
 export const MENSAGEM_SALVO = 'Pronto! Seu lembrete foi salvo.';
 
@@ -27,10 +27,6 @@ const registrarSugestoes = (dados: DadosLembrete) => {
   }
 };
 
-/**
- * Salva o lembrete (novo ou editado), guarda as sugestões e volta com o aviso de sucesso.
- * Retorna false quando o limite de lembretes impede criar.
- */
 export const useSalvarLembrete = (idEditado?: string) => {
   const mostrarAviso = useAvisoStore((state) => state.mostrar);
 

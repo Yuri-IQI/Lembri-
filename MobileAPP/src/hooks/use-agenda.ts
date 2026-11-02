@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useAgora } from '@/hooks/use-agora';
+import { useAgora } from '@/hooks/tempo/use-agora';
 import {
   DIAS_PROXIMO_LEMBRETE,
   ateAmanha,
@@ -13,7 +13,7 @@ import {
 } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { Lembrete, OcorrenciaLembrete } from '@/types/lembrete';
-import { agruparPorDia, type DiaAgenda, type GrupoAgenda } from '@/utils/agrupar-agenda';
+import { agruparPorDia, type DiaAgenda, type GrupoAgenda } from '@/utils/lembrete/agrupar-agenda';
 
 export type ChaveSecao = 'proximas' | 'passadas' | 'pausados';
 
@@ -23,7 +23,6 @@ export type SecaoAgenda = {
   dias: DiaAgenda[];
 };
 
-/** Uma lista só, um card por lembrete, sem horários do dia. */
 const listaDeLembretes = (chave: ChaveSecao, titulo: string, lembretes: Lembrete[]): DiaAgenda[] =>
   lembretes.length > 0
     ? [

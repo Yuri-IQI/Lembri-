@@ -6,9 +6,6 @@ const sugestao = (valor: string, usadoEm: string, vezes = 1): Sugestao => ({
   vezes,
 });
 
-/**
- * Sugestões iniciais dos campos com autocompletar, para a demonstração já ter o que sugerir.
- */
 export const sugestoesIniciaisMock: Record<FonteSugestao, Sugestao[]> = {
   remedios: [
     sugestao('Losartana', '2026-10-27T10:00:00.000Z', 3),

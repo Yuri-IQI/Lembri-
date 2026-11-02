@@ -1,5 +1,5 @@
 import type { ComandoVoz } from '@/types/comando-voz';
-import { reconhecerComando } from '@/utils/reconhecer-comando';
+import { reconhecerComando } from '@/utils/voz/reconhecer-comando';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Assertion failed: ${message}`);

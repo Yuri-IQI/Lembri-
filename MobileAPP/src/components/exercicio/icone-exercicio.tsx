@@ -19,9 +19,6 @@ const ICONES = {
   sequencia: IconeSequencia,
 };
 
-/**
- * Ícone da família do exercício, decorativo: o nome deve ser lido pelo elemento pai.
- */
 export const IconeExercicio = ({ icone }: { icone: Exercicio['icone'] }) => {
   const Icone = ICONES[icone];
   return <Icone width={36} height={36} />;

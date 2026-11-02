@@ -6,7 +6,6 @@ import { publicarAgenda } from './wear-service';
 
 let ultimaPublicada = '';
 
-/** Publica a agenda atual; não republica se os lembretes não mudaram, para poupar a bateria. */
 export const publicarAgendaAtual = async () => {
   const { lembretes, registros } = useLembretesStore.getState();
   const agora = new Date();

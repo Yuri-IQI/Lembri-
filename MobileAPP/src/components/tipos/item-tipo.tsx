@@ -9,17 +9,11 @@ type ItemTipoProps = {
   nome: string;
   corHex: string;
   detalhe: string;
-  /** Sem `onAlternar`, a linha não tem caixa de seleção. */
   selecionado?: boolean;
-  /** Ausente quando já há o máximo escolhido e este tipo não está entre eles. */
   onAlternar?: () => void;
-  /** Ausente no tipo padrão que ainda não existe. */
   onExcluir?: () => void;
 };
 
-/**
- * Linha de "Meus tipos": caixa de seleção, cor, nome, quantos lembretes usam e a lixeira.
- */
 export const ItemTipo = ({
   nome,
   corHex,

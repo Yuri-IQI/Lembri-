@@ -4,19 +4,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { formatarData } from '@/utils/data';
-import type { EstatisticasExercicio } from '@/utils/exercicio';
+import { formatarData } from '@/utils/tempo/data';
+import type { EstatisticasExercicio } from '@/utils/exercicio/exercicio';
 
 export interface IndicadoresExercicioProps {
   estatisticas: EstatisticasExercicio;
 }
 
-/**
- * Painel de métricas e indicadores de desempenho do exercício (Figma exercicios_detalhe).
- *
- * Apresenta data da última atividade, tempo médio consumido e percentual médio de acertos,
- * exibindo traço '—' quando não houver tentativas registradas (cenário C5).
- */
 export const IndicadoresExercicio = ({ estatisticas }: IndicadoresExercicioProps) => {
   const theme = useTheme();
 

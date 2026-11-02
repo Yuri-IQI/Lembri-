@@ -10,11 +10,6 @@ export interface TecladoNumericoProps {
   aoApagar: () => void;
 }
 
-/**
- * Teclado numérico padronizado; os dígitos aparecem direto na casa ativa (Figma exercicios_exec / decisão D8).
- *
- * Grade acessível 3×4 com dígitos de 1 a 9, 0 e tecla Apagar, todos com alvos de toque ≥ 56dp (WCAG 2.5.5).
- */
 export const TecladoNumerico = ({
   aoDigitar,
   aoApagar,

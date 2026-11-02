@@ -4,8 +4,8 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { LinhaInterruptor } from '@/components/ajustes/linha-interruptor';
 import { SecaoApagarDados } from '@/components/ajustes/secao-apagar-dados';
 import { SecaoDesenvolvimento } from '@/components/ajustes/secao-desenvolvimento';
-import { GrupoCard } from '@/components/grupo-card';
-import { LinhaAcao } from '@/components/linha-acao';
+import { GrupoCard } from '@/components/cards/grupo-card';
+import { LinhaAcao } from '@/components/controles/linha-acao';
 import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -13,10 +13,6 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 
 const abrirAjuda = () => router.push('/ajuda');
 
-/**
- * Tela de ajustes do Lembri (CARD-27, Figma Android Compact - 7): acessibilidade, notificações,
- * dicas dos exercícios, acesso à ajuda e ao suporte e apagar todos os dados.
- */
 const ConfiguracoesScreen = () => {
   const isLargeText = useSettingsStore((state) => state.isLargeText);
   const toggleLargeText = useSettingsStore((state) => state.toggleLargeText);

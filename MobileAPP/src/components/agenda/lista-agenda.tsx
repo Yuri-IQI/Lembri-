@@ -9,7 +9,7 @@ import { Spacing } from '@/constants/theme';
 import type { SecaoAgenda } from '@/hooks/use-agenda';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
-import type { GrupoAgenda } from '@/utils/agrupar-agenda';
+import type { GrupoAgenda } from '@/utils/lembrete/agrupar-agenda';
 
 type ListaAgendaProps = {
   secao: SecaoAgenda;

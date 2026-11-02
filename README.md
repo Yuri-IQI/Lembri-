@@ -243,7 +243,7 @@ Mudou um? Mude o outro.
 
 ### MobileAPP (camadas)
 ```
-src/hooks/use-sincronizar-relogio.ts   Publica a agenda e lê eventos com o app aberto
+src/hooks/sincronizacao/use-sincronizar-relogio.ts   Publica a agenda e lê eventos com o app aberto
 src/services/wear/
   ├─ contrato.ts                  Paths, capabilities e tipos
   ├─ wear-service.ts              Publica a agenda, lista e apaga eventos

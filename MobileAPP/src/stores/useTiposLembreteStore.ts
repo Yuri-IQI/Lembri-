@@ -5,45 +5,22 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { tiposLembreteIniciaisMock } from '@/mocks/tipos-lembrete.mock';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import type { CriarTipoLembreteInput, TipoLembrete } from '@/types/tipo-lembrete';
-import { normalizarBusca } from '@/utils/texto';
+import { normalizarBusca } from '@/utils/texto/texto';
 
-/**
- * Interface que define o estado e as ações da store de categorias de lembretes.
- */
 export interface TiposLembreteState {
-  /** Coleção reativa de categorias/tipos de lembrete cadastrados. */
   tipos: TipoLembrete[];
 
-  // Ações
-  /**
-   * Cadastra uma nova categoria de lembrete com identificador único.
-   */
   adicionarTipo: (input: CriarTipoLembreteInput) => TipoLembrete;
 
-  /**
-   * Devolve o tipo com esse nome (sem diferenciar maiúsculas e acentos) ou cria um novo.
-   */
   garantirTipo: (input: CriarTipoLembreteInput) => TipoLembrete;
 
-  /**
-   * Remove uma categoria e desassocia automaticamente os lembretes vinculados (RN-04).
-   */
   removerTipo: (id: string) => void;
 
-  /**
-   * Retorna a categoria correspondente ao ID informado.
-   */
   obterTipoPorId: (id: string) => TipoLembrete | undefined;
 
-  /**
-   * Restaura as categorias para as fixtures iniciais de demonstração.
-   */
   resetarParaMocks: () => void;
 }
 
-/**
- * Store global Zustand para gerenciamento de categorias de lembretes, salva no aparelho.
- */
 export const useTiposLembreteStore = create<TiposLembreteState>()(
   persist(
     (set, get) => ({
@@ -73,7 +50,6 @@ export const useTiposLembreteStore = create<TiposLembreteState>()(
       },
 
       removerTipo: (id) => {
-        // RN-04: Desassocia os lembretes vinculados a este tipo sem excluí-los
         useLembretesStore.getState().desassociarTipo(id);
 
         set((state) => ({

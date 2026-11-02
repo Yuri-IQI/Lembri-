@@ -1,14 +1,9 @@
 import type { Lembrete, LembreteLivre } from '@/types/lembrete';
-import { chaveData, somarDias } from '@/utils/data';
+import { chaveData, somarDias } from '@/utils/tempo/data';
 
 const CRIADO_EM = '2026-10-27T10:00:00.000Z';
 const hoje = new Date();
 
-/**
- * Massa de dados inicial alinhada ao protótipo do Figma (frames "lembretes" e "detalhe lembrete"),
- * com um lembrete de cada template e um pausado para demonstrar a seção de pausados.
- * As datas são relativas ao dia em que o app abre, para a demonstração ter sempre algo a seguir.
- */
 export const lembretesIniciaisMock: Lembrete[] = [
   {
     id: 'mock-lavar-roupas',
@@ -85,9 +80,6 @@ export const lembretesIniciaisMock: Lembrete[] = [
   },
 ];
 
-/**
- * Fábrica de mocks para gerar lembretes do template Livre parametrizados.
- */
 export const criarLembreteMock = (override: Partial<LembreteLivre> = {}): LembreteLivre => {
   const agora = new Date().toISOString();
   return {

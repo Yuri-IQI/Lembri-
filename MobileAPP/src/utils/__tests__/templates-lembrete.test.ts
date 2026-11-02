@@ -4,15 +4,15 @@ import { ocorrenciasDoDia, statusCompromisso } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import type { LembreteCompromisso, RegistroFeito } from '@/types/lembrete';
-import { dadosDoLembrete, dadosIniciais } from '@/utils/dados-iniciais';
-import { formatarDose, lerDose } from '@/utils/dose';
-import { lerDataDigitada, mascararData, mascararHorario } from '@/utils/mascara';
-import { chaveData } from '@/utils/data';
-import { descreverAgenda, ocorreNoDia, rotuloFeito } from '@/utils/lembrete';
-import { migrarLembrete } from '@/utils/migrar-lembrete';
-import { normalizarDados } from '@/utils/normalizar-lembrete';
-import { buscarSugestoes, esquecerSugestao, registrarSugestoes } from '@/utils/sugestoes';
-import { LIMITE_PASSOS, primeiroErro, validarLembrete } from '@/utils/validar-lembrete';
+import { dadosDoLembrete, dadosIniciais } from '@/utils/dados/dados-iniciais';
+import { formatarDose, lerDose } from '@/utils/lembrete/dose';
+import { lerDataDigitada, mascararData, mascararHorario } from '@/utils/texto/mascara';
+import { chaveData } from '@/utils/tempo/data';
+import { descreverAgenda, ocorreNoDia, rotuloFeito } from '@/utils/lembrete/lembrete';
+import { migrarLembrete } from '@/utils/lembrete/migrar-lembrete';
+import { normalizarDados } from '@/utils/lembrete/normalizar-lembrete';
+import { buscarSugestoes, esquecerSugestao, registrarSugestoes } from '@/utils/dados/sugestoes';
+import { LIMITE_PASSOS, primeiroErro, validarLembrete } from '@/utils/lembrete/validar-lembrete';
 
 if (typeof globalThis.window === 'undefined') {
   const memoryStore = new Map<string, string>();
@@ -50,7 +50,6 @@ const igual = (actual: unknown, expected: unknown, message?: string) => {
 
 const sexta = new Date(2026, 9, 30, 9, 0);
 
-// TL-01: lembrete antigo vira Livre e 7 dias viram "todo dia"
 {
   const migrado = migrarLembrete({
     id: 'antigo',
@@ -68,7 +67,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(parcial.template, 'livre', 'Sem template também vira Livre');
 }
 
-// TL-02: repetição por dias, todo dia e data única
 {
   const segQuaSex = criarLembreteMock({ repeticao: { modo: 'dias', dias: [1, 3, 5] } });
   igual(ocorreNoDia(segQuaSex, sexta), true, 'Sexta está entre os dias');
@@ -80,7 +78,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(descreverAgenda(unico), 'Só em 30/10/2026');
 }
 
-// TL-03: compromisso gera uma ocorrência e muda de status depois da data
 {
   const compromisso: LembreteCompromisso = {
     id: 'c1',
@@ -115,7 +112,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(rotuloFeito(compromisso), 'Fiz');
 }
 
-// TL-04: normalização limpa listas e força confirmação no remédio
 {
   const remedio = normalizarDados({
     template: 'remedio',
@@ -139,7 +135,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(remedio.exigeConfirmacao, true, 'Remédio sempre exige confirmação');
 }
 
-// TL-05: sugestões sem duplicar por maiúsculas e acentos, busca e esquecer
 {
   let sugestoes = registrarSugestoes([], ['joão', ' ', 'Ana'], '2026-10-01T10:00:00.000Z');
   sugestoes = registrarSugestoes(sugestoes, ['João'], '2026-10-02T10:00:00.000Z');
@@ -155,7 +150,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(registrarSugestoes([], muitas, '2026-10-01T10:00:00.000Z').length, 30, 'Limite de 30');
 }
 
-// TL-06: limite de lembretes bloqueia a criação
 {
   useLembretesStore.getState().resetarParaMocks();
   const total = useLembretesStore.getState().lembretes.length;
@@ -180,7 +174,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   useSettingsStore.getState().setReminderLimit(LIMITE_LEMBRETES_PADRAO);
 }
 
-// TL-07: validação por template
 {
   const hoje = new Date(2026, 9, 30, 9, 0);
   const remedio = dadosIniciais('remedio', [], hoje);
@@ -244,7 +237,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   assert(validarLembrete({ ...tarefa, passos }, hoje).passos, 'Mais de 10 passos dá erro');
 }
 
-// TL-08: criar por template e editar sem trocar o template
 {
   useLembretesStore.getState().resetarParaMocks();
   const base = dadosIniciais('remedio', [], sexta);
@@ -279,7 +271,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(mantido?.titulo, 'Dipirona 500');
 }
 
-// TL-09: remédios salvos com códigos antigos passam a usar texto
 {
   const antigo = migrarLembrete({
     ...criarLembreteMock({}),
@@ -304,7 +295,6 @@ const sexta = new Date(2026, 9, 30, 9, 0);
   igual(lerDose('abc'), 0);
 }
 
-// TL-10: máscaras de horário e data digitados
 {
   igual(mascararHorario('1830'), '18:30');
   igual(mascararHorario('18:'), '18', 'Apagar os dois pontos não trava a digitação');

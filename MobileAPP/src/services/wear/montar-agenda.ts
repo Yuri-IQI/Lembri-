@@ -1,7 +1,7 @@
 import { ocorrenciasDoDia } from '@/stores/agenda-lembretes';
 import type { Lembrete, OcorrenciaLembrete, RegistroFeito } from '@/types/lembrete';
-import { chaveData, doisDigitos, somarDias } from '@/utils/data';
-import { resumoDoLembrete } from '@/utils/detalhes-lembrete';
+import { chaveData, doisDigitos, somarDias } from '@/utils/tempo/data';
+import { resumoDoLembrete } from '@/utils/lembrete/detalhes-lembrete';
 
 import type { LembreteAgenda } from './contrato';
 
@@ -16,10 +16,6 @@ const paraAgenda = (ocorrencia: OcorrenciaLembrete, feitos: Set<string>): Lembre
   feito: feitos.has(ocorrencia.chave),
 });
 
-/**
- * Lembretes de hoje e de amanhã. Amanhã vai junto para o relógio virar o dia sozinho, mesmo sem
- * falar com o celular.
- */
 export const montarAgenda = (
   lembretes: Lembrete[],
   registros: RegistroFeito[],

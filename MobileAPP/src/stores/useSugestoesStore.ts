@@ -4,23 +4,15 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { sugestoesIniciaisMock } from '@/mocks/sugestoes.mock';
 import type { FonteSugestao, Sugestao } from '@/types/sugestao';
-import { esquecerSugestao, registrarSugestoes } from '@/utils/sugestoes';
+import { esquecerSugestao, registrarSugestoes } from '@/utils/dados/sugestoes';
 
 export interface SugestoesState {
-  /** Valores já usados em cada campo com autocompletar. */
   sugestoes: Record<FonteSugestao, Sugestao[]>;
-  /** Guarda os valores de um campo. Chamar só ao salvar um lembrete, nunca durante a digitação. */
   registrar: (fonte: FonteSugestao, valores: string[]) => void;
-  /** Remove um valor das sugestões de um campo. */
   esquecer: (fonte: FonteSugestao, valor: string) => void;
-  /** Restaura as sugestões iniciais de demonstração. */
   resetarParaMocks: () => void;
 }
 
-/**
- * Store das sugestões dos campos com autocompletar, salva no aparelho.
- * Excluir um lembrete não apaga as sugestões que ele gerou.
- */
 export const useSugestoesStore = create<SugestoesState>()(
   persist(
     (set) => ({

@@ -1,19 +1,19 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { ChipOcorrencia, type EstadoHorario } from '@/components/chip-ocorrencia';
-import { IconeTemplate } from '@/components/icone-template';
-import { Interruptor } from '@/components/interruptor';
-import { ListaEtiquetas } from '@/components/lista-etiquetas';
-import { TextoRiscado } from '@/components/texto-riscado';
+import { ChipOcorrencia, type EstadoHorario } from '@/components/etiquetas/chip-ocorrencia';
+import { IconeTemplate } from '@/components/itens/icone-template';
+import { Interruptor } from '@/components/controles/interruptor';
+import { ListaEtiquetas } from '@/components/etiquetas/lista-etiquetas';
+import { TextoRiscado } from '@/components/itens/texto-riscado';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { obterTemplate } from '@/mocks/templates-lembrete.mock';
 import type { Lembrete } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
-import { resumoDoLembrete } from '@/utils/detalhes-lembrete';
-import { descreverAgenda, horariosDoLembrete, rotuloFeito } from '@/utils/lembrete';
+import { resumoDoLembrete } from '@/utils/lembrete/detalhes-lembrete';
+import { descreverAgenda, horariosDoLembrete, rotuloFeito } from '@/utils/lembrete/lembrete';
 
 export type HorarioDoCard = {
   chave: string;
@@ -25,22 +25,14 @@ export type HorarioDoCard = {
 type GrupoAgendaCardProps = {
   lembrete: Lembrete;
   tipos: TipoLembrete[];
-  /** Horários do lembrete no dia; vazio quando ele está pausado. */
   horarios: HorarioDoCard[];
   onAbrir: () => void;
-  /** Tira o card da lista (também oferecido ao leitor de tela). */
   onRemover?: () => void;
   rotuloRemover?: string;
-  /** Aba Lembretes: mostra quando o lembrete repete; os horários só informam. */
   consulta?: boolean;
-  /** Liga ou pausa os alertas direto no card; ocupa o lugar da seta. */
   interruptor?: { ligado: boolean; onAlternar: () => void };
 };
 
-/**
- * Um lembrete num dia: ícone do template, título, tipos e os horários do dia como etiquetas que
- * marcam o feito.
- */
 export const GrupoAgendaCard = ({
   lembrete,
   tipos,

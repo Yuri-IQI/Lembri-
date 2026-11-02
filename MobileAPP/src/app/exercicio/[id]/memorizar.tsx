@@ -3,9 +3,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { AvisoSucesso } from '@/components/aviso-sucesso';
-import { Botao } from '@/components/botao';
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { AvisoSucesso } from '@/components/feedback/aviso-sucesso';
+import { Botao } from '@/components/controles/botao';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { BarraAcoesExercicio } from '@/components/exercicio/barra-acoes-exercicio';
 import { CartaoRodada } from '@/components/exercicio/cartao-rodada';
 import { ThemedText } from '@/components/themed-text';
@@ -13,12 +13,6 @@ import { Spacing } from '@/constants/theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useAvisoStore } from '@/stores/useAvisoStore';
 
-/**
- * Fase de memorização prévia do exercício cognitivo (CARD-37 / frame exercicios_preview).
- *
- * Apresenta o cartão da rodada atual com os itens em estado neutro para fixação visual.
- * Sem cronômetro limitante (WCAG 2.2.3): a pessoa decide quando tocar em CONTINUAR.
- */
 const MemorizarExercicioScreen = () => {
   const { sessaoValida, exercicio, rodadaAtual, indiceRodada, totalRodadas, pedirSaida, dialogoSaida } =
     useSessaoExercicio({ confirmarSaida: true });

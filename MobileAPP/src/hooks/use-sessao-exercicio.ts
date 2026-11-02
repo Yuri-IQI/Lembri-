@@ -6,7 +6,6 @@ import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import type { Exercicio, RodadaExercicio, SessaoExercicio } from '@/types/exercicio';
 
 export interface UseSessaoExercicioOpcoes {
-  /** Se verdadeiro, exige confirmação ao tentar sair (padrão true). */
   confirmarSaida?: boolean;
 }
 
@@ -26,14 +25,6 @@ export interface UseSessaoExercicioRetorno {
   descartarSessao: () => void;
 }
 
-/**
- * Hook centralizador da sessão ativa de exercício cognitivo.
- * Conecta a store de exercícios, recupera os dados da rodada corrente e intercepta
- * ações de navegação para trás com diálogo de confirmação (WCAG 3.3.6).
- *
- * @param opcoes - Opções de configuração da sessão.
- * @returns Dados da sessão, do exercício e controle do diálogo de saída.
- */
 export function useSessaoExercicio(
   opcoes: UseSessaoExercicioOpcoes = {}
 ): UseSessaoExercicioRetorno {

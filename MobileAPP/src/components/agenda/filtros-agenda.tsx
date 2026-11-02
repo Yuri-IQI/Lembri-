@@ -16,10 +16,6 @@ type FiltrosAgendaProps = {
 
 type Filtro = { chave: ChaveSecao; rotulo: string };
 
-/**
- * Abas da agenda: "A seguir" e "Já passaram" sempre visíveis; "Pausados" aparece
- * em "Mais opções".
- */
 export const FiltrosAgenda = ({ ativa, pausados, onSelecionar }: FiltrosAgendaProps) => {
   const theme = useTheme();
   const principais: Filtro[] = [

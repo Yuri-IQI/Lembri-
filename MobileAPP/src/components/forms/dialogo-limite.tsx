@@ -1,4 +1,4 @@
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 type DialogoLimiteProps = {
@@ -6,9 +6,6 @@ type DialogoLimiteProps = {
   onFechar: () => void;
 };
 
-/**
- * Aviso de que o limite de lembretes foi atingido.
- */
 export const DialogoLimite = ({ visivel, onFechar }: DialogoLimiteProps) => {
   const limite = useSettingsStore((state) => state.reminderLimit);
 

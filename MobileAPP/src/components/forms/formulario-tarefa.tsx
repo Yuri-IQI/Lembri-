@@ -1,17 +1,14 @@
 import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
-import { CampoAutocompletar } from '@/components/formulario/campo-autocompletar';
-import { CampoChecklist } from '@/components/formulario/campo-checklist';
-import { CampoConfirmacao } from '@/components/formulario/campo-confirmacao';
-import { CampoHorarios } from '@/components/formulario/campo-horarios';
-import { CampoRepeticao } from '@/components/formulario/campo-repeticao';
-import { SeletorTipo } from '@/components/formulario/seletor-tipo';
-import { LIMITE_PASSOS, LIMITE_TEXTO_PASSO } from '@/utils/validar-lembrete';
+import { CampoAutocompletar } from '@/components/formulario/texto/campo-autocompletar';
+import { CampoChecklist } from '@/components/formulario/checklist/campo-checklist';
+import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
+import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
+import { CampoRepeticao } from '@/components/formulario/data-hora/campo-repeticao';
+import { SeletorTipo } from '@/components/formulario/selecao/seletor-tipo';
+import { LIMITE_PASSOS, LIMITE_TEXTO_PASSO } from '@/utils/lembrete/validar-lembrete';
 
-/**
- * Formulário do template Tarefa da casa.
- */
 export const FormularioTarefa = ({ form, registrar, tipos }: PropsFormulario<'tarefa'>) => {
   const { dados, alterar, erros } = form;
 

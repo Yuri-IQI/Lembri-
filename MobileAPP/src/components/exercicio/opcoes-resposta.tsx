@@ -10,12 +10,6 @@ export interface OpcoesRespostaProps {
   aoSelecionarOpcao: (opcao: string) => void;
 }
 
-/**
- * Catálogo de opções em formato de chips embaralhados para os exercícios de ordenação,
- * associações e lista de compras (RN-EX-09 e Figma exercicios_exec).
- *
- * Desabilita visualmente e na acessibilidade chips que já foram alocados em alguma casa.
- */
 export const OpcoesResposta = ({
   opcoes,
   respostasAtuais,

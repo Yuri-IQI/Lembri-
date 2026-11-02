@@ -1,8 +1,5 @@
 import type { Exercicio } from '@/types/exercicio';
 
-/**
- * Catálogo inicial mockado de exercícios cognitivos alinhado ao protótipo do Figma.
- */
 export const exerciciosIniciaisMock: Exercicio[] = [
   {
     id: 'exercicio-1',
@@ -126,9 +123,6 @@ export const exerciciosIniciaisMock: Exercicio[] = [
   },
 ];
 
-/**
- * Fábrica de exercícios mockados para testes e geração dinâmica.
- */
 export const criarExercicioMock = (override: Partial<Exercicio> = {}): Exercicio => ({
   id: `exercicio-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
   titulo: 'Exercício de Teste',

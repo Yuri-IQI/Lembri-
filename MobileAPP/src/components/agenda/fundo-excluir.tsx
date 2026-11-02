@@ -17,9 +17,6 @@ const Aviso = () => {
   );
 };
 
-/**
- * Fundo vermelho revelado ao arrastar o card para excluir, dos dois lados.
- */
 export const FundoExcluir = () => {
   const theme = useTheme();
   return (

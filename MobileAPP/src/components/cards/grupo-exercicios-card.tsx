@@ -8,7 +8,7 @@ import { Card } from '@/components/themed-view';
 import { Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Exercicio } from '@/types/exercicio';
-import { plural } from '@/utils/texto';
+import { plural } from '@/utils/texto/texto';
 
 export interface GrupoExerciciosCardProps {
   titulo: string;
@@ -17,9 +17,6 @@ export interface GrupoExerciciosCardProps {
   children: ReactNode;
 }
 
-/**
- * Card colapsável que reúne os modos de jogo de um mesmo grupo de exercícios.
- */
 export const GrupoExerciciosCard = ({
   titulo,
   icone,

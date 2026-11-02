@@ -5,11 +5,9 @@ import { ThemedText } from '@/components/themed-text';
 import { Colors, LoadingEclipse, Spacing } from '@/constants/theme';
 
 export type LoadingProps = {
-  /** Chamado quando a tela já foi desenhada; só então o splash nativo pode sair sem tela preta. */
   onDesenhada: () => void;
 };
 
-/** Tela de carregamento exibida ao abrir o app, enquanto os dados salvos são lidos. */
 export const Loading = ({ onDesenhada }: LoadingProps) => (
   <View style={styles.tela} accessibilityViewIsModal onLayout={onDesenhada}>
     <StatusBar barStyle="dark-content" />

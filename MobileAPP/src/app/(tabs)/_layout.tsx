@@ -18,17 +18,12 @@ const ABAS: { name: string; href: Href; Icone: BottomBarIcone; rotulo: string }[
   { name: 'configuracoes', href: '/configuracoes', Icone: IconeAjustes, rotulo: 'Ajustes' },
 ];
 
-/**
- * Top bar com histórico de abas próprio: o backBehavior das abas headless do expo-router
- * quebra a aba Home. Fica dentro de <Tabs> para trocar de aba pelo próprio navegador.
- */
 const BarraSuperior = () => {
   const navigation = useNavigation();
   const { switchTab, getTrigger } = useTabTrigger({ name: ABAS[0].name });
   const abaAtual = ABAS.find((aba) => getTrigger(aba.name)?.isFocused)?.name ?? ABAS[0].name;
 
   const [historico, setHistorico] = useState<string[]>([abaAtual]);
-  // Aba para onde o "voltar" está indo; até chegar nela, a aba atual não entra no histórico.
   const [destino, setDestino] = useState<string | null>(null);
 
   if (destino !== null) {
@@ -50,7 +45,6 @@ const BarraSuperior = () => {
   };
 
   useEffect(() => {
-    // Com outra tela por cima das abas, o botão voltar do Android é dela.
     const assinatura = BackHandler.addEventListener(
       'hardwareBackPress',
       () => navigation.isFocused() && voltar()

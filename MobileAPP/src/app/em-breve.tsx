@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { Botao } from '@/components/botao';
+import { Botao } from '@/components/controles/botao';
 import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 

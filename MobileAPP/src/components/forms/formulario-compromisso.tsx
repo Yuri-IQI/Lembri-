@@ -1,25 +1,22 @@
 import { View } from 'react-native';
 
 import type { PropsFormulario } from '@/components/forms/props-formulario';
-import { CampoAutocompletar } from '@/components/formulario/campo-autocompletar';
-import { CampoConfirmacao } from '@/components/formulario/campo-confirmacao';
-import { CampoData } from '@/components/formulario/campo-data';
-import { CampoHorarios } from '@/components/formulario/campo-horarios';
-import { CampoTexto } from '@/components/formulario/campo-texto';
-import { ChipsSelecao } from '@/components/formulario/chips-selecao';
-import { SeletorTipo } from '@/components/formulario/seletor-tipo';
+import { CampoAutocompletar } from '@/components/formulario/texto/campo-autocompletar';
+import { CampoConfirmacao } from '@/components/formulario/selecao/campo-confirmacao';
+import { CampoData } from '@/components/formulario/data-hora/campo-data';
+import { CampoHorarios } from '@/components/formulario/data-hora/campo-horarios';
+import { CampoTexto } from '@/components/formulario/texto/campo-texto';
+import { ChipsSelecao } from '@/components/formulario/selecao/chips-selecao';
+import { SeletorTipo } from '@/components/formulario/selecao/seletor-tipo';
 import type { AvisoAntes } from '@/types/lembrete';
-import { NOMES_AVISO_ANTES } from '@/utils/detalhes-lembrete';
-import { LIMITE_OBSERVACAO } from '@/utils/validar-lembrete';
+import { NOMES_AVISO_ANTES } from '@/utils/lembrete/detalhes-lembrete';
+import { LIMITE_OBSERVACAO } from '@/utils/lembrete/validar-lembrete';
 
 const AVISOS = (Object.keys(NOMES_AVISO_ANTES) as AvisoAntes[]).map((valor) => ({
   valor,
   rotulo: NOMES_AVISO_ANTES[valor],
 }));
 
-/**
- * Formulário do template Compromisso: acontece uma vez, numa data e horário.
- */
 export const FormularioCompromisso = ({
   form,
   registrar,

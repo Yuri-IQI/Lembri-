@@ -3,15 +3,15 @@ import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { AvisoGlobal } from '@/components/aviso-global';
-import { AcoesLembrete } from '@/components/lembrete/acoes-lembrete';
-import { BlocoConfiguracao } from '@/components/lembrete/bloco-configuracao';
-import { BlocoProximaVez } from '@/components/lembrete/bloco-proxima-vez';
-import { BlocoUltimasVezes } from '@/components/lembrete/bloco-ultimas-vezes';
-import { CabecalhoLembrete } from '@/components/lembrete/cabecalho-lembrete';
+import { AvisoGlobal } from '@/components/feedback/aviso-global';
+import { AcoesLembrete } from '@/components/lembrete/detalhe/acoes-lembrete';
+import { BlocoConfiguracao } from '@/components/lembrete/detalhe/bloco-configuracao';
+import { BlocoProximaVez } from '@/components/lembrete/detalhe/bloco-proxima-vez';
+import { BlocoUltimasVezes } from '@/components/lembrete/detalhe/bloco-ultimas-vezes';
+import { CabecalhoLembrete } from '@/components/lembrete/detalhe/cabecalho-lembrete';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { useAgora } from '@/hooks/use-agora';
+import { useAgora } from '@/hooks/tempo/use-agora';
 import { proximaOcorrenciaDoLembrete } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 

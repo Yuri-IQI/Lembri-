@@ -3,21 +3,16 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { AvaliacaoCasa } from '@/utils/exercicio';
+import type { AvaliacaoCasa } from '@/utils/exercicio/exercicio';
 
 export interface CasasRespostaProps {
   respostas: string[];
   casaAtiva: number;
   dicas?: string[];
-  /** Dígitos em digitação, exibidos direto na casa ativa. */
   rascunho?: string;
-  /** Avaliação de cada casa já conferida; null enquanto não conferida ou após ser alterada. */
   avaliacoes?: (AvaliacaoCasa | null)[];
-  /** Quantas casas ampliadas cabem por linha; sem valor, usa as casas compactas. */
   colunas?: number;
-  /** Cor do contexto da rodada, que contorna as casas conferidas. */
   cor?: ThemeColor;
-  /** Mostra a posição de cada casa, para atividades em que a ordem importa. */
   numerada?: boolean;
   aoSelecionarCasa: (indice: number) => void;
 }
@@ -35,13 +30,6 @@ const descreverAvaliacao = ({ estado, direcao, posicaoCerta }: AvaliacaoCasa, nu
     : { marca: '✗', fala: 'errado' };
 };
 
-/**
- * Fileira interativa de casas de resposta (Figma exercicios_exec).
- *
- * Exibe as casas na ordem da rodada, destacando a casa ativa selecionada e permitindo
- * toque direto em qualquer posição para revisão ou correção manual (decisão D8).
- * Depois de conferidas, as casas mostram o resultado por cor, marca e texto acessível.
- */
 export const CasasResposta = ({
   respostas,
   casaAtiva,

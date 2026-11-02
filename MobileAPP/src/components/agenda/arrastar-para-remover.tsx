@@ -4,19 +4,13 @@ import { Animated, PanResponder, useWindowDimensions, View } from 'react-native'
 type ArrastarParaRemoverProps = {
   children: ReactNode;
   chave: string;
-  /** Recebe a `chave`; passe uma função estável (ex.: ação da store). */
   onRemover: (chave: string) => void;
-  /** Volta ao lugar depois do gesto, para quem vai pedir confirmação antes de remover. */
   voltarAoSoltar?: boolean;
-  /** Revelado atrás do conteúdo durante o arrasto; com ele, o conteúdo não esmaece. */
   fundo?: ReactNode;
 };
 
 const LIMIAR = 0.35;
 
-/**
- * Arrastar o conteúdo para o lado tira ele da lista; soltando antes do limiar, ele volta.
- */
 export const ArrastarParaRemover = ({
   children,
   chave,

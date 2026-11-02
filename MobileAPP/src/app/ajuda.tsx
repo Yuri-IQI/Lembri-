@@ -3,22 +3,18 @@ import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { PerguntaFrequente } from '@/components/ajuda/pergunta-frequente';
 import { TopBar } from '@/components/app-bar/top-bar';
-import { GrupoCard } from '@/components/grupo-card';
-import { LinhaAcao } from '@/components/linha-acao';
+import { GrupoCard } from '@/components/cards/grupo-card';
+import { LinhaAcao } from '@/components/controles/linha-acao';
 import { ThemedText } from '@/components/themed-text';
 import { CONTATO_SUPORTE, PERGUNTAS_FREQUENTES, PERGUNTAS_RELOGIO } from '@/constants/ajuda';
 import { Spacing } from '@/constants/theme';
 
 const voltar = () => router.back();
 
-/** Abre o discador ou o app de email; se o aparelho não tiver um, o contato segue visível na linha. */
 const abrir = (url: string) => {
   Linking.openURL(url).catch(() => undefined);
 };
 
-/**
- * Tela de ajuda (Figma Android Compact - 9): dúvidas sobre o app e o relógio e contato com o suporte.
- */
 const AjudaScreen = () => (
   <View style={styles.tela}>
     <TopBar onVoltar={voltar} semAjuda />

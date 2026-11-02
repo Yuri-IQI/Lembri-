@@ -2,8 +2,8 @@ import { useExerciciosStore } from '../useExerciciosStore';
 import { useLembretesStore } from '../useLembretesStore';
 import { useSettingsStore } from '../useSettingsStore';
 import { useTiposLembreteStore } from '../useTiposLembreteStore';
-import { apagarTodosOsDados } from '../../utils/apagar-dados';
-import { dadosIniciais } from '../../utils/dados-iniciais';
+import { apagarTodosOsDados } from '../../utils/dados/apagar-dados';
+import { dadosIniciais } from '../../utils/dados/dados-iniciais';
 import {
   avaliarCasa,
   calcularStreak,
@@ -11,13 +11,12 @@ import {
   embaralhar,
   estatisticasDoExercicio,
   resultadoDaSessao,
-} from '../../utils/exercicio';
-import { gerarRodadas } from '../../utils/gerar-rodadas';
-import { filtrarLembretes } from '../../utils/lembrete';
+} from '../../utils/exercicio/exercicio';
+import { gerarRodadas } from '../../utils/exercicio/gerar-rodadas';
+import { filtrarLembretes } from '../../utils/lembrete/lembrete';
 import type { Lembrete } from '../../types/lembrete';
 import { criarTentativaMock } from '../../mocks/historico-tentativas.mock';
 
-// Prover mock leve de localStorage caso executado em ambiente Node puro (sem Jest/browser)
 if (typeof globalThis.window === 'undefined') {
   const memoryStore = new Map<string, string>();
   (globalThis as unknown as { window: { localStorage: Storage } }).window = {
@@ -40,7 +39,6 @@ if (typeof globalThis.window === 'undefined') {
   };
 }
 
-// Asserções leves sem dependência de tipos de Node no runtime React Native
 function assert(condition: unknown, message?: string): asserts condition {
   if (!condition) {
     throw new Error(`Assertion failed: ${message ?? 'Condition not met'}`);
@@ -59,12 +57,10 @@ assert.ok = (condition: unknown, message?: string) => {
   }
 };
 
-// Reset inicial para garantir isolamento
 useLembretesStore.getState().resetarParaMocks();
 useTiposLembreteStore.getState().resetarParaMocks();
 useExerciciosStore.getState().resetarParaMocks();
 
-// Teste RN-01: Criação de Lembrete
 {
   const totalAntes = useLembretesStore.getState().lembretes.length;
   const novo = useLembretesStore.getState().adicionarLembrete({
@@ -88,7 +84,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(estado.lembretes[0].ativo, true, 'Deve iniciar programado');
 }
 
-// Teste RN-02: Edição de Lembrete
 {
   const primeiro = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().editarLembrete(primeiro.id, {
@@ -111,7 +106,6 @@ useExerciciosStore.getState().resetarParaMocks();
   );
 }
 
-// Teste RN-03: Exclusão Reversível (Undo)
 {
   const primeiro = useLembretesStore.getState().lembretes[0];
   const totalAntes = useLembretesStore.getState().lembretes.length;
@@ -128,7 +122,6 @@ useExerciciosStore.getState().resetarParaMocks();
     'Deve guardar em ultimoExcluido'
   );
 
-  // Desfazer exclusão
   useLembretesStore.getState().desfazerExclusao();
   assert.strictEqual(
     useLembretesStore.getState().lembretes.length,
@@ -142,15 +135,12 @@ useExerciciosStore.getState().resetarParaMocks();
   );
 }
 
-// Teste RN-04: Exclusão de Tipo desassociando lembretes
 {
-  // Adiciona um tipo
   const tipo = useTiposLembreteStore.getState().adicionarTipo({
     nome: 'Tipo Especial',
     corHex: '#123456',
   });
 
-  // Vincula a um lembrete
   const lembreteVinculado = useLembretesStore.getState().adicionarLembrete({
     template: 'livre',
     titulo: 'Com tipo especial',
@@ -161,7 +151,6 @@ useExerciciosStore.getState().resetarParaMocks();
   });
   assert(lembreteVinculado, 'Deve criar dentro do limite');
 
-  // Remove o tipo
   useTiposLembreteStore.getState().removerTipo(tipo.id);
   const tipoAposRemocao = useTiposLembreteStore.getState().obterTipoPorId(tipo.id);
   assert.strictEqual(tipoAposRemocao, undefined, 'Tipo deve ser removido da store de tipos');
@@ -173,7 +162,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(lembreteApos?.tipoIds.length, 0, 'Lembrete deve ter o tipo desassociado');
 }
 
-// Teste RN-05: Pausar e reativar os alertas
 {
   const lembrete = useLembretesStore.getState().lembretes[0];
   useLembretesStore.getState().alternarAtivo(lembrete.id);
@@ -185,7 +173,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(reativado?.ativo, true, 'Deve voltar a ficar programado');
 }
 
-// Teste RN-05b: "Fiz" registra no histórico, sem duplicar, e pode ser desfeito
 {
   const lembrete = useLembretesStore.getState().lembretes[0];
   const ocorrencia = {
@@ -202,11 +189,8 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(useLembretesStore.getState().registros.length, 0, 'Deve desfazer o registro');
 }
 
-// Testes CARD-35-38: Módulo de Exercícios (T1 - T9)
-// Teste T1: calcularStreak
 {
-  const agora = new Date(2026, 9, 30, 10, 0); // 30/10/2026
-  // hoje + ontem + anteontem
+  const agora = new Date(2026, 9, 30, 10, 0);
   const h1 = [
     criarTentativaMock({ dataHora: new Date(2026, 9, 30, 9, 0).toISOString() }),
     criarTentativaMock({ dataHora: new Date(2026, 9, 29, 9, 0).toISOString() }),
@@ -214,17 +198,14 @@ useExerciciosStore.getState().resetarParaMocks();
   ];
   assert.strictEqual(calcularStreak(h1, agora), 3, 'Streak com hoje+ontem+anteontem deve ser 3');
 
-  // com buraco (hoje e anteontem, sem ontem)
   const h2 = [
     criarTentativaMock({ dataHora: new Date(2026, 9, 30, 9, 0).toISOString() }),
     criarTentativaMock({ dataHora: new Date(2026, 9, 28, 9, 0).toISOString() }),
   ];
   assert.strictEqual(calcularStreak(h2, agora), 1, 'Streak com buraco deve contar apenas 1');
 
-  // vazio
   assert.strictEqual(calcularStreak([], agora), 0, 'Streak vazio deve ser 0');
 
-  // várias no mesmo dia
   const h3 = [
     criarTentativaMock({ dataHora: new Date(2026, 9, 30, 9, 0).toISOString() }),
     criarTentativaMock({ dataHora: new Date(2026, 9, 30, 15, 0).toISOString() }),
@@ -233,7 +214,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(calcularStreak(h3, agora), 2, 'Várias tentativas no mesmo dia contam como 1 dia');
 }
 
-// Teste T2: corrigirRodada com 1 de 5 certos
 {
   const rodada = {
     id: 'seq-1',
@@ -249,7 +229,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(res.casas[1], false, 'Segunda casa deve ser false');
 }
 
-// Teste T3: resultadoDaSessao com rodadas 1/5, 5/5, 5/5
 {
   const exercicio = useExerciciosStore.getState().exercicios[0];
   const sessao = {
@@ -270,7 +249,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(res.percentual, 73, 'Percentual deve ser 73%');
 }
 
-// Teste T4: embaralhar com gerador fixo
 {
   const itens = ['A', 'B', 'C', 'D'];
   let seed = 0.5;
@@ -285,13 +263,11 @@ useExerciciosStore.getState().resetarParaMocks();
   assert(embaralhado.includes('A') && embaralhado.includes('D'), 'Deve conter os mesmos elementos');
 }
 
-// Teste T5, T6, T7: Fluxo de Sessão na Store (Iniciar, Responder, Concluir, Idempotência e Descartar)
 {
   useExerciciosStore.getState().resetarParaMocks();
   const totalHistoricoAntes = useExerciciosStore.getState().historico.length;
   const ex = useExerciciosStore.getState().exercicios[0];
 
-  // Iniciar sessão
   useExerciciosStore.getState().iniciarSessao(ex.id);
   const sessaoAtiva = useExerciciosStore.getState().sessao;
   assert.ok(sessaoAtiva, 'Sessão deve ser iniciada');
@@ -365,21 +341,17 @@ useExerciciosStore.getState().resetarParaMocks();
     'Os números de uma sequência não devem se repetir'
   );
 
-  // Responder rodada 1
   const r1 = useExerciciosStore.getState().responderRodada(rodadasSorteadas[0].itens);
   assert.strictEqual(r1?.acertos, 5, 'Rodada 1 deve ter 5 acertos');
 
-  // Avançar para rodada 2 e responder
   const temMais1 = useExerciciosStore.getState().avancarRodada();
   assert.strictEqual(temMais1, true, 'Deve avançar para rodada 2');
   useExerciciosStore.getState().responderRodada(rodadasSorteadas[1].itens);
 
-  // Avançar para rodada 3 e responder
   const temMais2 = useExerciciosStore.getState().avancarRodada();
   assert.strictEqual(temMais2, true, 'Deve avançar para rodada 3');
   useExerciciosStore.getState().responderRodada(rodadasSorteadas[2].itens);
 
-  // Concluir sessão (T5)
   const tentativaGravada = useExerciciosStore.getState().concluirSessao();
   assert.ok(tentativaGravada, 'Deve retornar tentativa gravada');
   assert.strictEqual(tentativaGravada?.acertos, 15, 'Acertos totais devem ser 15');
@@ -390,7 +362,6 @@ useExerciciosStore.getState().resetarParaMocks();
     'Deve adicionar tentativa ao histórico'
   );
 
-  // Idempotência (T6): concluir novamente não deve duplicar histórico
   const tentativaIdempotente = useExerciciosStore.getState().concluirSessao();
   assert.strictEqual(
     tentativaIdempotente?.id,
@@ -403,13 +374,11 @@ useExerciciosStore.getState().resetarParaMocks();
     'Não deve duplicar histórico no segundo concluirSessao'
   );
 
-  // Descartar sessão no meio (T7)
   useExerciciosStore.getState().iniciarSessao(ex.id);
   useExerciciosStore.getState().descartarSessao();
   assert.strictEqual(useExerciciosStore.getState().sessao, null, 'Sessão deve ser nula após descartar');
 }
 
-// Teste T8: estatisticasDoExercicio
 {
   const exSemHistorico = 'exercicio-4';
   const statsVazio = estatisticasDoExercicio(useExerciciosStore.getState().historico, exSemHistorico);
@@ -424,7 +393,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.ok(typeof stats.mediaAcertos === 'number', 'Deve ter média de acertos');
 }
 
-// Teste T9: filtrarLembretes
 {
   const lembretes = [{ titulo: 'Tomar remédio' }, { titulo: 'Caminhar' }] as Lembrete[];
   const resultado = filtrarLembretes(lembretes, 'REMEDIO');
@@ -433,7 +401,6 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(filtrarLembretes(lembretes, '  ').length, 2, 'Busca vazia mantém todos');
 }
 
-// Teste RN-07: Restauração de Fábrica (Reset)
 {
   useLembretesStore.getState().resetarParaMocks();
   useTiposLembreteStore.getState().resetarParaMocks();
@@ -452,7 +419,6 @@ useExerciciosStore.getState().resetarParaMocks();
   );
 }
 
-// Teste: apagar todos os dados
 {
   useSettingsStore.getState().toggleReminderAlerts();
   useSettingsStore.getState().setLargeText(true);
@@ -470,7 +436,6 @@ useExerciciosStore.getState().resetarParaMocks();
   useExerciciosStore.getState().resetarParaMocks();
 }
 
-// Teste RN-08: Contadores de Ativos e Por Categoria (CARD-31 e CARD-34)
 {
   useLembretesStore.getState().resetarParaMocks();
   const contador = useLembretesStore.getState().obterContadorAtivos();
@@ -485,7 +450,6 @@ useExerciciosStore.getState().resetarParaMocks();
     .obterContagemPorTipo('tipo-tarefas-domesticas');
   assert.strictEqual(contagemDomestica, 2, 'Deve ter 2 lembretes de tarefas domésticas');
 
-  // Adiciona com template remédio e confirmação ativa (CARD-33)
   const remedio = useLembretesStore.getState().adicionarLembrete({
     ...dadosIniciais('remedio', ['tipo-saude'], new Date()),
     titulo: 'Vitamina C',

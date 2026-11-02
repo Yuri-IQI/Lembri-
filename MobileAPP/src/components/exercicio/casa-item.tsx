@@ -11,21 +11,10 @@ export interface CasaItemProps {
   valor: string;
   estado: EstadoCasaItem;
   dica?: string;
-  /** Cor do contexto da rodada: preenche a casa neutra e contorna a casa avaliada. */
   cor?: ThemeColor;
-  /** Posição do item na atividade, exibida antes do valor. */
   ordem?: number;
 }
 
-/**
- * Célula individual de item de exercício com 4 estados visuais e acessíveis (WCAG 1.4.1 e 1.4.6).
- *
- * Estados:
- * - `neutra`: exibição durante memorização (fundo cinza neutro);
- * - `vazia`: casa aguardando preenchimento na resposta (borda tracejada e ponto de interrogação);
- * - `correta`: resposta avaliada como certa (fundo verde claro e indicador visual ✓);
- * - `errada`: resposta avaliada como incorreta (fundo vermelho claro e indicador visual ✗).
- */
 export const CasaItem = ({ valor, estado, dica, cor, ordem }: CasaItemProps) => {
   const theme = useTheme();
 

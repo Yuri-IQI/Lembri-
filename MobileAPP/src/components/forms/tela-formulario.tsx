@@ -3,8 +3,8 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TopBar } from '@/components/app-bar/top-bar';
-import { Botao } from '@/components/botao';
-import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { Botao } from '@/components/controles/botao';
+import { DialogoConfirmacao } from '@/components/feedback/dialogo-confirmacao';
 import { DialogoLimite } from '@/components/forms/dialogo-limite';
 import { FormularioCompromisso } from '@/components/forms/formulario-compromisso';
 import { FormularioLivre } from '@/components/forms/formulario-livre';
@@ -30,14 +30,9 @@ const CORPOS: { [T in TemplateId]: ComponentType<PropsFormulario<T>> } = {
 type TelaFormularioProps<T extends TemplateId> = {
   titulo: string;
   inicial: DadosDoTemplate<T>;
-  /** Lembrete editado: guarda os dados salvos para validar datas que já estavam no passado. */
   edicao?: { id: string; original: DadosDoTemplate<T> };
 };
 
-/**
- * Estrutura comum aos formulários de criar e editar: barra superior, título, campos do
- * template, botão de salvar e confirmação ao sair sem salvar.
- */
 export const TelaFormulario = <T extends TemplateId>({
   titulo,
   inicial,

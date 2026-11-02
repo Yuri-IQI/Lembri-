@@ -1,6 +1,4 @@
 /**
- * Contrato de comunicação celular ⇄ relógio.
- *
  * Aviso: espelho de WearableAPP/app/src/main/java/com/borabill/lembriwearable/
  *    data/comunicacao/ContratoComunicacao.kt (+ data/model/).
  * Mudou algo aqui? Mude lá também.
@@ -26,7 +24,6 @@ export type ExercicioRelogioId = (typeof ExerciciosRelogio)[keyof typeof Exercic
 
 export type LembreteAgenda = {
   chave: string;
-  /** Data e hora locais da ocorrência: AAAA-MM-DDTHH:mm. */
   quando: string;
   titulo: string;
   detalhe?: string;

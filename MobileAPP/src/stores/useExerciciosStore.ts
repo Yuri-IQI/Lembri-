@@ -10,40 +10,23 @@ import type {
   SessaoExercicio,
   TentativaExercicio,
 } from '@/types/exercicio';
-import { corrigirRodada, embaralhar, resultadoDaSessao } from '@/utils/exercicio';
-import { gerarRodadas } from '@/utils/gerar-rodadas';
+import { corrigirRodada, embaralhar, resultadoDaSessao } from '@/utils/exercicio/exercicio';
+import { gerarRodadas } from '@/utils/exercicio/gerar-rodadas';
 
-/**
- * Interface que define o estado e as ações da store de exercícios cognitivos.
- */
 export interface ExerciciosState {
-  /** Catálogo de exercícios disponíveis. */
   exercicios: Exercicio[];
-  /** Histórico persistido de execuções e resultados de exercícios, mais recentes primeiro. */
   historico: TentativaExercicio[];
-  /** Sessão de execução em andamento (mantida somente em memória). */
   sessao: SessaoExercicio | null;
 
-  // Ações
-  /** Abre uma nova sessão de execução para o exercício informado e sorteia as opções. */
   iniciarSessao: (exercicioId: string) => void;
-  /** Grava a primeira resposta da rodada atual, a que conta na pontuação, e retorna a avaliação. */
   responderRodada: (respostas: string[]) => ResultadoRodada | null;
-  /** Avança para a próxima rodada da sessão; retorna falso quando for a última rodada. */
   avancarRodada: () => boolean;
-  /** Consolida a sessão, calcula o resultado e persiste a tentativa uma única vez (idempotente). */
   concluirSessao: () => TentativaExercicio | null;
-  /** Descarta a sessão em andamento sem persistir nenhuma tentativa no histórico. */
   descartarSessao: () => void;
-  /** Guarda uma tentativa feita no relógio; um `id` repetido é ignorado (idempotente). */
   registrarTentativaRelogio: (tentativa: Omit<TentativaExercicio, 'origem'>) => void;
-  /** Restaura o catálogo e o histórico de exercícios para os dados mockados padrão. */
   resetarParaMocks: () => void;
 }
 
-/**
- * Store global Zustand para controle de exercícios cognitivos e progresso do usuário.
- */
 export const useExerciciosStore = create<ExerciciosState>()(
   persist(
     (set, get) => ({
@@ -151,7 +134,6 @@ export const useExerciciosStore = create<ExerciciosState>()(
           return null;
         }
 
-        // Idempotência: se a tentativa já foi gravada nesta sessão, retorna o registro existente
         if (sessao.tentativaId) {
           return historico.find((item) => item.id === sessao.tentativaId) ?? null;
         }
