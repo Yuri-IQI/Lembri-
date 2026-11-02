@@ -1,5 +1,7 @@
 # Lembri: celular + relógio
 
+Versão pública: https://github.com/Yuri-IQI/Lembri-
+
 Dois apps que conversam pela **Wearable Data Layer API** (Google Play Services):
 
 | Pasta          | Tecnologia                          | Papel                                        |
