@@ -1,6 +1,7 @@
 package com.borabill.lembriwearable.data.repository
 
 import android.util.Log
+import com.borabill.lembriwearable.data.avisos.AvisosLembretes
 import com.borabill.lembriwearable.data.comunicacao.CelularDataSource
 import com.borabill.lembriwearable.data.model.AgendaRelogio
 import com.borabill.lembriwearable.data.model.EventoRelogio
@@ -34,6 +35,7 @@ data class EstadoAgenda(
 class AgendaRepository(
     private val feitosLocais: FeitosLocais,
     private val celular: CelularDataSource,
+    private val avisos: AvisosLembretes,
     usarExemplo: Boolean,
 ) {
     private val escopo = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -74,6 +76,7 @@ class AgendaRepository(
                 atualizadoEm = agenda.geradoEm,
             )
         }
+        avisos.reprogramar(agenda.lembretes, feitos)
     }
 
     suspend fun atualizarConexao() {
@@ -108,6 +111,7 @@ class AgendaRepository(
 
     private fun confirmar(chave: String) {
         feitosLocais.confirmar(chave)
+        avisos.cancelar(chave)
         _estado.update { it.copy(feitos = it.feitos + chave, pendente = null) }
         if (!_estado.value.exemplo) publicar(EventoRelogio.feito(chave, Instant.now()))
     }

@@ -4,7 +4,7 @@ import { Botao } from '@/components/botao';
 import { IconeExercicio } from '@/components/exercicio/icone-exercicio';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
-import { Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Exercicio } from '@/types/exercicio';
 import { plural } from '@/utils/texto';
@@ -33,12 +33,13 @@ export const ExercicioCard = ({
 }: ExercicioCardProps) => {
   const theme = useTheme();
   const sequencia = plural(diasSeguidos, 'dia seguido', 'dias seguidos');
+  const origem = exercicio.somenteRelogio ? ' Exercício do relógio.' : '';
 
   return (
     <Pressable
       onPress={onDetalhes}
       accessibilityRole="button"
-      accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}. ${ultimaAtividade}`}
+      accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}.${origem} ${ultimaAtividade}`}
       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
       <Card style={styles.card}>
         <View style={styles.cabecalho}>
@@ -53,6 +54,15 @@ export const ExercicioCard = ({
             <ThemedText type="subheading" style={styles.titulo}>
               {exercicio.titulo}
             </ThemedText>
+            {exercicio.somenteRelogio && (
+              <View
+                style={[
+                  styles.etiqueta,
+                  { backgroundColor: theme.accentLight, borderColor: theme.divider },
+                ]}>
+                <ThemedText type="smallBold">Exercício do relógio</ThemedText>
+              </View>
+            )}
             <ThemedText type="small" themeColor="textSecondary">
               {ultimaAtividade}
             </ThemedText>
@@ -99,6 +109,13 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 22,
     lineHeight: 30,
+  },
+  etiqueta: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
+    borderRadius: Radius.md,
+    borderWidth: BorderWidth.thin,
   },
   botao: {
     marginTop: Spacing.one,
