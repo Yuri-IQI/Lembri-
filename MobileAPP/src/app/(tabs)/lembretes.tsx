@@ -6,6 +6,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
 import { CabecalhoLista } from '@/components/agenda/cabecalho-lista';
 import { DialogoConfirmacao } from '@/components/dialogo-confirmacao';
+import { BuscaSemResultado } from '@/components/lembrete/busca-sem-resultado';
+import { CampoBusca } from '@/components/lembrete/campo-busca';
 import { ItemLembrete } from '@/components/lembrete/item-lembrete';
 import { ListaVaziaLembretes } from '@/components/lembrete/lista-vazia-lembretes';
 import { MainContainer } from '@/components/main-container';
@@ -13,11 +15,11 @@ import { Spacing } from '@/constants/theme';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useTiposLembreteStore } from '@/stores/useTiposLembreteStore';
 import type { Lembrete } from '@/types/lembrete';
-import { horariosDoLembrete } from '@/utils/lembrete';
+import { filtrarLembretes, horariosDoLembrete } from '@/utils/lembrete';
 
 /**
  * Aba Lembretes (CARD-31, Figma 152:1440 e 152:1538): todos os lembretes, inclusive pausados,
- * com o contador de ativos, o switch de alertas e deslizar para excluir.
+ * com busca pelo nome, o contador de ativos, o switch de alertas e deslizar para excluir.
  */
 const LembretesScreen = () => {
   const { lembretes, alternarAtivo, removerLembrete } = useLembretesStore(
@@ -30,6 +32,8 @@ const LembretesScreen = () => {
   const tipos = useTiposLembreteStore((state) => state.tipos);
   const mapaTipos = useMemo(() => new Map(tipos.map((tipo) => [tipo.id, tipo])), [tipos]);
   const [paraExcluir, setParaExcluir] = useState<Lembrete | null>(null);
+  const [busca, setBusca] = useState('');
+  const encontrados = useMemo(() => filtrarLembretes(lembretes, busca), [lembretes, busca]);
 
   const ativos = lembretes.filter((lembrete) => lembrete.ativo).length;
   const pedirExclusao = (id: string) =>
@@ -43,16 +47,26 @@ const LembretesScreen = () => {
   return (
     <MainContainer style={styles.container}>
       <FlatList
-        data={lembretes}
+        data={encontrados}
         keyExtractor={(lembrete) => lembrete.id}
         contentContainerStyle={styles.lista}
+        keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           <View style={styles.cabecalho}>
             <AvisoDesfazer />
             <CabecalhoLista resumo={`${ativos} de ${lembretes.length} ativos`} />
+            {lembretes.length > 0 && (
+              <CampoBusca valor={busca} aoMudar={setBusca} aoLimpar={() => setBusca('')} />
+            )}
           </View>
         }
-        ListEmptyComponent={<ListaVaziaLembretes onNovo={() => router.push('/lembrete/novo')} />}
+        ListEmptyComponent={
+          lembretes.length > 0 ? (
+            <BuscaSemResultado busca={busca} onLimpar={() => setBusca('')} />
+          ) : (
+            <ListaVaziaLembretes onNovo={() => router.push('/lembrete/novo')} />
+          )
+        }
         renderItem={({ item }) => (
           <ItemLembrete
             lembrete={item}

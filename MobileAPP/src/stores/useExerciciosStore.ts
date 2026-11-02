@@ -11,6 +11,7 @@ import type {
   TentativaExercicio,
 } from '@/types/exercicio';
 import { corrigirRodada, embaralhar, resultadoDaSessao } from '@/utils/exercicio';
+import { gerarRodadas } from '@/utils/gerar-rodadas';
 
 /**
  * Interface que define o estado e as ações da store de exercícios cognitivos.
@@ -26,7 +27,7 @@ export interface ExerciciosState {
   // Ações
   /** Abre uma nova sessão de execução para o exercício informado e sorteia as opções. */
   iniciarSessao: (exercicioId: string) => void;
-  /** Grava as respostas fornecidas para a rodada atual e retorna a avaliação. */
+  /** Grava a primeira resposta da rodada atual, a que conta na pontuação, e retorna a avaliação. */
   responderRodada: (respostas: string[]) => ResultadoRodada | null;
   /** Avança para a próxima rodada da sessão; retorna falso quando for a última rodada. */
   avancarRodada: () => boolean;
@@ -49,10 +50,15 @@ export const useExerciciosStore = create<ExerciciosState>()(
       sessao: null,
 
       iniciarSessao: (exercicioId: string) => {
-        const exercicio = get().exercicios.find((item) => item.id === exercicioId);
-        if (!exercicio) {
+        const catalogado = get().exercicios.find((item) => item.id === exercicioId);
+        if (!catalogado) {
           return;
         }
+
+        const exercicio: Exercicio = {
+          ...catalogado,
+          rodadas: gerarRodadas(exercicioId) ?? catalogado.rodadas,
+        };
 
         const respostas: string[][] = exercicio.rodadas.map((rodada) =>
           Array(rodada.itens.length).fill('')
@@ -75,7 +81,12 @@ export const useExerciciosStore = create<ExerciciosState>()(
           tentativaId: null,
         };
 
-        set({ sessao: novaSessao });
+        set({
+          exercicios: get().exercicios.map((item) =>
+            item.id === exercicioId ? exercicio : item
+          ),
+          sessao: novaSessao,
+        });
       },
 
       responderRodada: (respostas: string[]) => {
@@ -95,7 +106,7 @@ export const useExerciciosStore = create<ExerciciosState>()(
         }
 
         const novasRespostas = sessao.respostas.map((r, i) =>
-          i === sessao.rodadaAtual ? [...respostas] : r
+          i === sessao.rodadaAtual && r.every((valor) => valor === '') ? [...respostas] : r
         );
 
         set({

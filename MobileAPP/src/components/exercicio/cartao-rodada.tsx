@@ -3,13 +3,15 @@ import { StyleSheet, View } from 'react-native';
 import { CasaItem } from '@/components/exercicio/casa-item';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColor } from '@/constants/theme';
 import type { ResultadoRodada } from '@/types/exercicio';
 
 export interface CartaoRodadaProps {
   rotulo: string;
   itens: string[];
   dicas?: string[];
+  cor?: ThemeColor;
+  numerada?: boolean;
   resultado?: ResultadoRodada;
   estadoPadrao?: 'neutra' | 'correta' | 'errada';
   mostrarPercentual?: boolean;
@@ -25,6 +27,8 @@ export const CartaoRodada = ({
   rotulo,
   itens,
   dicas,
+  cor,
+  numerada = false,
   resultado,
   estadoPadrao = 'neutra',
   mostrarPercentual = false,
@@ -58,6 +62,8 @@ export const CartaoRodada = ({
               valor={item}
               estado={estado}
               dica={dicas ? dicas[index] : undefined}
+              cor={cor}
+              ordem={numerada ? index + 1 : undefined}
             />
           );
         })}

@@ -20,7 +20,6 @@ import { LIMITE_TIPOS } from '@/types/lembrete';
 import type { TipoLembrete } from '@/types/tipo-lembrete';
 import { plural } from '@/utils/texto';
 
-const semAcao = () => {};
 const voltar = () => router.back();
 
 /**
@@ -66,7 +65,7 @@ const TiposLembreteScreen = () => {
 
   return (
     <View style={styles.tela}>
-      <TopBar onVoltar={voltar} onAjuda={semAcao} onAudio={semAcao} />
+      <TopBar onVoltar={voltar} />
       <ScrollView contentContainerStyle={styles.conteudo}>
         <View style={styles.cabecalho}>
           <ThemedText type="title" accessibilityRole="header">

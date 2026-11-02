@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { TopBar } from '@/components/app-bar/top-bar';
@@ -9,10 +9,10 @@ import { IndicadoresExercicio } from '@/components/exercicio/indicadores-exercic
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 import { estatisticasDoExercicio, historicoDoExercicio } from '@/utils/exercicio';
-
-const semAcao = () => {};
 
 /**
  * Tela de detalhes e histórico do exercício cognitivo (CARD-36 / frame exercicios_detalhe).
@@ -26,6 +26,7 @@ const ExercicioDetalheScreen = () => {
   const exercicios = useExerciciosStore((state) => state.exercicios);
   const historico = useExerciciosStore((state) => state.historico);
   const iniciarSessao = useExerciciosStore((state) => state.iniciarSessao);
+  const comDicas = useSettingsStore((state) => state.showExerciseHints);
 
   const exercicio = useMemo(
     () => exercicios.find((item) => item.id === id),
@@ -42,10 +43,29 @@ const ExercicioDetalheScreen = () => {
     [historico, exercicio]
   );
 
+  const handleComecar = useCallback(() => {
+    if (!exercicio) return;
+    iniciarSessao(exercicio.id);
+    router.push(`/exercicio/${exercicio.id}/memorizar`);
+  }, [exercicio, iniciarSessao]);
+
+  const comandosVoz = useMemo(
+    () => [
+      {
+        id: 'comecar-exercicio',
+        rotulo: 'Começar',
+        frases: ['começar', 'começa', 'comece', 'iniciar'],
+        executar: handleComecar,
+      },
+    ],
+    [handleComecar]
+  );
+  useComandosDeVoz(comandosVoz);
+
   if (!exercicio || !estatisticas) {
     return (
       <View style={styles.tela}>
-        <TopBar titulo="Exercícios" onVoltar={() => router.back()} onAjuda={semAcao} onAudio={semAcao} />
+        <TopBar onVoltar={() => router.back()} />
         <View style={styles.conteudoVazio}>
           <ThemedText type="title">Exercício não encontrado</ThemedText>
           <ThemedText type="default" themeColor="textSecondary">
@@ -63,19 +83,9 @@ const ExercicioDetalheScreen = () => {
     );
   }
 
-  const handleComecar = () => {
-    iniciarSessao(exercicio.id);
-    router.push(`/exercicio/${exercicio.id}/memorizar`);
-  };
-
   return (
     <View style={styles.tela}>
-      <TopBar
-        titulo="Exercícios"
-        onVoltar={() => router.back()}
-        onAjuda={semAcao}
-        onAudio={semAcao}
-      />
+      <TopBar onVoltar={() => router.back()} />
 
       <ScrollView contentContainerStyle={styles.conteudo}>
         <View style={styles.cabecalho}>
@@ -99,6 +109,11 @@ const ExercicioDetalheScreen = () => {
                 {paragrafo}
               </ThemedText>
             ))}
+            {comDicas && exercicio.instrucaoDicas && (
+              <ThemedText type="default" style={styles.textoInstrucao}>
+                {exercicio.instrucaoDicas}
+              </ThemedText>
+            )}
           </View>
         </Card>
 

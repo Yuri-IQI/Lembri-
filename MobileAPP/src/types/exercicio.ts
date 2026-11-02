@@ -1,4 +1,4 @@
-import type { AndroidSymbol } from 'expo-symbols';
+import type { ThemeColor } from '@/constants/theme';
 
 /**
  * Níveis de dificuldade disponíveis para os exercícios cognitivos.
@@ -24,6 +24,10 @@ export interface RodadaExercicio {
   dicas?: string[];
   /** Opções erradas misturadas aos itens no modo `opcoes`. */
   distratores?: string[];
+  /** Cor que identifica o contexto da rodada na prévia e no feedback. */
+  cor?: ThemeColor;
+  /** Mostra a posição de cada item, para atividades em que a ordem importa. */
+  numerada?: boolean;
 }
 
 /**
@@ -34,12 +38,16 @@ export interface Exercicio {
   id: string;
   /** Título do exercício (ex: "Sequências", "Ordenação", "Associações", "Lista de compras"). */
   titulo: string;
+  /** Nome do card colapsável que reúne este exercício com os outros modos de jogo. */
+  grupo?: string;
   /** Subtítulo descritivo exibido na listagem e no cabeçalho do detalhe. */
   descricao: string;
   /** Parágrafos explicativos da seção de instruções. */
   instrucoes: string[];
-  /** Nome do ícone Material para exibição no card e no detalhe. */
-  icone: AndroidSymbol;
+  /** Parágrafo sobre as dicas nas casas, exibido só com a configuração ligada. */
+  instrucaoDicas?: string;
+  /** Ícone da família do exercício, em assets/exercicios. */
+  icone: 'associacao' | 'ordem' | 'sequencia';
   /** Título motivacional da etapa de memorização (ex: "Lembre-se das Sequências!"). */
   tituloMemorizacao: string;
   /** Modo de entrada das respostas (teclado numérico ou seleção de chips). */

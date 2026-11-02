@@ -6,32 +6,20 @@ import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export interface TecladoNumericoProps {
-  bufferDigitos: string;
-  tamanhoEsperado: number;
   aoDigitar: (digito: string) => void;
   aoApagar: () => void;
 }
 
 /**
- * Teclado numérico padronizado com visor de dígitos em tempo real (Figma exercicios_exec / decisão D8).
+ * Teclado numérico padronizado; os dígitos aparecem direto na casa ativa (Figma exercicios_exec / decisão D8).
  *
  * Grade acessível 3×4 com dígitos de 1 a 9, 0 e tecla Apagar, todos com alvos de toque ≥ 56dp (WCAG 2.5.5).
  */
 export const TecladoNumerico = ({
-  bufferDigitos,
-  tamanhoEsperado,
   aoDigitar,
   aoApagar,
 }: TecladoNumericoProps) => {
   const theme = useTheme();
-
-  // Monta representação visual do visor: ex: '8 ?' para tamanho 2 quando buffer for '8'
-  const partesVisor: string[] = [];
-  for (let i = 0; i < tamanhoEsperado; i++) {
-    partesVisor.push(bufferDigitos[i] ?? '?');
-  }
-  const textoVisor = partesVisor.join(' ');
-  const labelVisor = `Dígitos digitados: ${bufferDigitos.length > 0 ? bufferDigitos : 'nenhum'}`;
 
   const renderTecla = (digito: string) => (
     <Pressable
@@ -55,24 +43,6 @@ export const TecladoNumerico = ({
 
   return (
     <View style={styles.container}>
-      {/* Visor de digitação */}
-      <View
-        style={[
-          styles.visor,
-          {
-            backgroundColor: theme.accentLight,
-            borderColor: theme.borderSubtle,
-          },
-        ]}
-        accessible={true}
-        accessibilityRole="text"
-        accessibilityLabel={labelVisor}>
-        <ThemedText type="title" style={styles.textoVisor}>
-          {textoVisor}
-        </ThemedText>
-      </View>
-
-      {/* Grade numérico */}
       <View style={styles.grade}>
         <View style={styles.linha}>
           {renderTecla('1')}
@@ -121,19 +91,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     alignItems: 'center',
     width: '100%',
-  },
-  visor: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    borderRadius: Radius.md,
-    borderWidth: BorderWidth.hairline,
-    minWidth: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textoVisor: {
-    letterSpacing: 4,
-    textAlign: 'center',
   },
   grade: {
     gap: Spacing.two,
