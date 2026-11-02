@@ -49,16 +49,21 @@ const ExercicioDetalheScreen = () => {
     router.push(`/exercicio/${exercicio.id}/memorizar`);
   }, [exercicio, iniciarSessao]);
 
+  const podeComecar = !exercicio?.somenteRelogio;
+
   const comandosVoz = useMemo(
-    () => [
-      {
-        id: 'comecar-exercicio',
-        rotulo: 'Começar',
-        frases: ['começar', 'começa', 'comece', 'iniciar'],
-        executar: handleComecar,
-      },
-    ],
-    [handleComecar]
+    () =>
+      podeComecar
+        ? [
+            {
+              id: 'comecar-exercicio',
+              rotulo: 'Começar',
+              frases: ['começar', 'começa', 'comece', 'iniciar'],
+              executar: handleComecar,
+            },
+          ]
+        : [],
+    [podeComecar, handleComecar]
   );
   useComandosDeVoz(comandosVoz);
 
@@ -120,15 +125,17 @@ const ExercicioDetalheScreen = () => {
         <HistoricoTentativas tentativas={tentativas} />
       </ScrollView>
 
-      <View style={styles.rodapeFixo}>
-        <Botao
-          rotulo="COMEÇAR"
-          variante="primario"
-          onPress={handleComecar}
-          accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
-          style={styles.botaoComecar}
-        />
-      </View>
+      {podeComecar && (
+        <View style={styles.rodapeFixo}>
+          <Botao
+            rotulo="COMEÇAR"
+            variante="primario"
+            onPress={handleComecar}
+            accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
+            style={styles.botaoComecar}
+          />
+        </View>
+      )}
     </View>
   );
 };

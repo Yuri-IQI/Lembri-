@@ -1,1 +1,11 @@
-<manifest />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <service android:name="expo.modules.wearconnector.EventosRelogioService" android:exported="true">
+      <intent-filter>
+        <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+        <data android:host="*" android:pathPrefix="/lembri/eventos" android:scheme="wear" />
+      </intent-filter>
+    </service>
+    <service android:name="expo.modules.wearconnector.EventosRelogioTaskService" android:exported="false" />
+  </application>
+</manifest>

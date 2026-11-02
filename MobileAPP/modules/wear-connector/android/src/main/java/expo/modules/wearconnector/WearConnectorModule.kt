@@ -1,10 +1,11 @@
 package expo.modules.wearconnector
 
 import android.content.Context
+import android.net.Uri
 import com.google.android.gms.wearable.CapabilityClient
-import com.google.android.gms.wearable.MessageClient
-import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.NodeClient
+import com.google.android.gms.wearable.PutDataRequest
 import com.google.android.gms.wearable.Wearable
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.functions.Coroutine
@@ -15,50 +16,28 @@ import kotlinx.coroutines.tasks.await
 /**
  * Ponte entre o JavaScript e a Wearable Data Layer API do Android.
  *
- * Este módulo é propositalmente "genérico": só sabe enviar/receber
+ * Este módulo é propositalmente "genérico": só sabe gravar, listar e apagar
  * (path + payload em texto). As regras do Lembri (quais paths existem,
  * formato do JSON) ficam no TypeScript, em src/services/wear/.
- * Assim, adicionar uma nova mensagem não exige mexer em código nativo.
  */
 class WearConnectorModule : Module() {
 
   private val context: Context
     get() = appContext.reactContext ?: throw Exceptions.ReactContextLost()
 
-  private val messageClient: MessageClient by lazy { Wearable.getMessageClient(context) }
   private val capabilityClient: CapabilityClient by lazy { Wearable.getCapabilityClient(context) }
   private val nodeClient: NodeClient by lazy { Wearable.getNodeClient(context) }
-
-  /** Repassa cada mensagem recebida do relógio para o JS como evento. */
-  private val listener = MessageClient.OnMessageReceivedListener { event: MessageEvent ->
-    sendEvent(
-      EVENTO_MENSAGEM,
-      mapOf(
-        "path" to event.path,
-        "payload" to String(event.data),
-        "origemId" to event.sourceNodeId,
-      )
-    )
-  }
+  private val dataClient: DataClient by lazy { Wearable.getDataClient(context) }
 
   override fun definition() = ModuleDefinition {
     // Nome usado no JS: requireOptionalNativeModule('WearConnector')
     Name("WearConnector")
 
-    Events(EVENTO_MENSAGEM)
-
-    // Só escuta o relógio enquanto houver algum listener no JS (economiza bateria).
-    // Obs.: com o app fechado nada é recebido aqui; para isso seria preciso um
-    // WearableListenerService nativo (ver README).
-    OnStartObserving { messageClient.addListener(listener) }
-    OnStopObserving { messageClient.removeListener(listener) }
-
     /**
      * Lista os relógios pareados e alcançáveis.
      * 1. Preferência: nós que anunciam a `capability` (app Lembri instalado lá).
      * 2. Fallback: qualquer nó conectado. A propagação de capabilities às vezes
-     *    falha/atrasa (comum em emuladores); mensagens para um nó sem o app são
-     *    apenas descartadas, então o fallback é seguro.
+     *    falha/atrasa (comum em emuladores).
      * Retorna: [{ id, nome, proximo }]
      */
     AsyncFunction("listarRelogios") Coroutine { capability: String ->
@@ -70,17 +49,32 @@ class WearConnectorModule : Module() {
         .map { no -> mapOf("id" to no.id, "nome" to no.displayName, "proximo" to no.isNearby) }
     }
 
-    /**
-     * Envia uma mensagem para um nó específico (relógio).
-     * Mensagens são "fire and forget": não há fila se o relógio estiver offline.
-     */
-    AsyncFunction("enviarMensagem") Coroutine { noId: String, path: String, payload: String ->
-      messageClient.sendMessage(noId, path, payload.toByteArray()).await()
+    // Aviso: sem setUrgent, a entrega pode atrasar até cerca de 30 minutos.
+    AsyncFunction("publicarDado") Coroutine { path: String, payload: String ->
+      val pedido = PutDataRequest.create(path).setData(payload.toByteArray()).setUrgent()
+      dataClient.putDataItem(pedido).await()
+      Unit
+    }
+
+    AsyncFunction("listarDados") Coroutine { prefixo: String ->
+      val uri = Uri.Builder().scheme(ESQUEMA_WEAR).path(prefixo).build()
+      val itens = dataClient.getDataItems(uri, DataClient.FILTER_PREFIX).await()
+      try {
+        itens.map { item ->
+          mapOf("uri" to item.uri.toString(), "payload" to String(item.data ?: ByteArray(0)))
+        }
+      } finally {
+        itens.release()
+      }
+    }
+
+    AsyncFunction("apagarDado") Coroutine { uri: String ->
+      dataClient.deleteDataItems(Uri.parse(uri)).await()
       Unit
     }
   }
 
   private companion object {
-    const val EVENTO_MENSAGEM = "onMensagemRecebida"
+    const val ESQUEMA_WEAR = "wear"
   }
 }
