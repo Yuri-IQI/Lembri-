@@ -18,6 +18,7 @@ let failCancel = false;
 let onSchedule = null;
 const scheduled = new Map();
 const dismissed = [];
+const publishedAgendas = [];
 
 const storage = {
   getItem: async (key) => {
@@ -40,6 +41,7 @@ const notifications = {
   setNotificationHandler: () => {},
   setNotificationChannelAsync: async () => {},
   setNotificationCategoryAsync: async () => {},
+  getPresentedNotificationsAsync: async () => [],
   getAllScheduledNotificationsAsync: async () => [...scheduled.values()],
   scheduleNotificationAsync: async (request) => {
     if (failSchedule) throw new Error('Falha de agendamento simulada');
@@ -59,6 +61,9 @@ Module._resolveFilename = function (request, parent, ...rest) {
 };
 Module._load = function (request, ...rest) {
   if (request === '@react-native-async-storage/async-storage') return storage;
+  if (request === '@modules/wear-connector') return {
+    publicarDado: async (path, payload) => { publishedAgendas.push({ path, agenda: JSON.parse(payload) }); },
+  };
   if (request === 'expo-notifications') return notifications;
   if (request === 'react-native') return { Platform: { OS: 'android' } };
   if (request === 'expo-linking') return { openURL: async () => { throw new Error('Contato externo não substituído no teste'); } };
@@ -514,4 +519,29 @@ test('merge: apagar dados restaura dicas e avisos mantendo boas-vindas e limite'
 test('merge: regressões de stores e comandos de voz recebidos de main', () => {
   fromSource('stores/__tests__/stores.test.ts');
   fromSource('utils/__tests__/reconhecer-comando.test.ts');
+});
+
+
+test('merge wearable: concluir na notificação publica o feito e cancela avisos da ocorrência', async () => {
+  resetNotifications();
+  publishedAgendas.length = 0;
+  const date = fromSource('utils/data.ts').chaveData(new Date());
+  const item = criarLembreteMock({ id: 'merge-wearable', horarios: ['09:00'] });
+  const occurrence = `${item.id}@${date}T09:00`;
+  useLembretesStore.setState({ lembretes: [item], registros: [] });
+  for (const suffix of ['', '#reaviso', '#adiado', '#antes-1h']) {
+    const id = occurrence + suffix;
+    scheduled.set(id, { identifier: id, content: { data: { lembreteId: item.id, ocorrencia: occurrence } } });
+  }
+  scheduled.set('outro', { identifier: 'outro', content: { data: { ocorrencia: 'outra-ocorrencia' } } });
+  const result = await responderNotificacao(response({ lembreteId: item.id, ocorrencia: occurrence }, 'feito'));
+  assert.equal(result, null);
+  assert.equal(useLembretesStore.getState().registros[0].chave, occurrence);
+  assert.deepEqual([...scheduled.keys()], ['outro']);
+  assert.equal(publishedAgendas.length, 1);
+  assert.equal(publishedAgendas[0].path, '/lembri/agenda');
+  assert.equal(publishedAgendas[0].agenda.lembretes.find((entry) => entry.chave === occurrence).feito, true);
+  assert.deepEqual(await responderNotificacao(response({ lembreteId: item.id, ocorrencia: occurrence })), {
+    kind: 'reminder', id: item.id,
+  });
 });

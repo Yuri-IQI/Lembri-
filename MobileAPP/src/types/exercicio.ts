@@ -58,6 +58,8 @@ export interface Exercicio {
   nivel: NivelExercicio;
   /** Estimativa de tempo para conclusão em minutos (mantido para compatibilidade). */
   duracaoEstimadaMinutos: number;
+  /** Só pode ser praticado no relógio; o celular mostra apenas o histórico. */
+  somenteRelogio?: boolean;
 }
 
 /**
@@ -78,6 +80,8 @@ export interface TentativaExercicio {
   totalQuestoes: number;
   /** Pontuação percentual calculada (0 a 100). */
   pontuacaoPercentual: number;
+  /** Onde o exercício foi feito; sem valor, no celular. */
+  origem?: 'celular' | 'relogio';
 }
 
 /**

@@ -13,19 +13,16 @@ export type RelogioConectado = {
   proximo: boolean;
 };
 
-export type MensagemRecebida = {
-  path: string;
+export type DadoGuardado = {
+  uri: string;
   payload: string;
-  origemId: string;
 };
 
-type WearConnectorEvents = {
-  onMensagemRecebida(event: MensagemRecebida): void;
-};
-
-declare class WearConnectorModule extends NativeModule<WearConnectorEvents> {
+declare class WearConnectorModule extends NativeModule {
   listarRelogios(capability: string): Promise<RelogioConectado[]>;
-  enviarMensagem(noId: string, path: string, payload: string): Promise<void>;
+  publicarDado(path: string, payload: string): Promise<void>;
+  listarDados(prefixo: string): Promise<DadoGuardado[]>;
+  apagarDado(uri: string): Promise<void>;
 }
 
 /**

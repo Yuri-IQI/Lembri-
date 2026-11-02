@@ -43,9 +43,9 @@ use o conector do Figma com a skill `figma:figma-design-to-code`.
 - Rotas: `src/app/` (`_layout.tsx` raiz, `(tabs)/` com top bar e bottom bar no layout das abas).
 - Estado: `src/stores/` (`useLembretesStore`, `useExerciciosStore`, `useTiposLembreteStore`) com `useShallow`.
 - Dados: `src/mocks/` (fixtures do Figma), `src/types/` (contratos), `src/services/` (inclui `wear/`).
-- UI base: `src/components/` (`ThemedText`, `ThemedView`/`Card`, `MainContainer`, `app-bar/`, `splash`).
+- UI base: `src/components/` (`ThemedText`, `ThemedView`/`Card`, `MainContainer`, `app-bar/`, `splash`, `loading/`).
 - Assets: `assets/<area>/`; SVG importado como componente (`react-native-svg-transformer`, `.svgrrc`).
-- Relógio: módulo nativo `modules/wear-connector` + `useWear` + `services/wear/`.
+- Relógio: módulo nativo `modules/wear-connector` + `useSincronizarRelogio` + `services/wear/`.
 
 ## Comandos (rodar dentro de `MobileAPP/`)
 

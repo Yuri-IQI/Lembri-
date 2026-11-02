@@ -17,7 +17,8 @@ android {
 }
 
 dependencies {
-  // Wearable Data Layer API (MessageClient / CapabilityClient)
+  implementation 'com.facebook.react:react-android'
+  // Wearable Data Layer API (DataClient / CapabilityClient)
   implementation 'com.google.android.gms:play-services-wearable:20.0.1'
   // `.await()` para as Tasks do Play Services dentro de coroutines
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2'

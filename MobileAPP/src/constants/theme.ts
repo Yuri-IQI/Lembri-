@@ -46,6 +46,13 @@ export const Colors = {
   /** Ações destrutivas (Excluir, Desconectar). Branco sobre danger: 7,87:1 (AAA). */
   danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
+
+  /** Tela de carregamento. Texto sobre o fundo: 8,3:1 (AAA). */
+  loadingFundo: '#FAF7EC',
+  loadingLua: '#E8E08A',
+  loadingSombra: '#1B1B1B',
+  loadingPonto: '#7E7E7E',
+  loadingTexto: '#4A4A4A',
 } as const;
 
 /** Cores oferecidas no seletor de cor de tipos. Todas com contraste ≥ 7:1 contra Colors.text. */
@@ -61,6 +68,30 @@ export const PaletaTipos = [
 export type ThemeColor = keyof typeof Colors;
 
 export const FontFamily = 'Inter';
+
+const ESCALA_LOADING = 240 / 1024;
+
+/** Medidas e tempos da tela de carregamento: a arte de referência é um quadro de 1024 x 1024. */
+export const LoadingEclipse = {
+  arte: 240,
+  lua: 660 * ESCALA_LOADING,
+  luaInicio: 182 * ESCALA_LOADING,
+  deslocamentoSombra: 120 * ESCALA_LOADING,
+  ponto: 88 * ESCALA_LOADING,
+  pontoEsquerda: 816 * ESCALA_LOADING,
+  pontoTopo: 836 * ESCALA_LOADING,
+  opacidadePonto: 0.3,
+  fonteMarca: 'EBGaramond',
+  tamanhoMarca: 44,
+  alturaMarca: 52,
+  espacoMarca: 2,
+  espacoConteudo: 40,
+  movimentoMs: 1350,
+  pausaMs: 300,
+  pulsoMs: 1500,
+  /** Evita um piscar de tela quando os dados carregam quase na hora. */
+  tempoMinimoMs: 2500,
+} as const;
 
 /**
  * Fatores multiplicadores para o modo padrão (1.0x) e modo "Texto ampliado" (1.2x).

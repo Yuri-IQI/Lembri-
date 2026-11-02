@@ -33,8 +33,9 @@ export const HistoricoTentativas = ({ tentativas }: HistoricoTentativasProps) =>
           {tentativas.map((item) => {
             const dataFormatada = formatarData(item.dataHora.split('T')[0]);
             const duracaoTexto = formatarDuracao(item.tempoGastoSegundos);
-            const descricao = `${dataFormatada} · ${item.acertos} de ${item.totalQuestoes} acertos · ${duracaoTexto}`;
-            const labelAcessivel = `Tentativa em ${dataFormatada}: ${item.acertos} de ${item.totalQuestoes} acertos (${item.pontuacaoPercentual}%), concluída em ${duracaoTexto}`;
+            const noRelogio = item.origem === 'relogio';
+            const descricao = `${dataFormatada} · ${item.acertos} de ${item.totalQuestoes} acertos · ${duracaoTexto}${noRelogio ? ' · Relógio' : ''}`;
+            const labelAcessivel = `Tentativa em ${dataFormatada}${noRelogio ? ', feita no relógio' : ''}: ${item.acertos} de ${item.totalQuestoes} acertos (${item.pontuacaoPercentual}%), concluída em ${duracaoTexto}`;
 
             return (
               <View

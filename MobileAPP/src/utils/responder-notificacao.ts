@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 
+import { publicarAgendaAtual } from '@/services/wear/sincronizar-agenda';
 import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useNotificationSyncStore } from '@/stores/useNotificationSyncStore';
 import { useSettingsPersistenceStore, useSettingsStore } from '@/stores/useSettingsStore';
@@ -61,6 +62,9 @@ export const responderNotificacao = async (
         if (resposta.actionIdentifier === ACAO_FEITO) {
           if (occurrence) marcarFeito(occurrence);
           await encerrarOcorrencia(notificacao, dados);
+          await publicarAgendaAtual().catch((erro) =>
+            console.warn('Não foi possível publicar a agenda do relógio', erro)
+          );
         } else if (useSettingsStore.getState().reminderNotificationsEnabled && occurrence?.lembrete.ativo
           && occurrence.lembrete.id === dados.lembreteId && !registros.some((record) => record.chave === dados.ocorrencia)) {
           const canSnooze = () => {

@@ -42,8 +42,11 @@ export interface LembretesState {
   /** Liga ou pausa os alertas de um lembrete (pausado = oculto da agenda). */
   alternarAtivo: (id: string) => void;
 
-  /** Registra que a atividade desta ocorrência foi feita agora ("Fiz"). */
-  marcarFeito: (ocorrencia: OcorrenciaLembrete) => void;
+  /** Registra que a atividade desta ocorrência foi feita; sem `opcoes`, agora e no celular ("Fiz"). */
+  marcarFeito: (
+    ocorrencia: OcorrenciaLembrete,
+    opcoes?: Partial<Pick<RegistroFeito, 'origem' | 'feitoEm'>>
+  ) => void;
 
   /** Desfaz o "Fiz" de uma ocorrência. */
   desmarcarFeito: (chave: string) => void;
@@ -142,15 +145,15 @@ export const useLembretesStore = create<LembretesState>()(
           ),
         })),
 
-      marcarFeito: (ocorrencia) =>
+      marcarFeito: (ocorrencia, opcoes) =>
         set((state) => {
           if (state.registros.some((r) => r.chave === ocorrencia.chave)) return state;
           const registro: RegistroFeito = {
             chave: ocorrencia.chave,
             lembreteId: ocorrencia.lembrete.id,
             previstoPara: ocorrencia.quando.toISOString(),
-            feitoEm: new Date().toISOString(),
-            origem: 'celular',
+            feitoEm: opcoes?.feitoEm ?? new Date().toISOString(),
+            origem: opcoes?.origem ?? 'celular',
           };
           return { registros: [registro, ...state.registros] };
         }),

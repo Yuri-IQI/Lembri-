@@ -89,7 +89,7 @@ Nenhuma destas circunstâncias autoriza assumir:
 2. **Escopo de impacto no Front-end** — determine o alcance da alteração antes de codificar:
    - Estado local de tela (`useState`) para inputs temporários e alternâncias visuais transitórias.
    - Estado global (`Zustand`) quando mais de uma tela/componente precisar ler ou alterar a lista de itens.
-   - Sincronização Wear OS (`useWear` / `wear-service`) quando a alteração envolver dados que trafegam para o relógio.
+   - Sincronização Wear OS (`useSincronizarRelogio` / `wear-service`) quando a alteração envolver dados que trafegam para o relógio.
 3. **Compatibilidade de Contratos e Tipos** — alterações em interfaces de itens (ex: `Lembrete`, `Exercicio`) devem manter retrocompatibilidade com as fixtures mockadas e com os contratos do módulo Wear (`contrato.ts`).
 4. **Idempotência e Imutabilidade no Estado** — operações de atualização em stores Zustand devem ser estritamente imutáveis:
    - Nunca mute o array ou objeto do estado diretamente (use spread, `.map`, `.filter`).

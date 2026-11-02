@@ -35,6 +35,8 @@ export interface ExerciciosState {
   concluirSessao: () => TentativaExercicio | null;
   /** Descarta a sessão em andamento sem persistir nenhuma tentativa no histórico. */
   descartarSessao: () => void;
+  /** Guarda uma tentativa feita no relógio; um `id` repetido é ignorado (idempotente). */
+  registrarTentativaRelogio: (tentativa: Omit<TentativaExercicio, 'origem'>) => void;
   /** Restaura o catálogo e o histórico de exercícios para os dados mockados padrão. */
   resetarParaMocks: () => void;
 }
@@ -188,6 +190,14 @@ export const useExerciciosStore = create<ExerciciosState>()(
 
       descartarSessao: () => {
         set({ sessao: null });
+      },
+
+      registrarTentativaRelogio: (tentativa) => {
+        const { historico } = get();
+        if (historico.some((item) => item.id === tentativa.id)) {
+          return;
+        }
+        set({ historico: [{ ...tentativa, origem: 'relogio' }, ...historico] });
       },
 
       resetarParaMocks: () => {

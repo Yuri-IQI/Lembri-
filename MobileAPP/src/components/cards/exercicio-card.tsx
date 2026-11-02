@@ -62,13 +62,15 @@ export const ExercicioCard = ({
           </View>
         </View>
 
-        <Botao
-          rotulo="COMEÇAR"
-          variante="primario"
-          onPress={onComecar}
-          accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
-          style={styles.botao}
-        />
+        {!exercicio.somenteRelogio && (
+          <Botao
+            rotulo="COMEÇAR"
+            variante="primario"
+            onPress={onComecar}
+            accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
+            style={styles.botao}
+          />
+        )}
       </Card>
     </Pressable>
   );
