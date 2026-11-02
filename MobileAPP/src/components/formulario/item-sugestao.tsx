@@ -1,6 +1,7 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import type { AndroidSymbol } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -32,7 +33,7 @@ export const ItemSugestao = ({
         accessibilityRole="button"
         accessibilityLabel={rotuloAcessivel}
         style={({ pressed }) => [styles.escolher, { opacity: pressed ? 0.6 : 1 }]}>
-        <SymbolView name={{ android: icone }} size={22} tintColor={theme.textSecondary} />
+        <MaterialSymbol name={icone} size={22} tintColor={theme.textSecondary} />
         <ThemedText style={styles.texto} numberOfLines={2}>
           {texto}
         </ThemedText>

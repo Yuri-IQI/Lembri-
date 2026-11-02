@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ComponentSize, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { obterTemplate } from '@/mocks/templates-lembrete.mock';
@@ -17,8 +17,8 @@ export const IconeTemplate = ({ template }: { template: TemplateId }) => {
     <View
       style={[styles.circulo, { backgroundColor: theme.accentLight }]}
       importantForAccessibility="no-hide-descendants">
-      <SymbolView
-        name={{ android: obterTemplate(template).icone }}
+      <MaterialSymbol
+        name={obterTemplate(template).icone}
         size={24}
         tintColor={theme.text}
       />

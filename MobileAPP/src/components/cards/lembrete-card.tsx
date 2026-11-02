@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ChipHorario } from '@/components/chip-horario';
 import { EtiquetaTipo } from '@/components/etiqueta-tipo';
 import { MarcadorFeito } from '@/components/marcador-feito';
@@ -78,8 +78,8 @@ export const LembreteCard = ({
               {tipo && <EtiquetaTipo tipo={tipo} />}
             </View>
             <View style={styles.statusBadge} accessible={true} accessibilityRole="text">
-              <SymbolView
-                name={{ android: feito ? 'check_circle' : 'schedule' }}
+              <MaterialSymbol
+                name={feito ? 'check_circle' : 'schedule'}
                 size={16}
                 tintColor={feito ? theme.primary : theme.textSecondary}
               />
@@ -113,8 +113,8 @@ export const LembreteCard = ({
 
         {!onAlternarFeito && (
           <View style={styles.setaContainer}>
-            <SymbolView
-              name={{ android: 'chevron_right' }}
+            <MaterialSymbol
+              name="chevron_right"
               size={28}
               tintColor={theme.textSecondary}
             />

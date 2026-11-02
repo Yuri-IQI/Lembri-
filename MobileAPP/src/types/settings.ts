@@ -8,4 +8,12 @@ export interface UserSettings {
   hasSeenSplash: boolean;
   /** Quantidade máxima de lembretes (ajustável só em builds de desenvolvimento). */
   reminderLimit: number;
+  /** Preferência do aplicativo, independente da permissão do celular. */
+  reminderNotificationsEnabled: boolean;
+  /** Aviso diário às 09h enquanto não houver exercício concluído no dia. */
+  exerciseNotificationsEnabled: boolean;
 }
+
+export type NotificationPreference =
+  | 'reminderNotificationsEnabled'
+  | 'exerciseNotificationsEnabled';

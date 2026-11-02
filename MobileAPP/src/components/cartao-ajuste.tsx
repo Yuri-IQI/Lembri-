@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
-import { useState } from 'react';
+import { useState, type ComponentRef, type Ref } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { Interruptor } from '@/components/interruptor';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
@@ -13,6 +13,7 @@ export type CartaoAjusteProps = {
   descricao: string;
   ligado: boolean;
   onAlternar: () => void;
+  switchRef?: Ref<ComponentRef<typeof View>>;
 };
 
 /**
@@ -28,6 +29,7 @@ export const CartaoAjuste = ({
   descricao,
   ligado,
   onAlternar,
+  switchRef,
 }: CartaoAjusteProps) => {
   const theme = useTheme();
   const [expandido, setExpandido] = useState(false);
@@ -48,14 +50,15 @@ export const CartaoAjuste = ({
           <ThemedText type="subheading" style={styles.titulo}>
             {titulo}
           </ThemedText>
-          <SymbolView
-            name={{ android: expandido ? 'expand_less' : 'expand_more' }}
+          <MaterialSymbol
+            name={expandido ? 'expand_less' : 'expand_more'}
             size={24}
             tintColor={theme.textSecondary}
           />
         </Pressable>
 
         <Interruptor
+          controlRef={switchRef}
           ligado={ligado}
           onAlternar={onAlternar}
           accessibilityLabel={`Alternar ajuste: ${titulo}`}

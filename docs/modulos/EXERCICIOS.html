@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EXERCICIOS — Rotinas e Exercícios (Projeto Lembri)</title>
+  <style>
+    :root {
+      --brand-strong: #000000;
+      --brand: #1a1a1a;
+      --brand-surface: #f4f4f4;
+      --brand-border: #d0d0d0;
+      --brand-hover: #eaeaea;
+      --text-primary: #000000;
+      --text-secondary: #4e4e4e;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #cbd5e1;
+      --code-inline-bg: #f1f5f9;
+      --code-inline-border: #cbd5e1;
+      --code-block-bg: #0f172a;
+      --code-block-text: #f8fafc;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); max-width: 960px; margin: 40px auto; padding: 0 28px 60px; color: var(--text-primary); line-height: 1.75; background: var(--bg-page); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 1.6rem; color: var(--text-primary); border-bottom: 3px solid var(--brand); padding-bottom: 10px; margin: 28px 0 18px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; color: var(--brand); margin: 2.2rem 0 10px; padding-left: 12px; border-left: 4px solid var(--brand); line-height: 1.35; }
+    h3 { font-size: 1.03rem; color: var(--text-secondary); margin: 1.4rem 0 8px; }
+    p { margin: 10px 0; }
+    .meta-block { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 6px; padding: 14px 18px; margin: 18px 0 24px; font-size: 0.93rem; line-height: 1.85; }
+    .notice-block { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; color: #713f12; }
+    .toc { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px 18px 14px 34px; margin: 18px 0 28px; font-size: 0.92rem; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9rem; background: var(--bg-card); }
+    thead th { background: var(--brand); color: #ffffff; padding: 10px 13px; text-align: left; font-weight: 600; }
+    tbody td { padding: 9px 13px; border: 1px solid var(--border-subtle); vertical-align: top; }
+    tbody tr:nth-child(even) td { background: var(--brand-surface); }
+    code { background: var(--code-inline-bg); border: 1px solid var(--code-inline-border); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.86em; color: #000; }
+    pre { background: var(--code-block-bg); color: var(--code-block-text); border-radius: 6px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.85rem; line-height: 1.6; }
+    ul, ol { padding-left: 1.5em; margin: 10px 0; }
+    blockquote { border-left: 4px solid var(--brand); background: var(--brand-surface); margin: 14px 0; padding: 12px 18px; color: var(--text-secondary); border-radius: 0 6px 6px 0; }
+    hr { border: none; border-top: 1px solid var(--border-subtle); margin: 28px 0; }
+  </style>
+</head>
+<body>
+
+<h1>EXERCICIOS — Rotinas e Exercícios</h1>
+
+<div class="meta-block">
+  <p><strong>Módulo:</strong> <code>EXERCICIOS</code></p>
+  <p><strong>Índice de referência:</strong> <code>docs/manuais/modulos.md</code></p>
+  <p><strong>Telas Expo Router:</strong> <code>MobileAPP/src/app/</code></p>
+  <p><strong>Componentes UI:</strong> <code>MobileAPP/src/components/</code></p>
+  <p><strong>Stores Zustand:</strong> <code>MobileAPP/src/stores/</code></p>
+  <p><strong>Mocks & Fixtures:</strong> <code>MobileAPP/src/mocks/</code></p>
+  <p><strong>Data da Documentação:</strong> 2026-11-02</p>
+</div>
+
+<hr>
+
+<h2>1. Visão Geral do Módulo</h2>
+<p>O módulo apresenta exercícios cognitivos, instruções, sessões de resposta e histórico de tentativas. Esta documentação registra também a integração de avisos diários do CARD-39; ajustes e ajuda estão em <a href="CONFIGURACOES.html">CONFIGURACOES</a>.</p>
+
+<hr>
+
+<h2>2. Telas e Fluxos no Expo Router</h2>
+<p><code>/exercicios</code> apresenta o catálogo. <code>/exercicio/[id]</code> mostra instruções; as etapas memorizar, responder, correcao e resumo compõem a sessão. Tocar no aviso diário abre o catálogo depois da hidratação. O botão Ajuda das abas abre <code>/ajuda</code>; os fluxos de saída das sessões permanecem os existentes.</p>
+
+<hr>
+
+<h2>3. Gerenciamento de Estado no Zustand</h2>
+<p><code>useExerciciosStore</code> mantém catálogo, historico e sessao. Conclusões entram em historico de forma idempotente; a sessão guarda tentativaId para impedir duplicação. O CARD-39 consome o histórico existente, sem criar coleção paralela de conclusões.</p>
+<p><strong>Avisos:</strong> <code>exerciseNotifications</code> calcula até sete datas futuras às 09h pelo calendário local. Qualquer tentativa concluída no mesmo dia, inclusive sem acertos, suprime o aviso desse dia. Sessão iniciada/abandonada não conta. Se 09h já passou, o primeiro aviso é amanhã. Mudar fuso ou data é considerado ao retomar o aplicativo.</p>
+<p>A preferência exerciseNotificationsEnabled começa desligada e é persistida em settings. Uma fila única reconcilia os dois domínios e preserva notificações desconhecidas. Concluir cancela o aviso agendado do dia e dispensa avisos apresentados pertinentes. Reabrir o aplicativo pelo menos a cada sete dias renova a janela.</p>
+
+<hr>
+
+<h2>4. Catálogo de Componentes e Tokens Visuais</h2>
+<p>As telas usam ThemedText, MainContainer, cards e componentes de <code>components/exercicio/</code>, incluindo CartaoRodada, CasasResposta, TecladoNumerico, OpcoesResposta, HistoricoTentativas e IndicadoresExercicio. Preferências e estados da integração são apresentados por NotificationSettings na aba Ajustes.</p>
+
+<hr>
+
+<h2>5. Massa de Dados Mockados e Fixtures</h2>
+<p><code>exercicios.mock.ts</code> contém o catálogo; <code>historico-tentativas.mock.ts</code> contém as tentativas iniciais. A política de avisos usa TentativaExercicio.dataHora e dispensa pontuação mínima. <code>node --test scripts/test-settings-help.cjs</code> valida 09h, conclusão com 0%, cancelamento de hoje, virada de ano, calendário local, isolamento dos avisos e destino da resposta, com notificações nativas substituídas.</p>
+
+<hr>
+
+<h2>6. Acessibilidade Mobile (WCAG 2.2 AAA)</h2>
+<p>Os controles de preferências usam TouchTarget = 56, checked, confirmação antes de desligar e feedback de permissão/falha separado da preferência. Textos usam os tokens de alto contraste e a escala de ThemedText. A validação prática de avisos no Android, TalkBack/VoiceOver e navegação permanece pendente por indisponibilidade do controle de aplicativos nesta sessão.</p>
+
+<hr>
+
+<h2>7. Integração com Relógio Wear OS (se aplicável)</h2>
+<p>Esta integração agenda avisos no celular; não acrescenta mensagens, pareamento ou alterações nativas Wear. Os relógios de Ajustes são demonstrativos e independentes do módulo de exercícios.</p>
+
+</body>
+</html>

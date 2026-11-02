@@ -8,6 +8,8 @@ export const defaultSettingsMock: UserSettings = {
   isLargeText: false,
   hasSeenSplash: false,
   reminderLimit: LIMITE_LEMBRETES_PADRAO,
+  reminderNotificationsEnabled: true,
+  exerciseNotificationsEnabled: false,
 };
 
 /**

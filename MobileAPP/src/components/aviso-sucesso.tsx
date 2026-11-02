@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { Botao } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
@@ -57,7 +57,7 @@ export const AvisoSucesso = ({ mensagem, onFechar }: AvisoSucessoProps) => {
   return (
     <Card style={[styles.card, { borderColor: theme.border }]}>
       <View style={styles.conteudo}>
-        <SymbolView name={{ android: 'check_circle' }} size={28} tintColor={theme.primary} />
+        <MaterialSymbol name="check_circle" size={28} tintColor={theme.primary} />
         <ThemedText
           type="defaultBold"
           accessibilityLiveRegion="polite"

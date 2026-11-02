@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -46,8 +46,8 @@ export const ItemTipo = ({
         }
         style={({ pressed }) => [styles.info, { opacity: pressed ? 0.7 : 1 }]}>
         {selecionavel && (
-          <SymbolView
-            name={{ android: selecionado ? 'check_box' : 'check_box_outline_blank' }}
+          <MaterialSymbol
+            name={selecionado ? 'check_box' : 'check_box_outline_blank'}
             size={28}
             tintColor={onAlternar ? theme.text : theme.textSecondary}
           />
@@ -67,7 +67,7 @@ export const ItemTipo = ({
           accessibilityLabel={`Excluir o tipo ${nome}`}
           accessibilityHint="Pede confirmação. Os lembretes não são apagados."
           style={({ pressed }) => [styles.lixeira, { opacity: pressed ? 0.6 : 1 }]}>
-          <SymbolView name={{ android: 'delete_outline' }} size={24} tintColor={theme.danger} />
+          <MaterialSymbol name="delete_outline" size={24} tintColor={theme.danger} />
         </Pressable>
       )}
     </View>

@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,7 +26,7 @@ export const ChipHorario = ({ horario, destacado = false, feito = false }: ChipH
       ]}
       accessible
       accessibilityLabel={feito ? `${horario}, feito hoje` : horario}>
-      {feito && <SymbolView name={{ android: 'check' }} size={18} tintColor={theme.text} />}
+      {feito && <MaterialSymbol name="check" size={18} tintColor={theme.text} />}
       <ThemedText type="smallBold">{horario}</ThemedText>
     </View>
   );

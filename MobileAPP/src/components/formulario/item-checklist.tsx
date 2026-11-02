@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { CampoTexto } from '@/components/formulario/campo-texto';
 import { Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -41,7 +41,7 @@ export const ItemChecklist = ({
         accessibilityRole="button"
         accessibilityLabel={`Remover passo ${posicao}`}
         style={({ pressed }) => [styles.remover, { opacity: pressed ? 0.6 : 1 }]}>
-        <SymbolView name={{ android: 'delete' }} size={26} tintColor={theme.text} />
+        <MaterialSymbol name="delete" size={26} tintColor={theme.text} />
       </Pressable>
     </View>
   );

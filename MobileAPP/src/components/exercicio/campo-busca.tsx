@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -31,8 +31,8 @@ export const CampoBusca = ({ valor, aoMudar, aoLimpar }: CampoBuscaProps) => {
         style={styles.iconeLupa}
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden={true}>
-        <SymbolView
-          name={{ android: 'search' }}
+        <MaterialSymbol
+          name="search"
           size={24}
           tintColor={theme.textSecondary}
         />
@@ -59,8 +59,8 @@ export const CampoBusca = ({ valor, aoMudar, aoLimpar }: CampoBuscaProps) => {
           accessibilityRole="button"
           accessibilityLabel="Limpar busca"
           hitSlop={8}>
-          <SymbolView
-            name={{ android: 'close' }}
+          <MaterialSymbol
+            name="close"
             size={22}
             tintColor={theme.text}
           />

@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ChipOcorrencia, type EstadoHorario } from '@/components/chip-ocorrencia';
 import { IconeTemplate } from '@/components/icone-template';
 import { Interruptor } from '@/components/interruptor';
@@ -105,8 +105,8 @@ export const GrupoAgendaCard = ({
             )}
           </View>
           {!interruptor && (
-            <SymbolView
-              name={{ android: 'chevron_right' }}
+            <MaterialSymbol
+              name="chevron_right"
               size={28}
               tintColor={theme.textSecondary}
             />

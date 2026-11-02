@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDD Front-end — CARD-40: Ajuda (Projeto Lembri)</title>
+  <style>
+    :root {
+      --brand-strong: #000000;
+      --brand: #1a1a1a;
+      --brand-surface: #f4f4f4;
+      --brand-border: #d0d0d0;
+      --brand-hover: #eaeaea;
+      --text-primary: #000000;
+      --text-secondary: #4e4e4e;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #cbd5e1;
+      --code-inline-bg: #f1f5f9;
+      --code-inline-border: #cbd5e1;
+      --code-block-bg: #0f172a;
+      --code-block-text: #f8fafc;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); max-width: 960px; margin: 40px auto; padding: 0 28px 60px; color: var(--text-primary); line-height: 1.75; background: var(--bg-page); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 1.6rem; color: var(--text-primary); border-bottom: 3px solid var(--brand); padding-bottom: 10px; margin: 28px 0 18px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; color: var(--brand); margin: 2.2rem 0 10px; padding-left: 12px; border-left: 4px solid var(--brand); line-height: 1.35; }
+    h3 { font-size: 1.03rem; color: var(--text-secondary); margin: 1.4rem 0 8px; }
+    p { margin: 10px 0; }
+    .meta-block { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 6px; padding: 14px 18px; margin: 18px 0 24px; font-size: 0.93rem; line-height: 1.85; }
+    .notice-block { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; color: #713f12; }
+    .toc { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px 18px 14px 34px; margin: 18px 0 28px; font-size: 0.92rem; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9rem; background: var(--bg-card); }
+    thead th { background: var(--brand); color: #ffffff; padding: 10px 13px; text-align: left; font-weight: 600; }
+    tbody td { padding: 9px 13px; border: 1px solid var(--border-subtle); vertical-align: top; }
+    tbody tr:nth-child(even) td { background: var(--brand-surface); }
+    code { background: var(--code-inline-bg); border: 1px solid var(--code-inline-border); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.86em; color: #000; }
+    pre { background: var(--code-block-bg); color: var(--code-block-text); border-radius: 6px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.85rem; line-height: 1.6; }
+    ul, ol { padding-left: 1.5em; margin: 10px 0; }
+    ul.check { list-style: none; padding-left: 4px; }
+    ul.check li { margin: 7px 0; display: flex; align-items: baseline; gap: 8px; }
+    ul.check input { width: 16px; height: 16px; accent-color: var(--brand); flex-shrink: 0; }
+    blockquote { border-left: 4px solid var(--brand); background: var(--brand-surface); margin: 14px 0; padding: 12px 18px; color: var(--text-secondary); border-radius: 0 6px 6px 0; }
+    hr { border: none; border-top: 1px solid var(--border-subtle); margin: 28px 0; }
+      td, code { overflow-wrap: anywhere; }
+    @media(max-width: 640px) { body { margin: 16px auto; padding: 0 14px 32px; } th, td { padding: 8px; } }
+  </style>
+</head>
+<body>
+
+<h1>SDD Front-end — CARD-40: Ajuda</h1>
+
+<div class="meta-block">
+  <p><strong>Tarefa / Funcionalidade:</strong> <code>CARD-40</code> — Ajuda</p>
+  <p><strong>Branch (Gitflow):</strong> <code>feat/ajuda</code> (proposta; criar a partir de <code>develop</code> → PR para <code>develop</code>)</p>
+  <p><strong>Escopo Tecnológico:</strong> React Native (Expo SDK 58), React 19, Zustand e Wear OS Data Layer</p>
+  <p><strong>Módulo:</strong> <code>CONFIGURACOES</code></p>
+  <p><strong>Camada de Dados:</strong> Majoritariamente Mockada (Fixtures em <code>src/mocks/</code> e Stores em <code>src/stores/</code>)</p>
+  <p><strong>Data:</strong> 2026-11-02</p>
+</div>
+
+<div class="notice-block"><strong>SDD — CARD-40 · Contatos demonstrativos confirmados</strong> Plano técnico para revisão, sem implementação de código. Decisões do usuário registradas na seção 2.</div>
+<ol class="toc">
+  <li><a href="#s1">Contexto, Objetivo e Escopo Front-end</a></li>
+  <li><a href="#s2">Requisitos e Regras de Negócio (Casos de Borda)</a></li>
+  <li><a href="#s3">Estrutura de Arquivos e Componentes</a></li>
+  <li><a href="#s4">Modelagem de Dados e Tipos TypeScript (src/types/)</a></li>
+  <li><a href="#s5">Gerenciamento de Estado no Zustand e Mocks</a></li>
+  <li><a href="#s6">Front-end — Telas Expo Router e 5 Estados Visuais</a></li>
+  <li><a href="#s7">Acessibilidade Mobile (WCAG 2.2 Nível AAA — TouchTarget = 56)</a></li>
+  <li><a href="#s8">Integração com Wearable (se aplicável)</a></li>
+  <li><a href="#s9">Casos de Teste e Verificação no Emulador</a></li>
+  <li><a href="#s10">Checklist Pré-PR</a></li>
+  <li><a href="#s11">Atualização da Documentação do Módulo</a></li>
+  <li><a href="#s12">Princípios de Desenvolvimento e Restrições</a></li>
+</ol>
+
+<hr>
+
+<h2 id="s1">1. Contexto, Objetivo e Escopo Front-end</h2>
+<p>Entregar ajuda com FAQ em acordeão, tipografia legível e seção “Falar com alguém”. Fonte: <a href="https://trello.com/c/ecqbaIlW">CARD-40</a>, lista “Esta semana”, sem checklist adicional. Frame consultado pela API e imagem local: <a href="https://www.figma.com/design/QKjpXmagXvBkc1QU24ryjJ/LEMBRI-?node-id=152-1761">Android Compact - 9 (152:1761)</a>, equivalente a 99:1282.</p><p>Base: <code>feat/modulo-exercicios</code>, commit <code>677b3ae</code>, em 02/11/2026. Não existe rota de ajuda nessa base; o botão de ajuda das abas chama uma função vazia. O cartão menciona título “Lembretes”, mas o frame obtido já mostra “Ajuda”: o aceite é entregar título Ajuda explícito na nova tela.</p><p>Escopo: tela, FAQ local, abertura de aplicativos de contato quando houver configuração real e navegação a partir de Ajustes. O usuário autorizou propor o texto das respostas e confirmou contatos demonstrativos sem acionamento. Não criar chat, backend de suporte, busca ou envio automático de mensagens.</p>
+
+<hr>
+
+<h2 id="s2">2. Requisitos e Regras de Negócio (Casos de Borda)</h2>
+<table><thead><tr><th scope="col">Requisito</th><th scope="col">Critério de aceite</th></tr></thead><tbody><tr><td>RF1 — FAQ</td><td>Três perguntas do Figma; primeira aberta inicialmente. Tocar em uma pergunta alterna sua resposta sem navegar. Proposta: um item aberto por vez, com possibilidade de fechar todos.</td></tr>
+<tr><td>RF2 — Título</td><td>Topo mostra “Ajuda”, com voltar funcional e sem duplicação de cabeçalho.</td></tr>
+<tr><td>RF3 — Legibilidade</td><td>Perguntas em subheading; respostas e contatos em default com cores text/textSecondary; suporte imediato ao texto ampliado.</td></tr>
+<tr><td>RF4 — Entradas</td><td>Instruções de uso abre o FAQ; Suporte abre a mesma tela e leva à seção Falar com alguém. Botão Ajuda das abas também abre a rota.</td></tr>
+<tr><td>RF5 — Contatos</td><td>Dados do desenho (0800 1234 5678 e email@email.com) são demonstrativos. Usuário confirmou botões indisponíveis, com explicação, até configurar contatos reais. Não construir tel/mailto para esses valores.</td></tr>
+<tr><td>RF6 — Contatos reais</td><td>Com contato real configurado, Ligar para o suporte abre o discador; Enviar e-mail abre o aplicativo de e-mail. Pessoa confirma ligação/envio no aplicativo externo.</td></tr>
+<tr><td>RF7 — Recuperação</td><td>Sem aplicativo compatível ou com falha ao abrir, manter Ajuda e mostrar orientação clara, contato legível e opção de tentar novamente.</td></tr>
+<tr><td>RF8 — Voltar e abas</td><td>Voltar retorna à origem; abertura direta sem histórico retorna a Ajustes. Rodapé preserva Home, Exercícios, Lembretes e Ajustes, como no frame.</td></tr></tbody></table>
+<h3>Textos propostos, atualizados conforme o código</h3><table><thead><tr><th scope="col">Pergunta</th><th scope="col">Resposta</th></tr></thead><tbody><tr><td>Como criar um lembrete?</td><td>Abra Lembretes e toque no botão de adicionar. Escolha o tipo de lembrete, preencha os campos indicados e toque em Salvar.</td></tr>
+<tr><td>Como ativar notificações?</td><td>Abra Ajustes e ative Avisos de Lembretes ou Avisos de Exercícios. Se o celular solicitar, permita as notificações. Se estiverem bloqueadas, abra as configurações do celular e permita os avisos do Lembri. Os avisos de exercícios são às 09h e deixam de ser enviados naquele dia quando você conclui um exercício. Abra o Lembri pelo menos uma vez a cada 7 dias para renovar os avisos agendados.</td></tr>
+<tr><td>Como excluir lembrete?</td><td>Abra Lembretes e deslize o lembrete para excluir. Confira o nome e confirme a exclusão. Se mudar de ideia, use Desfazer na lista. Você também pode abrir o lembrete e usar o botão Excluir, ou usar a ação Excluir lembrete do leitor de tela.</td></tr></tbody></table><p>Conteúdo conferido contra CabecalhoLista, ItemLembrete e a aba Lembretes: botão de adicionar com rótulo acessível Criar novo lembrete, exclusão por gesto/ação acessível e AvisoDesfazer na lista.</p>
+<p>Mensagem de contato demonstrativo: “Os contatos de suporte ainda não estão disponíveis.” Valores do Figma podem aparecer como referência visual acompanhados de “Contato demonstrativo”; os controles permanecem desabilitados, com motivo legível e acessível.</p>
+
+<hr>
+
+<h2 id="s3">3. Estrutura de Arquivos e Componentes</h2>
+<table><thead><tr><th scope="col">Arquivo / grupo</th><th scope="col">Papel</th></tr></thead><tbody><tr><td><code>src/app/ajuda.tsx</code></td><td>Rota no stack raiz, cabeçalho, conteúdo rolável, rodapé e parâmetro section.</td></tr>
+<tr><td><code>src/types/help.ts</code>, <code>src/mocks/help.mock.ts</code></td><td>Contrato e conteúdo local do FAQ; ids estáveis.</td></tr>
+<tr><td><code>src/constants/support.ts</code></td><td>Configuração explícita de contatos e sua natureza real/demonstrativa.</td></tr>
+<tr><td><code>src/components/help/faq-section.tsx</code>, <code>support-section.tsx</code></td><td>Acordeão e ações de suporte; reuso de Card, ThemedText e Botao.</td></tr>
+<tr><td><code>src/services/support-service.ts</code></td><td>Abrir tel/mailto e traduzir falhas em resultado tipado, sem JSX.</td></tr>
+<tr><td><code>src/constants/navigation.ts</code>, <code>src/app/(tabs)/_layout.tsx</code></td><td>Extrair os descritores das quatro abas existentes para reutilizar no rodapé de Ajuda; conectar o onAjuda das abas.</td></tr>
+<tr><td><code>src/app/(tabs)/configuracoes.tsx</code></td><td>Entradas Instruções de uso e Suporte em coordenação com CARD-39.</td></tr>
+<tr><td><code>src/components/app-bar/top-bar.tsx</code></td><td>Reusar titulo; corrigir documentação restritiva de uso só em formulários, caso necessário, sem mudar a API.</td></tr></tbody></table><p>Caminhos relativos a MobileAPP. Não refatorar a navegação de todas as telas nem instalar biblioteca de acordeão. A ajuda na execução de exercícios não é ampliada neste cartão: preservar fluxos de saída e sessão existentes.</p>
+
+<hr>
+
+<h2 id="s4">4. Modelagem de Dados e Tipos TypeScript (src/types/)</h2>
+<pre><code>interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+type SupportContact =
+  | { kind: 'demo'; displayValue: string }
+  | { kind: 'phone'; displayValue: string; phoneNumber: string }
+  | { kind: 'email'; displayValue: string; emailAddress: string };
+type OpenContactResult =
+  | { status: 'opened' }
+  | { status: 'unavailable'; message: string }
+  | { status: 'failed'; message: string };</code></pre><p>A união discriminada impede construir links acionáveis para contatos demonstrativos. Usar <code>readonly FaqItem[]</code> e IDs <code>create-reminder</code>, <code>enable-notifications</code>, <code>delete-reminder</code>. Parâmetro opcional <code>section=contact</code>; qualquer outro valor cai no FAQ.</p>
+
+<hr>
+
+<h2 id="s5">5. Gerenciamento de Estado no Zustand e Mocks</h2>
+<p>Não criar store de ajuda. Expansão do acordeão, ação externa pendente e mensagem de erro são estado local. Consumir a escala da store existente por <code>ThemedText</code>. FAQ é conteúdo estático tipado; não precisa de repositório assíncrono nem latência artificial.</p><p>Fixtures: três perguntas do Figma e respostas propostas; lista vazia, resposta extensa, caracteres acentuados e falha de abertura para testes. Contatos reais de teste são injetados no serviço com abertura externa substituída por fake — nunca telefonar/enviar durante teste automatizado.</p><p>Não persistir item expandido nem dados de mensagens. Ao retornar do aplicativo externo, manter a posição/expansão da tela montada.</p>
+
+<hr>
+
+<h2 id="s6">6. Front-end — Telas Expo Router e 5 Estados Visuais</h2>
+<h3>Fluxo e composição</h3><p>Ajustes → <code>router.push('/ajuda')</code>. Suporte → mesma rota com <code>section=contact</code>. Usar <code>useLocalSearchParams</code>; esperar o layout da seção para rolar até ela. Quando TalkBack estiver ativo, levar foco ao título “Falar com alguém”, sem deslocamento repetido a cada render.</p><p>A rota raiz reutiliza TopBar e os componentes do rodapé; os descritores de abas extraídos evitam duplicação. Usar <code>router.dismissTo(href)</code> no rodapé para voltar ao destino existente ou substituir Ajuda quando ele não estiver no histórico, conforme a <a href="https://docs.expo.dev/versions/v58.0.0/sdk/router/">API do Expo Router SDK 58</a>. Na seta, usar <code>canGoBack()</code> e <code>back()</code>; sem histórico, <code>replace('/configuracoes')</code>. Validar a seleção e preservação do estado das abas headless no emulador. Não registrar Ajuda como quinta aba.</p>
+<table><thead><tr><th scope="col">Estado</th><th scope="col">Tratamento</th></tr></thead><tbody><tr><td>Ideal</td><td>FAQ local e seção de contato; primeira resposta aberta.</td></tr>
+<tr><td>Carregando</td><td>Somente ação externa em andamento: feedback e bloqueio de toque duplicado. Nenhum skeleton para conteúdo estático.</td></tr>
+<tr><td>Vazio</td><td>“As instruções ainda não estão disponíveis.” A seção de contatos permanece legível.</td></tr>
+<tr><td>Erro</td><td>Falha ao abrir discador/e-mail: mensagem acessível com nova tentativa; não fechar a tela.</td></tr>
+<tr><td>Parcial</td><td>FAQ disponível e contatos demonstrativos: explicar indisponibilidade. Se só um contato real estiver configurado, habilitar apenas esse.</td></tr></tbody></table>
+<h3>Abertura de contatos</h3><p>Usar <code>expo-linking</code> já instalado. Serviço valida configuração real, normaliza número do telefone e monta URI tel/mailto; texto não contém dados pessoais do usuário nem corpo de mensagem automático. Capturar rejeição da abertura. Referências oficiais: <a href="https://docs.expo.dev/versions/v58.0.0/sdk/linking/">Linking SDK 58</a> e <a href="https://docs.expo.dev/linking/into-other-apps/">esquemas tel/mailto</a>.</p><p>Não basear indisponibilidade apenas em <code>canOpenURL</code> sem configurar consultas de esquema: a verificação pode rejeitar por configuração da plataforma. Preferir tentativa explícita de abertura com tratamento de erro; se a implementação exigir consultas adicionais, usar configuração Expo/config plugin e validar em build, sem editar arquivos nativos gerados à mão.</p>
+
+<hr>
+
+<h2 id="s7">7. Acessibilidade Mobile (WCAG 2.2 Nível AAA)</h2>
+<ul><li>Usar <code>ThemedText</code>, <code>Card</code>, <code>Botao</code>, <code>MainContainer</code>, <code>TopBar</code> e <code>BottomBar</code>. Cores, espaçamentos e dimensões vêm de <code>theme.ts</code>; código novo em inglês e textos/TSDoc em português.</li>
+<li>Texto normal com contraste mínimo 7:1; texto grande 4,5:1. Usar <code>text</code>/<code>textSecondary</code> em superfícies claras. Não copiar o cinza fraco do Figma para conteúdo informativo.</li>
+<li>Todos os controles com área mínima de 56×56dp e espaçamento de 8dp. Cabeçalhos expansíveis anunciam <code>accessibilityState.expanded</code>; switches anunciam <code>checked</code>; botões anunciam <code>disabled</code>/<code>busy</code> quando aplicável.</li>
+<li>Rótulos autônomos, ordem de foco lógica e ícones decorativos fora da árvore acessível. Modal mantém o foco no diálogo e devolve-o ao controle de origem ao fechar.</li>
+<li>Entrelinha mínima 1,5; texto alinhado à esquerda, respostas completas sem truncamento. Validar escala do app de 1,2× combinada com fonte ampliada do sistema, em telas pequenas e orientação horizontal.</li>
+<li>Conteúdo com rolagem e safe areas: <code>MainContainer</code> é apenas uma View e não fornece rolagem automaticamente. Botões e rodapé precisam continuar alcançáveis. Nenhuma resposta ou confirmação expira por tempo.</li>
+<li>Auditar as dez heurísticas: status explícito; linguagem PT-BR; voltar/cancelar; componentes consistentes; prevenção de erros; ações reconhecíveis; acesso direto à ajuda; seções enxutas; recuperação de falhas; instruções contextuais. Essa lista é critério de verificação, não declaração de conformidade já testada.</li></ul><p>Pergunta e ícone de expansão formam um único alvo, sem dois focos redundantes. Respostas não ficam limitadas a duas linhas. “Contato demonstrativo” e motivo de indisponibilidade continuam com alto contraste, mesmo se o botão estiver desabilitado.</p>
+
+<hr>
+
+<h2 id="s8">8. Integração com Wearable (se aplicável)</h2>
+<p>Não aplicável. FAQ não consulta relógios nem envia mensagens. Texto sobre dispositivos, caso acrescentado futuramente, precisa refletir a distinção entre demonstração e Wear real; nenhuma nova integração entra neste cartão.</p>
+
+<hr>
+
+<h2 id="s9">9. Casos de Teste e Verificação no Emulador</h2>
+<table><thead><tr><th scope="col">Teste</th><th scope="col">Resultado esperado</th></tr></thead><tbody><tr><td>T1 — Entradas</td><td>Abrir pelas abas, Instruções de uso e Suporte; título Ajuda, posição correta e retorno à origem.</td></tr>
+<tr><td>T2 — Acordeão</td><td>Primeira aberta; alternar outra fecha a anterior; fechar todas funciona. Estado expanded anunciado.</td></tr>
+<tr><td>T3 — Conteúdo</td><td>Três perguntas do Figma, respostas alinhadas ao app atual e descrição da janela de notificações.</td></tr>
+<tr><td>T4 — Contatos demo</td><td>Ambas as ações desabilitadas; nenhum Linking.openURL chamado; explicação acessível.</td></tr>
+<tr><td>T5 — Contatos reais</td><td>Configuração injetada válida abre URI correta; telefone não inicia ligação direta e e-mail não envia mensagem.</td></tr>
+<tr><td>T6 — Falhas</td><td>App externo ausente/rejeição/cancelamento: permanece na ajuda, informa impossibilidade sem confirmar ligação ou envio.</td></tr>
+<tr><td>T7 — Navegação</td><td>Back Android/seta, abertura direta, quatro abas e repetição de entrada não criam pilha de Ajuda; estados das abas preservados.</td></tr>
+<tr><td>T8 — Acessibilidade</td><td>TalkBack, VoiceOver, contraste, texto 1,2× + fonte do sistema, respostas longas e rodapé alcançável.</td></tr>
+<tr><td>T9 — Independência</td><td>CARD-40 funciona com settings atuais; textos de notificações devem ser liberados junto das funcionalidades do CARD-39 para não instruir ações inexistentes.</td></tr></tbody></table><p>Sequência: dados/configuração → serviço de contato → componentes → rota/rodapé e entrada global → ligações de Ajustes → testes. O projeto não declara script test; definir execução mínima dos testes de funções puras conforme o harness disponível, sem fingir que arquivos exportando funções foram executados automaticamente.</p>
+
+<hr>
+
+<h2 id="s10">10. Checklist Pré-PR</h2>
+<ul><li>Antes de implementar, conferir o diff local, atualizar <code>develop</code> em checkout limpo e criar a branch indicada. Não transportar nem sobrescrever as alterações locais existentes de <code>MobileAPP/package.json</code> e <code>package-lock.json</code>.</li>
+<li>Executar em MobileAPP: <code>npx tsc --noEmit</code> e <code>npx expo lint</code>; na raiz: <code>node docs/scripts/lembri-check.mjs</code>. Executar os testes relevantes conforme o runner disponível no momento da implementação.</li>
+<li>Não adicionar bibliotecas sem necessidade: Zustand, AsyncStorage, expo-linking e expo-notifications já estão instalados. Se necessário instalar dependência, usar <code>npx expo install</code>.</li>
+<li>Validar cenários manuais, TalkBack/VoiceOver, fonte ampliada e contraste; anexar evidências ao PR para develop. Commits Conventional Commits.</li>
+<li>Este trabalho produz somente SDD. Compilação, testes funcionais e validação mobile descritos aqui são passos futuros, não resultados executados nesta etapa.</li></ul><p>Exemplo de commit: <code>feat(ajuda): adicionar faq acessivel e contatos configuraveis</code>. Aceite ajustado pela decisão do usuário: enquanto contatos forem demonstrativos, botões permanecem indisponíveis; abertura de discador/e-mail é validada com configuração real controlada.</p>
+
+<hr>
+
+<h2 id="s11">11. Atualização da Documentação do Módulo</h2>
+<p>Documentar em <code>docs/modulos/CONFIGURACOES.html</code> a rota Ajuda, tópicos, contatos demonstrativos/reais, tratamento de indisponibilidade e pontos de entrada. Relacionar o <a href="card-39-ajustes-e-dispositivos.html">plano CARD-39</a>. Não criar documento de módulo separado apenas para três perguntas estáticas.</p>
+
+<hr>
+
+<h2 id="s12">12. Princípios de Desenvolvimento e Restrições</h2>
+<p>Padrões do projeto e DRY orientam reutilização dos componentes e descritores de abas; escopo de impacto mantém o estado de expansão local; YAGNI dispensa store global e backend; compatibilidade preserva os fluxos existentes.</p><p><strong>Dúvidas:</strong> nenhuma decisão funcional pendente. Contatos reais ainda não fornecidos; isso não bloqueia a implementação porque o comportamento demonstrativo foi confirmado. Textos complementares e comportamento do acordeão são propostas para revisão dentro da autorização do usuário.</p>
+
+</body>
+</html>

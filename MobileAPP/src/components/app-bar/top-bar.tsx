@@ -1,13 +1,13 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BarFrame } from '@/components/app-bar/bar-frame';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type TopBarProps = {
-  /** Nome da tela; usado só nos formulários de lembrete. */
+  /** Nome da tela em rotas com cabeçalho próprio, como formulários e Ajuda. */
   titulo?: string;
   onVoltar?: () => void;
   onAjuda?: () => void;
@@ -17,7 +17,7 @@ type TopBarProps = {
 const BOTAO = ComponentSize.topBarButton;
 
 /**
- * Barra superior sobre o fundo da tela (título só nos formulários):
+ * Barra superior sobre o fundo da tela, com título opcional:
  * - Botão voltar à esquerda (alvo de toque TouchTarget = 56dp);
  * - Ações de ajuda e áudio à direita (alvos de toque TouchTarget = 56dp com círculo visual de 31px).
  *
@@ -41,7 +41,7 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
       accessibilityLabel={acao.rotulo}
       style={({ pressed }) => [styles.areaToqueAcao, { opacity: pressed ? 0.6 : 1 }]}>
       <View style={[styles.circulo, { borderColor: theme.border }]}>
-        <SymbolView name={{ android: acao.icone }} size={22} tintColor={theme.text} />
+        <MaterialSymbol name={acao.icone} size={22} tintColor={theme.text} />
       </View>
     </Pressable>
   ));
@@ -55,7 +55,7 @@ export const TopBar = ({ titulo, onVoltar, onAjuda, onAudio }: TopBarProps) => {
             accessibilityRole="button"
             accessibilityLabel="Voltar"
             style={({ pressed }) => [styles.areaToqueVoltar, { opacity: pressed ? 0.6 : 1 }]}>
-            <SymbolView name={{ android: 'arrow_back' }} size={32} tintColor={theme.text} />
+            <MaterialSymbol name="arrow_back" size={32} tintColor={theme.text} />
           </Pressable>
         )}
       </View>

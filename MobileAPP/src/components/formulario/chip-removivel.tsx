@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -27,7 +27,7 @@ export const ChipRemovivel = ({ texto, onRemover }: ChipRemovivelProps) => {
         accessibilityRole="button"
         accessibilityLabel={`Remover ${texto}`}
         style={({ pressed }) => [styles.remover, { opacity: pressed ? 0.6 : 1 }]}>
-        <SymbolView name={{ android: 'close' }} size={24} tintColor={theme.text} />
+        <MaterialSymbol name="close" size={24} tintColor={theme.text} />
       </Pressable>
     </View>
   );

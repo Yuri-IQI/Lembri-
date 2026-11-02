@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { Botao } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
@@ -36,8 +36,8 @@ export const ExercicioCard = ({
           style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}
           importantForAccessibility="no-hide-descendants"
           accessibilityElementsHidden={true}>
-          <SymbolView
-            name={{ android: exercicio.icone }}
+          <MaterialSymbol
+            name={exercicio.icone}
             size={32}
             tintColor={theme.text}
           />

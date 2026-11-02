@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BorderWidth, Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { corDeTextoLegivel } from '@/utils/contraste';
@@ -34,7 +34,7 @@ export const CirculoCor = ({ corHex, nome, selecionado, onPress }: CirculoCorPro
         },
       ]}>
       {selecionado && (
-        <SymbolView name={{ android: 'check' }} size={26} tintColor={corDeTextoLegivel(corHex)} />
+        <MaterialSymbol name="check" size={26} tintColor={corDeTextoLegivel(corHex)} />
       )}
     </Pressable>
   );
