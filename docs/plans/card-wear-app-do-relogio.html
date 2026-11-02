@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDD Front-end — CARD-WEAR: App do relógio (Projeto Lembri)</title>
+  <style>
+    :root {
+      --brand-strong: #000000;
+      --brand: #1a1a1a;
+      --brand-surface: #f4f4f4;
+      --brand-border: #d0d0d0;
+      --text-primary: #000000;
+      --text-secondary: #4e4e4e;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #cbd5e1;
+      --code-inline-bg: #f1f5f9;
+      --code-inline-border: #cbd5e1;
+      --code-block-bg: #0f172a;
+      --code-block-text: #f8fafc;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); max-width: 960px; margin: 40px auto; padding: 0 28px 60px; color: var(--text-primary); line-height: 1.75; background: var(--bg-page); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 1.6rem; color: var(--text-primary); border-bottom: 3px solid var(--brand); padding-bottom: 10px; margin: 28px 0 18px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; color: var(--brand); margin: 2.2rem 0 10px; padding-left: 12px; border-left: 4px solid var(--brand); line-height: 1.35; }
+    h3 { font-size: 1.03rem; color: var(--text-secondary); margin: 1.4rem 0 8px; }
+    p { margin: 10px 0; }
+    .meta-block { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 6px; padding: 14px 18px; margin: 18px 0 24px; font-size: 0.93rem; line-height: 1.85; }
+    .notice-block { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; color: #713f12; }
+    .toc { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px 18px 14px 34px; margin: 18px 0 28px; font-size: 0.92rem; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9rem; background: var(--bg-card); }
+    thead th { background: var(--brand); color: #ffffff; padding: 10px 13px; text-align: left; font-weight: 600; }
+    tbody td { padding: 9px 13px; border: 1px solid var(--border-subtle); vertical-align: top; }
+    tbody tr:nth-child(even) td { background: var(--brand-surface); }
+    code { background: var(--code-inline-bg); border: 1px solid var(--code-inline-border); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.86em; color: #000; }
+    pre { background: var(--code-block-bg); color: var(--code-block-text); border-radius: 6px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.85rem; line-height: 1.6; }
+    ul, ol { padding-left: 1.5em; margin: 10px 0; }
+    ul.check { list-style: none; padding-left: 4px; }
+    ul.check li { margin: 7px 0; display: flex; align-items: baseline; gap: 8px; }
+    ul.check input { width: 16px; height: 16px; accent-color: var(--brand); flex-shrink: 0; }
+    blockquote { border-left: 4px solid var(--brand); background: var(--brand-surface); margin: 14px 0; padding: 12px 18px; color: var(--text-secondary); border-radius: 0 6px 6px 0; }
+    hr { border: none; border-top: 1px solid var(--border-subtle); margin: 28px 0; }
+  </style>
+</head>
+<body>
+
+<h1>SDD Front-end — CARD-WEAR: App do relógio</h1>
+
+<div class="meta-block">
+  <p><strong>Tarefa:</strong> <code>CARD-WEAR</code> — Lembretes de hoje, dois exercícios, sincronização e notificações no Wear OS</p>
+  <p><strong>Branch:</strong> <code>feat/wearable-use</code> (atual). A branch <code>develop</code> não existe no repositório local: confirmar a base do PR.</p>
+  <p><strong>Escopo:</strong> <code>WearableAPP/</code> (Kotlin + Compose for Wear OS) e integração em <code>MobileAPP/</code></p>
+  <p><strong>Módulo:</strong> <code>WEAR_CONNECTOR</code></p>
+  <p><strong>Data:</strong> 2026-11-02</p>
+</div>
+
+<ol class="toc">
+  <li><a href="#s1">Contexto, Objetivo e Escopo</a></li>
+  <li><a href="#s2">Requisitos e Regras de Negócio</a></li>
+  <li><a href="#s3">Estrutura de Arquivos e Componentes</a></li>
+  <li><a href="#s4">Modelagem de Dados e Contrato</a></li>
+  <li><a href="#s5">Estado, Stores e Dados de Exemplo</a></li>
+  <li><a href="#s6">Telas do Relógio e Estados Visuais</a></li>
+  <li><a href="#s7">Acessibilidade (WCAG 2.2 AAA)</a></li>
+  <li><a href="#s8">Integração com o Celular e Notificações</a></li>
+  <li><a href="#s9">Casos de Teste e Verificação no Emulador</a></li>
+  <li><a href="#s10">Checklist Pré-PR</a></li>
+  <li><a href="#s11">Atualização da Documentação do Módulo</a></li>
+  <li><a href="#s12">Princípios e Restrições</a></li>
+</ol>
+
+<hr>
+
+<h2 id="s1">1. Contexto, Objetivo e Escopo</h2>
+<p><strong>Objetivo:</strong> no relógio, a pessoa vê os lembretes de hoje, marca o próximo como feito, recebe os avisos e pratica dois exercícios curtos.</p>
+
+<h3>Decisões tomadas</h3>
+<table>
+  <thead><tr><th scope="col">Tema</th><th scope="col">Decisão</th></tr></thead>
+  <tbody>
+    <tr><td>Projeto base</td><td><code>WearableAPP/</code>. A Sequência rápida é trazida do LembriWatchApp e dividida em arquivos pequenos.</td></tr>
+    <tr><td>Rótulo no relógio</td><td><strong>Feito</strong>, para todos os tipos de lembrete.</td></tr>
+    <tr><td>Altura mínima de botão</td><td>48 dp no relógio, como exceção registrada aos 56 dp do projeto. Cumpre o mínimo AAA de 44 dp.</td></tr>
+    <tr><td>Desfazer</td><td>10 segundos, preservado se o app fechar.</td></tr>
+    <tr><td>Feito com o app do celular fechado</td><td>Processado em segundo plano, sem esperar o app abrir.</td></tr>
+    <tr><td>Dispositivos conectados</td><td>Fica para depois.</td></tr>
+  </tbody>
+</table>
+
+<h3>Escopo</h3>
+<table>
+  <thead><tr><th scope="col">Entra</th><th scope="col">Fica de fora (YAGNI)</th></tr></thead>
+  <tbody>
+    <tr><td>Lembretes de hoje, com o próximo em destaque e o botão <strong>Feito</strong></td><td>Criar, editar ou excluir lembretes no relógio</td></tr>
+    <tr><td>Exercícios <strong>Sequência rápida</strong> e <strong>Guardar no lugar</strong>, com resumo</td><td>Tiles e complicações</td></tr>
+    <tr><td>Sincronização da agenda, do Feito e dos resultados</td><td>Histórico de exercícios no relógio</td></tr>
+    <tr><td>Notificações espelhadas do celular</td><td>Tela <strong>Dispositivos conectados</strong>; suporte a iPhone</td></tr>
+  </tbody>
+</table>
+
+<h3>O que já existe e será reaproveitado</h3>
+<ul>
+  <li><code>modules/wear-connector</code>, mesmo <code>applicationId</code> nos dois apps e chave de debug compartilhada.</li>
+  <li>Agendamento com gatilho <code>DATE</code>, canal "Lembretes", botões da notificação e tarefa em segundo plano (<code>tarefa-notificacoes.ts</code>).</li>
+  <li><code>RegistroFeito</code> com <code>origem</code> e a chave de ocorrência, que já torna o <code>marcarFeito</code> idempotente.</li>
+  <li>AVDs pareados, documentados no <code>README.md</code>.</li>
+</ul>
+
+<h3>Ordem de implementação</h3>
+<table>
+  <thead><tr><th scope="col">Etapa</th><th scope="col">Entrega</th><th scope="col">Demonstrável?</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A</strong></td><td>Telas com dados de exemplo</td><td>Sim, só o relógio</td></tr>
+    <tr><td><strong>B0</strong></td><td>Testes técnicos do item 8.5, antes de migrar</td><td>Não</td></tr>
+    <tr><td><strong>B</strong></td><td>Migração para Data Layer e processamento em segundo plano</td><td>Sim, celular e relógio integrados</td></tr>
+    <tr><td><strong>C</strong></td><td>Ajustes e validação das notificações no relógio</td><td>Sim, fluxo completo</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="s2">2. Requisitos e Regras de Negócio</h2>
+
+<h3>Regras gerais de interface</h3>
+<ul>
+  <li>Fundo preto, texto branco e destaque amarelo.</li>
+  <li>Conteúdo com margem para não ser cortado na tela redonda.</li>
+  <li>Botões quase na largura total, com altura mínima de 48 dp.</li>
+  <li>No máximo uma pergunta e três botões de resposta por tela.</li>
+  <li>Telas com rolagem usam <code>ScalingLazyColumn</code> e aceitam a coroa.</li>
+  <li>Feedback na própria tela, com cor, ícone ✓ ou ✗, texto e vibração: uma no acerto, duas no erro. O app não avança sozinho.</li>
+</ul>
+
+<h3>Saída dos exercícios</h3>
+<ul>
+  <li>Durante os dois exercícios, o deslizar para voltar fica desativado, nas duas telas, para evitar saída acidental.</li>
+  <li>A confirmação "Sair do exercício?" (<strong>Continuar</strong> e <strong>Sair</strong>) abre pelo botão <strong>Sair</strong> ou pelo botão físico de voltar.</li>
+  <li><strong>Sair</strong> aparece na memorização e no feedback.</li>
+  <li><strong>Prévia (instrução):</strong> botões <strong>Começar</strong> e <strong>Voltar</strong>. <strong>Voltar</strong> retorna ao início sem confirmação, pois ainda não há progresso a perder.</li>
+  <li>A confirmação é um estado da própria tela, não uma rota, para não perder a partida.</li>
+</ul>
+
+<h3>RF1 — Próximo lembrete</h3>
+<p><em>Dado</em> lembretes pendentes hoje, <em>então</em> o primeiro por horário, incluindo atrasados, aparece em destaque com horário, tempo relativo ("Em 25 min", "Agora", "Atrasado 10 min"), título em até duas linhas, uma linha de detalhe e o botão <strong>Feito</strong>. O tempo relativo se atualiza a cada minuto.</p>
+
+<h3>RF2 — Feito e Desfazer</h3>
+<ol>
+  <li>Ao tocar em <strong>Feito</strong>, o relógio vibra uma vez e o card mostra "Feito ✓" e <strong>Desfazer</strong>.</li>
+  <li>A pendência é salva localmente. Se o app fechar, ela é retomada ao abrir: se os 10 segundos já passaram, o Feito é confirmado.</li>
+  <li>Passados os 10 segundos, o lembrete é confirmado, o evento é criado e o seguinte vira o próximo.</li>
+  <li><strong>Desfazer</strong> devolve o lembrete a pendente e nada é enviado ao celular.</li>
+</ol>
+
+<h3>RF3 — Demais blocos do início</h3>
+<ul>
+  <li><strong>Mais tarde:</strong> linhas não tocáveis com horário e título. Lembretes feitos não aparecem.</li>
+  <li><strong>Praticar:</strong> botões <strong>Sequência</strong> e <strong>Guardar no lugar</strong>, sempre visíveis.</li>
+  <li><strong>Rodapé:</strong> "Atualizado às 14:32" ou "Sem conexão com o celular" com o horário da última atualização. O <strong>Feito</strong> continua funcionando sem conexão.</li>
+</ul>
+
+<h3>RF4 — Sequência rápida (5 rodadas)</h3>
+<ol>
+  <li><strong>Instrução:</strong> "Memorize os 3 números", <strong>Começar</strong> e <strong>Voltar</strong>.</li>
+  <li><strong>Memorizar:</strong> três números empilhados em fonte grande e <strong>Memorizei</strong>, sem cronômetro.</li>
+  <li><strong>Pergunta:</strong> "Rodada 2 de 5", "Qual vinha depois do 32?" e três opções.</li>
+  <li><strong>Feedback:</strong> o botão certo fica verde com ✓; o errado escolhido, vermelho com ✗. O texto muda para "Certo!" ou "Era o 12". Botões <strong>Próxima</strong> e <strong>Sair</strong>.</li>
+</ol>
+<p><strong>Geração:</strong> números de 10 a 99, sem repetição na rodada. A pergunta usa o 1º ou o 2º número. As opções são a resposta, o número que não aparece na pergunta nem é a resposta e um número novo, em ordem aleatória.</p>
+
+<h3>RF5 — Guardar no lugar (4 objetos)</h3>
+<ol>
+  <li><strong>Instrução:</strong> "Guarde cada objeto no lugar certo", <strong>Começar</strong> e <strong>Voltar</strong>.</li>
+  <li><strong>Memorizar:</strong> os 4 objetos com seus lugares, com rolagem, e <strong>Memorizei</strong>.</li>
+  <li><strong>Jogar:</strong> um objeto por vez, com <strong>↑ Cozinha</strong> no topo e <strong>↓ Quarto</strong> embaixo. Deslizar para cima ou para baixo guarda o objeto, e tocar nos rótulos faz o mesmo.</li>
+  <li><strong>Feedback:</strong> borda verde com ✓ ("Certo!") ou vermelha com ✗ ("Era no Quarto"), vibração e botões <strong>Próximo</strong> e <strong>Sair</strong>.</li>
+</ol>
+<p><strong>Regras:</strong> cada partida sorteia 2 objetos de cada lugar, em ordem diferente da lista memorizada.</p>
+<table>
+  <thead><tr><th scope="col">Cozinha</th><th scope="col">Quarto</th></tr></thead>
+  <tbody>
+    <tr><td>Xícara</td><td>Óculos</td></tr>
+    <tr><td>Panela</td><td>Travesseiro</td></tr>
+    <tr><td>Colher</td><td>Chinelo</td></tr>
+    <tr><td>Prato</td><td>Relógio</td></tr>
+  </tbody>
+</table>
+
+<h3>RF6 — Resumo</h3>
+<p>"Você acertou", "4 de 5" em destaque, tempo gasto, <strong>Repetir</strong> e <strong>Voltar</strong>. Ao abrir, o resultado é enviado ao celular uma única vez.</p>
+
+<hr>
+
+<h2 id="s3">3. Estrutura de Arquivos e Componentes</h2>
+<p>Cada arquivo cuida de um bloco. Telas compõem componentes; regras ficam em ViewModels e funções puras. A tela atual <code>LembretesScreen.kt</code> é substituída.</p>
+<pre><code>WearableAPP/app/src/main/java/com/borabill/lembriwearable/
+  data/
+    model/         LembreteAgenda.kt, EventoRelogio.kt
+    comunicacao/   ContratoComunicacao.kt, CelularDataSource.kt, LembriWearListenerService.kt
+    repository/    LembreteRepository.kt, FeitosLocais.kt, LembretesExemplo.kt
+  presentation/
+    navigation/    Rotas.kt, LembriNavHost.kt
+    comum/         BotaoLargo.kt, ConfirmarSaida.kt, Vibracao.kt
+    inicio/        InicioScreen.kt, InicioViewModel.kt, ProximoLembreteCard.kt,
+                   MaisTardeSecao.kt, RodapeConexao.kt
+    sequencia/     SequenciaScreen.kt, SequenciaViewModel.kt, GerarRodada.kt, BotaoResposta.kt
+    guardar/       GuardarScreen.kt, GuardarViewModel.kt, ObjetoArrastavel.kt, BancoObjetos.kt
+    resumo/        ResumoScreen.kt
+
+MobileAPP/
+  modules/wear-connector/      WearConnectorModule.kt (migrar), EventosRelogioService.kt (novo)
+  src/services/wear/           contrato.ts, wear-service.ts, sincronizar-agenda.ts,
+                               processar-eventos.ts, montar-agenda.ts
+  src/stores/                  useLembretesStore.ts, useExerciciosStore.ts
+  src/types/exercicio.ts       origem em TentativaExercicio
+  src/components/exercicio/    historico-tentativas.tsx (selo "Relógio")
+  index.ts                     carrega a sincronização e a tarefa dos eventos</code></pre>
+<p><strong>Dependência nova no relógio:</strong> <code>androidx.wear.compose:compose-navigation</code> na versão 1.5.6, a mesma usada no LembriWatchApp.</p>
+<p><strong>Compatibilidade:</strong> tentar reduzir <code>minSdk</code> de 36 para 30, valor já usado no LembriWatchApp, para o app rodar em relógios mais antigos.</p>
+
+<hr>
+
+<h2 id="s4">4. Modelagem de Dados e Contrato</h2>
+<p>O contrato fica espelhado em <code>contrato.ts</code> e <code>ContratoComunicacao.kt</code>. Todo envio usa JSON, com <code>v</code> para a versão.</p>
+
+<h3>Celular → relógio: <code>/lembri/agenda</code>, substituído inteiro</h3>
+<pre><code class="language-typescript">export interface AgendaRelogio {
+  v: 1;
+  geradoEm: string;
+  lembretes: {
+    chave: string;     // mesma chave de ocorrência usada em RegistroFeito
+    quando: string;    // ISO 8601
+    titulo: string;
+    detalhe?: string;  // já pronto: "1 comprimido", "Clínica São José"
+    feito: boolean;
+  }[];
+}</code></pre>
+<ul>
+  <li><strong>Janela de 48 horas:</strong> a agenda leva hoje e amanhã, e o relógio filtra pelo próprio dia. Assim a virada do dia funciona com o app do celular fechado.</li>
+  <li><strong>Sem <code>template</code>:</strong> o celular já envia <code>detalhe</code> pronto, então o relógio não precisa conhecer os tipos.</li>
+</ul>
+
+<h3>Relógio → celular: <code>/lembri/eventos/&lt;uuid&gt;</code>, um por evento</h3>
+<pre><code class="language-typescript">export type EventoRelogio =
+  | { v: 1; tipo: 'feito'; chave: string; feitoEm: string }
+  | { v: 1; tipo: 'exercicio'; exercicioId: ExercicioRelogioId; iniciadaEm: string;
+      duracaoSeg: number; acertos: number; total: number };</code></pre>
+
+<h3>Tentativa de exercício</h3>
+<pre><code class="language-typescript">export interface TentativaExercicio {
+  // campos atuais
+  origem?: 'celular' | 'relogio'; // ausente nas tentativas já salvas = celular
+}</code></pre>
+
+<hr>
+
+<h2 id="s5">5. Estado, Stores e Dados de Exemplo</h2>
+
+<h3>Relógio</h3>
+<ul>
+  <li><strong>Agenda:</strong> lida do <code>DataClient</code>, que mantém o último valor recebido.</li>
+  <li><strong>Feitos locais</strong> (<code>FeitosLocais.kt</code>, em <code>SharedPreferences</code>): guarda a pendência do Desfazer e as chaves feitas no relógio.</li>
+  <li><strong>Conflito:</strong> uma chave feita no relógio continua feita até chegar uma agenda com <code>feito: true</code> para ela. Depois disso sai dos feitos locais, e o celular volta a mandar.</li>
+  <li><strong>Exercícios:</strong> estado em ViewModel, sem persistência.</li>
+</ul>
+
+<h3>Celular</h3>
+<ul>
+  <li><code>marcarFeito</code> recebe <code>origem</code> opcional, com <code>'celular'</code> como padrão.</li>
+  <li>Nova ação em <code>useExerciciosStore</code> para registrar um resultado vindo do relógio. A tentativa usa o id <code>relogio-&lt;uuid&gt;</code> e ignora ids repetidos.</li>
+  <li><code>useWear</code> e o envio de lembrete avulso saem do fluxo, junto com a pendência registrada ali.</li>
+</ul>
+
+<h3>Dados de exemplo</h3>
+<div class="notice-block">
+  <strong>Segurança:</strong> dados de exemplo só aparecem em build de debug, com a etiqueta "Exemplo", e o Feito neles nunca gera evento. Em build de release, sem dados, a tela mostra "Abra o Lembri no celular". Um "Tomar remédio" falso não pode aparecer para um usuário real.
+</div>
+<p>Horários gerados em relação ao momento atual, arredondados para múltiplos de 5 minutos:</p>
+<table>
+  <thead><tr><th scope="col">Lembrete</th><th scope="col">Horário</th><th scope="col">Detalhe</th></tr></thead>
+  <tbody>
+    <tr><td>Tomar remédio</td><td>Agora − 10 min</td><td>1 comprimido</td></tr>
+    <tr><td>Consulta no cardiologista</td><td>Agora + 1 h</td><td>Clínica São José</td></tr>
+    <tr><td>Lavar roupas</td><td>Agora + 3 h</td><td>Tarefa doméstica</td></tr>
+    <tr><td>Regar as plantas</td><td>Agora + 5 h</td><td>Tarefa doméstica</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="s6">6. Telas do Relógio e Estados Visuais</h2>
+<p>Navegação com <code>SwipeDismissableNavHost</code> e <code>userSwipeEnabled</code> desligado nas rotas de exercício.</p>
+<table>
+  <thead><tr><th scope="col">Rota</th><th scope="col">Tela</th></tr></thead>
+  <tbody>
+    <tr><td><code>inicio</code></td><td>Lembretes de hoje e atalhos para os exercícios</td></tr>
+    <tr><td><code>sequencia</code></td><td>Sequência rápida</td></tr>
+    <tr><td><code>guardar</code></td><td>Guardar no lugar</td></tr>
+    <tr><td><code>resumo</code></td><td>Resumo do exercício</td></tr>
+  </tbody>
+</table>
+<table>
+  <thead><tr><th scope="col">Estado</th><th scope="col">Comportamento em <code>inicio</code></th></tr></thead>
+  <tbody>
+    <tr><td>Ideal</td><td>Próximo, Mais tarde, Praticar e rodapé</td></tr>
+    <tr><td>Carregando</td><td>Indicador enquanto lê a agenda salva</td></tr>
+    <tr><td>Vazio</td><td>"Nenhum lembrete para hoje" ou "Tudo feito por hoje!" com ✓. Praticar continua visível.</td></tr>
+    <tr><td>Sem dados</td><td>Exemplo no debug; "Abra o Lembri no celular" no release</td></tr>
+    <tr><td>Parcial</td><td>Lista salva com "Sem conexão com o celular"</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="s7">7. Acessibilidade (WCAG 2.2 AAA)</h2>
+<ul class="check">
+  <li><input type="checkbox"> <strong>Contraste (1.4.6):</strong> 7:1 em texto normal e 4.5:1 em texto grande, inclusive nos botões verde, vermelho e amarelo.</li>
+  <li><input type="checkbox"> <strong>Alvo de toque (2.5.5):</strong> mínimo de 48 dp, exceção registrada para o relógio.</li>
+  <li><input type="checkbox"> <strong>Rótulos (2.4.9):</strong> <code>contentDescription</code> com ação e item, como "Marcar como feito: Tomar remédio, 09:00".</li>
+  <li><input type="checkbox"> <strong>Alternativa ao gesto (2.5.7):</strong> tudo que se faz deslizando também se faz tocando.</li>
+  <li><input type="checkbox"> <strong>Prevenção de erros (3.3.6):</strong> Desfazer de 10 s no Feito e confirmação ao sair.</li>
+  <li><input type="checkbox"> <strong>Tempo (2.2.3):</strong> sem cronômetro nos exercícios. O Desfazer segue a janela de 5 a 10 s do padrão do projeto.</li>
+  <li><input type="checkbox"> <strong>Não depender de cor (1.4.1):</strong> acerto e erro sempre com ícone e texto.</li>
+  <li><input type="checkbox"> <strong>TalkBack:</strong> ordem de leitura e anúncio do feedback testados no relógio.</li>
+  <li><input type="checkbox"> <strong>Fonte ampliada:</strong> nenhum texto cortado com a maior escala do sistema.</li>
+</ul>
+
+<hr>
+
+<h2 id="s8">8. Integração com o Celular e Notificações</h2>
+
+<h3>8.1 Migração de Message para Data Layer</h3>
+<ul>
+  <li><strong>Sai:</strong> <code>MessageClient</code>, <code>enviarMensagem</code>, <code>Paths.LEMBRETE</code>, <code>Paths.CONFIRMACAO</code> e <code>enviar-ao-relogio.ts</code>.</li>
+  <li><strong>Entra:</strong> <code>DataClient</code> e, no manifest dos dois apps, <code>DATA_CHANGED</code> com o prefixo <code>/lembri</code>.</li>
+  <li><strong>Obrigatório:</strong> todo envio usa <code>setUrgent()</code>. Sem isso, a entrega pode atrasar até cerca de 30 minutos.</li>
+  <li><strong>Emuladores:</strong> as capabilities não se propagam entre os AVDs, então o estado de conexão usa <code>NodeClient.connectedNodes</code>.</li>
+</ul>
+
+<h3>8.2 API do módulo</h3>
+<pre><code class="language-typescript">publishAgenda(payload: string): Promise&lt;void&gt;;
+consumeWatchEvents(): Promise&lt;{ uri: string; json: string }[]&gt;;
+confirmWatchEvent(uri: string): Promise&lt;void&gt;;
+addWatchEventListener(cb: () =&gt; void): Subscription;</code></pre>
+
+<h3>8.3 Quando publicar</h3>
+<p><code>sincronizar-agenda.ts</code>, carregado em <code>index.ts</code>, assina <code>useLembretesStore</code>. Com isso, qualquer alteração publica a agenda, inclusive um Feito tocado na notificação com o app fechado. Também publica ao abrir o app e ao detectar o relógio, e não republica quando o conteúdo é igual.</p>
+
+<h3>8.4 Processamento de eventos</h3>
+<p>A ordem é obrigatória, para evitar que o lembrete volte a aparecer como pendente:</p>
+<ol>
+  <li>Esperar a store carregar.</li>
+  <li>Aplicar o evento: <code>marcarFeito</code> com <code>origem: 'relogio'</code> ou registrar a tentativa.</li>
+  <li>No Feito, dispensar a notificação visível e cancelar os reavisos da ocorrência.</li>
+  <li>Publicar a agenda.</li>
+  <li>Só então apagar o evento com <code>confirmWatchEvent</code>.</li>
+</ol>
+<p><code>processar-eventos.ts</code> é o único caminho, usado em três situações: <code>EventosRelogioService</code> (app fechado), listener (app aberto) e leitura ao abrir o app, como garantia.</p>
+
+<h3>8.5 Resultados da Etapa B0 (2026-11-02)</h3>
+<table>
+  <thead><tr><th scope="col">Pergunta</th><th scope="col">Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>Um <code>WearableListenerService</code> consegue acionar uma tarefa JS com o app fechado no RN 0.88?</td><td><strong>Sim.</strong> Com o processo encerrado, o serviço acordou com <code>HeadlessJsTaskService</code> e a tarefa rodou. Testado em debug, com Metro.</td></tr>
+    <tr><td>A tarefa JS consegue chamar o módulo nativo e o <code>expo-notifications</code>?</td><td><strong>Sim.</strong> Listou nós, leu notificações agendadas e apresentadas e agendou uma nova.</td></tr>
+    <tr><td>O celular consegue apagar um DataItem criado pelo relógio?</td><td><strong>Sim.</strong> O relógio passou a listar zero itens depois de <code>deleteDataItems</code>.</td></tr>
+    <tr><td>A notificação e seus botões aparecem no relógio emulado?</td><td><strong>Não confirmado.</strong> A notificação apareceu no celular, mas não no relógio, mesmo com acesso a notificações liberado ao companion. Validar em relógio real ou registrar a limitação do emulador.</td></tr>
+  </tbody>
+</table>
+<p><strong>Módulo nativo:</strong> o serviço precisa de <code>com.facebook.react:react-android</code> no <code>build.gradle</code> do módulo.</p>
+<p><strong>Ainda não testado:</strong> build de release, app encerrado por "Forçar parada" e tempo de entrega com o aparelho em repouso.</p>
+<p><strong>Emuladores:</strong> os relógios dos dois AVDs estavam em datas diferentes, o que afeta testes de "hoje". Se a conexão cair ("0 connected" em <code>dumpsys</code> do <code>WearableService</code>), funcionou repetir <code>adb -s &lt;celular&gt; forward tcp:5601 tcp:5601</code> e <code>adb -s &lt;relógio&gt; reverse tcp:5601 tcp:5601</code>, e depois encerrar o <code>com.google.android.gms</code> nos dois.</p>
+
+<h3>8.5.1 Resultados da Etapa B (2026-11-02)</h3>
+<p><strong>Mudança em relação ao item 8.4:</strong> não há listener com o app aberto. O serviço com a tarefa headless é o único caminho, além da leitura ao abrir ou voltar para o app.</p>
+<p><strong>Verificado nos emuladores, em debug:</strong> a agenda real chega ao relógio; o Feito chega ao celular com <code>origem: "relogio"</code> e a agenda é republicada; com o processo do celular encerrado, um resultado de Guardar no lugar acordou o app e entrou no histórico, com o selo "Relógio".</p>
+<p><strong>Ainda não testado:</strong> Feito com os aparelhos desconectados, cancelamento de reavisos pelo Feito do relógio, reprocessamento do mesmo evento, virada do dia e build de release.</p>
+
+<h3>8.6 Notificações (Etapa C)</h3>
+<ul>
+  <li>O celular agenda e o Wear OS espelha. O relógio não agenda nada, o que evita avisos duplicados.</li>
+  <li><strong>Sem notificação <code>sticky</code>:</strong> no Android 14 ou superior o usuário normalmente pode descartá-la, e notificações contínuas costumam não ser espelhadas. A regra passa a ser "continua avisando até confirmar", usando os reavisos já agendados.</li>
+  <li><strong>Só o que falta:</strong> validar o espelhamento e os botões no relógio.</li>
+</ul>
+<p><strong>Resultados (2026-11-02, emuladores em debug):</strong> <code>responderNotificacao</code> agora publica a agenda depois de "Tomei"/"Fiz". Com o app em segundo plano, tocar em Tomei registrou o feito, cancelou o reaviso e atualizou o início do relógio. O reaviso de uma ocorrência não confirmada também apareceu.</p>
+<p><strong>Espelhamento não confirmado:</strong> nos emuladores, nem a notificação do app nem uma notificação de controle criada pelo <code>adb</code> chegaram ao relógio. Validar em relógio real a vibração e os botões no pulso. "Lembrar em 10 min" fica para a bateria de testes.</p>
+
+<h3>8.7 Resultado de exercício no celular</h3>
+<p>Salvo como <code>TentativaExercicio</code> com <code>origem: 'relogio'</code> e exibido com o selo "Relógio". A associação com o catálogo depende da pendência 1, na seção 12.</p>
+
+<hr>
+
+<h2 id="s9">9. Casos de Teste e Verificação no Emulador</h2>
+
+<h3>Etapa A — Telas</h3>
+<ul class="check">
+  <li><input type="checkbox"> O início mostra o próximo em destaque e os demais como linhas simples.</li>
+  <li><input type="checkbox"> <strong>Feito</strong> permite desfazer por 10 s e depois promove o seguinte.</li>
+  <li><input type="checkbox"> Fechar o app durante o Desfazer não perde o Feito.</li>
+  <li><input type="checkbox"> Concluir todos mostra "Tudo feito por hoje!".</li>
+  <li><input type="checkbox"> A Sequência funciona nas 5 rodadas, com feedback na própria tela.</li>
+  <li><input type="checkbox"> Guardar no lugar funciona deslizando e tocando nos rótulos.</li>
+  <li><input type="checkbox"> Deslizar nunca fecha um exercício por acidente, e o botão físico abre a confirmação.</li>
+  <li><input type="checkbox"> <strong>Continuar</strong> volta à partida sem perder o progresso.</li>
+  <li><input type="checkbox"> Os dois exercícios terminam no resumo, com <strong>Repetir</strong> e <strong>Voltar</strong>.</li>
+  <li><input type="checkbox"> Nenhum texto é cortado no <code>Wear_OS_Small_Round</code>, inclusive com fonte ampliada.</li>
+  <li><input type="checkbox"> Testes das regras de geração: <code>GerarRodada</code> e sorteio de objetos.</li>
+</ul>
+
+<h3>Etapa B — Sincronização</h3>
+<ul class="check">
+  <li><input type="checkbox"> Criar um lembrete para hoje faz ele aparecer no relógio em poucos segundos.</li>
+  <li><input type="checkbox"> <strong>Feito</strong> no relógio aparece em "Últimas vezes" com origem relógio.</li>
+  <li><input type="checkbox"> <strong>Com o app do celular fechado</strong>, o Feito no relógio marca o lembrete e cancela os reavisos.</li>
+  <li><input type="checkbox"> Com o celular desconectado, o Feito funciona e chega quando a conexão volta.</li>
+  <li><input type="checkbox"> O mesmo evento processado duas vezes não duplica registro nem tentativa.</li>
+  <li><input type="checkbox"> Uma agenda antiga não faz um lembrete feito voltar a pendente.</li>
+  <li><input type="checkbox"> Virada do dia com o app do celular fechado mostra os lembretes do novo dia.</li>
+  <li><input type="checkbox"> O resultado de um exercício aparece no histórico com o selo "Relógio".</li>
+  <li><input type="checkbox"> O rodapé mostra "Atualizado às..." ou "Sem conexão com o celular" corretamente.</li>
+  <li><input type="checkbox"> Testes de store: <code>marcarFeito</code> com origem e tentativa repetida ignorada.</li>
+</ul>
+
+<h3>Etapa C — Notificações</h3>
+<ul class="check">
+  <li><input type="checkbox"> No horário, a notificação aparece no celular e no relógio, com vibração.</li>
+  <li><input type="checkbox"> Confirmar pela notificação no relógio marca como feito e remove o lembrete do início, com o app aberto, em segundo plano e fechado.</li>
+  <li><input type="checkbox"> <strong>Lembrar em 10 min</strong> gera um novo aviso 10 minutos depois.</li>
+  <li><input type="checkbox"> Um remédio não confirmado volta a avisar no intervalo configurado, mesmo que a notificação seja descartada.</li>
+</ul>
+
+<hr>
+
+<h2 id="s10">10. Checklist Pré-PR</h2>
+<ul class="check">
+  <li><input type="checkbox"> Base do PR confirmada e commits em Conventional Commits</li>
+  <li><input type="checkbox"> <code>npx tsc --noEmit</code> e <code>npx expo lint</code> sem erros em <code>MobileAPP/</code></li>
+  <li><input type="checkbox"> <code>.\gradlew.bat :app:assembleDebug</code> e testes sem erros em <code>WearableAPP/</code></li>
+  <li><input type="checkbox"> <code>node docs/scripts/lembri-check.mjs</code> com zero bloqueantes</li>
+  <li><input type="checkbox"> Build nativo novo do celular, pois o módulo e o manifest mudam</li>
+  <li><input type="checkbox"> <code>contrato.ts</code> e <code>ContratoComunicacao.kt</code> iguais</li>
+  <li><input type="checkbox"> Cores e medidas do relógio em <code>theme/Theme.kt</code></li>
+  <li><input type="checkbox"> Arquivos pequenos e sem comentários soltos</li>
+</ul>
+
+<hr>
+
+<h2 id="s11">11. Atualização da Documentação do Módulo</h2>
+<blockquote>Esta tarefa <strong>impacta</strong> <code>docs/modulos/WEAR_CONNECTOR.html</code> (troca de Message por Data Layer) e o <code>README.md</code> (seção de teste e arquitetura do relógio).</blockquote>
+
+<hr>
+
+<h2 id="s12">12. Princípios e Restrições</h2>
+<ul>
+  <li><strong>Estilo de código:</strong> arquivos pequenos, componentização e nenhum comentário solto, só avisos e TODOs/PENDÊNCIAs.</li>
+  <li><strong>Esforço mínimo:</strong> reaproveitar o módulo, a Sequência do LembriWatchApp, as notificações e os registros existentes, sem novas abstrações.</li>
+  <li><strong>Idempotência:</strong> chave de ocorrência no Feito e uuid do evento na tentativa.</li>
+  <li><strong>Camadas:</strong> o módulo nativo só é acessado por <code>src/services/wear/</code>.</li>
+  <li><strong>Prioridade:</strong> a Etapa A vem primeiro e continua demonstrável mesmo que B ou C atrasem.</li>
+</ul>
+
+<h3>Pendências de decisão</h3>
+<ol>
+  <li><strong>Catálogo de exercícios:</strong> os exercícios do relógio não existem no catálogo, e incluí-los exibiria "Começar" em algo que o celular não executa. Recomendação: Sequência rápida entra no histórico de Sequências, e Guardar no lugar vira um item "Apenas no relógio", só com histórico. Resolver antes da Etapa B.</li>
+  <li><strong>Botões da notificação:</strong> continuam <strong>Tomei</strong> e <strong>Fiz</strong>, e aparecem assim no relógio por espelhamento. O <strong>Feito</strong> vale para o app do relógio. Recomendação: manter assim, sem alterar o celular.</li>
+  <li><strong>Base do PR:</strong> <code>develop</code> não existe localmente, e a branch padrão do remoto é <code>main</code>. Recomendação: confirmar antes de abrir o PR.</li>
+  <li><strong>Documentação do projeto:</strong> o <code>CLAUDE.md</code> pede TSDoc em português, enquanto o pedido da equipe é evitar comentários. Este plano segue o pedido. Recomendação: ajustar o <code>CLAUDE.md</code> e o <code>AGENTS.md</code>.</li>
+</ol>
+
+</body>
+</html>

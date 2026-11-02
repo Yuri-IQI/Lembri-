@@ -28,7 +28,7 @@ Material de consulta do princípio 2 da skill `principios`. Leia quando a tarefa
 |---|---|---|
 | **Estado Local (`useState`)** | Dentro do componente de tela em `src/app/` ou componente visual | Dados temporários de formulário enquanto o usuário digita, estado de foco, abertura de modal local |
 | **Store Global (Zustand)** | `src/stores/` (ex: `useLembretesStore`, `useExerciciosStore`) | Itens compartilhados entre telas, coleções de lembretes, filtros ativos, contadores e ações de CRUD |
-| **Hook Customizado** | `src/hooks/` (ex: `useTheme`, `useWear`) | Composição de lógica reativa reutilizável entre múltiplas telas |
+| **Hook Customizado** | `src/hooks/` (ex: `useTheme`, `useSincronizarRelogio`) | Composição de lógica reativa reutilizável entre múltiplas telas |
 | **Contrato e Serviço Wear** | `src/services/wear/` e `contrato.ts` | Dados que trafegam entre o celular e o relógio Wear OS pela Wearable Data Layer API |
 | **Mocks e Fixtures** | `src/mocks/` | Dados estáticos para exibição inicial e testes no ambiente de desenvolvimento |
 | **Design Tokens** | `src/constants/theme.ts` | Definição de cores, espaçamentos, tipografia e tamanho de alvo de toque (`TouchTarget`) |
@@ -45,7 +45,7 @@ O dado/comportamento precisa ser compartilhado entre diferentes telas ou abas?
 └─ SIM → O dado representa itens de domínio (lembretes, exercícios, configurações)?
           ├─ SIM → Crie ou utilize uma store do Zustand em `src/stores/`.
           │         └─ O relógio Wear OS precisa receber ou atualizar esse item?
-          │               ├─ SIM → Integre a ação da store com o `wear-service` / `useWear`.
+          │               ├─ SIM → Integre a ação da store com o `wear-service` / `useSincronizarRelogio`.
           │               └─ NÃO → Mantenha a alteração reativa apenas na store.
           │
           └─ NÃO → É um estilo, cor ou espaçamento compartilhado?

@@ -14,7 +14,7 @@ android {
         // e assinados com a MESMA chave. O app mobile (Expo) usa este mesmo id em app.json
         // (android.package) e o plugin `with-shared-debug-keystore` alinha a chave de debug.
         applicationId = "com.borabill.lembriwearable"
-        minSdk = 36
+        minSdk = 30
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -35,6 +35,7 @@ android {
     useLibrary("wear-sdk")
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -56,6 +57,8 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.wear.tooling.preview)
+    implementation(libs.wear.compose.navigation)
+    testImplementation(libs.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.test.manifest)

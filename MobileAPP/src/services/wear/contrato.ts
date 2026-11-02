@@ -1,35 +1,52 @@
 /**
  * Contrato de comunicação celular ⇄ relógio.
  *
- * ⚠️ Espelho de WearableAPP/app/src/main/java/com/borabill/lembriwearable/
- *    data/comunicacao/ContratoComunicacao.kt (+ data/model/Lembrete.kt).
+ * Aviso: espelho de WearableAPP/app/src/main/java/com/borabill/lembriwearable/
+ *    data/comunicacao/ContratoComunicacao.kt (+ data/model/).
  * Mudou algo aqui? Mude lá também.
  */
 
-/** Capabilities declaradas nos `res/values/wear.xml` de cada app. */
-export const CAPABILITY_MOBILE = 'lembri_mobile';
 export const CAPABILITY_WEAR = 'lembri_wear';
 
 const PATH_PREFIXO = '/lembri';
 
 export const Paths = {
-  /** Celular → relógio. Payload: `Lembrete`. */
-  LEMBRETE: `${PATH_PREFIXO}/lembrete`,
-  /** Relógio → celular. Payload: `Confirmacao`. */
-  CONFIRMACAO: `${PATH_PREFIXO}/confirmacao`,
+  AGENDA: `${PATH_PREFIXO}/agenda`,
+  EVENTOS: `${PATH_PREFIXO}/eventos`,
 } as const;
 
-/** Lembrete enviado ao relógio. */
-export type Lembrete = {
-  id: string;
+export const VERSAO_CONTRATO = 1;
+
+export const ExerciciosRelogio = {
+  SEQUENCIA: 'exercicio-1',
+  GUARDAR: 'exercicio-relogio-guardar',
+} as const;
+
+export type ExercicioRelogioId = (typeof ExerciciosRelogio)[keyof typeof ExerciciosRelogio];
+
+export type LembreteAgenda = {
+  chave: string;
+  /** Data e hora locais da ocorrência: AAAA-MM-DDTHH:mm. */
+  quando: string;
   titulo: string;
-  /** Já formatado para exibição, ex.: "08:30". */
-  horario: string;
+  detalhe?: string;
+  feito: boolean;
 };
 
-/** Resposta do relógio quando o usuário conclui um lembrete. */
-export type Confirmacao = {
-  lembreteId: string;
-  /** Epoch em milissegundos. */
-  concluidoEm: number;
+export type AgendaRelogio = {
+  v: typeof VERSAO_CONTRATO;
+  geradoEm: string;
+  lembretes: LembreteAgenda[];
 };
+
+export type EventoRelogio =
+  | { v: typeof VERSAO_CONTRATO; tipo: 'feito'; chave: string; feitoEm: string }
+  | {
+      v: typeof VERSAO_CONTRATO;
+      tipo: 'exercicio';
+      exercicioId: ExercicioRelogioId;
+      iniciadaEm: string;
+      duracaoSeg: number;
+      acertos: number;
+      total: number;
+    };

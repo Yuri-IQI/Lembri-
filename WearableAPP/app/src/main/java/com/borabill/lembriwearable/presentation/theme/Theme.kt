@@ -4,14 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.MaterialTheme
 
 @Composable
-fun LembriWearableTheme(
-    content: @Composable () -> Unit
-) {
-    /**
-     * Empty theme to customize for your app.
-     * See: https://developer.android.com/jetpack/compose/designsystems/custom
-     */
+fun LembriWearableTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        content = content
+        colorScheme = EsquemaCoresLembri,
+        typography = TipografiaLembri,
+        content = content,
     )
 }

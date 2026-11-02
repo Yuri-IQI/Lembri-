@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -10,6 +11,7 @@
         android:name=".LembriWearApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
@@ -41,14 +43,14 @@
         </activity>
 
         <!--
-            Recebe as mensagens enviadas pelo celular (Data Layer API).
+            Recebe a agenda publicada pelo celular (Data Layer API).
             O pathPrefix "/lembri" deve bater com ContratoComunicacao.PATH_PREFIXO.
         -->
         <service
             android:name=".data.comunicacao.LembriWearListenerService"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
                 <data
                     android:host="*"
                     android:pathPrefix="/lembri"

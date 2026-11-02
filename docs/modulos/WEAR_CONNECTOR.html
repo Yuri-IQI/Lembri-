@@ -52,9 +52,9 @@
   <p><strong>Índice de referência:</strong> <code>docs/manuais/modulos.md</code> e <code>README.md</code></p>
   <p><strong>App do Relógio:</strong> <code>WearableAPP/</code> (Kotlin 2.0 + Jetpack Compose for Wear OS / Material 3)</p>
   <p><strong>Módulo Nativo Expo:</strong> <code>MobileAPP/modules/wear-connector/</code> (Continuous Native Generation)</p>
-  <p><strong>Camada de Serviço Mobile:</strong> <code>MobileAPP/src/services/wear/</code> (contrato.ts e wear-service.ts)</p>
-  <p><strong>Hook React:</strong> <code>MobileAPP/src/hooks/use-wear.ts</code></p>
-  <p><strong>Protocolo de Transporte:</strong> Google Play Services Wearable Data Layer API (MessageClient + CapabilityClient + NodeClient)</p>
+  <p><strong>Camada de Serviço Mobile:</strong> <code>MobileAPP/src/services/wear/</code> (contrato, agenda e eventos)</p>
+  <p><strong>Hook React:</strong> <code>MobileAPP/src/hooks/use-sincronizar-relogio.ts</code></p>
+  <p><strong>Protocolo de Transporte:</strong> Google Play Services Wearable Data Layer API (DataClient + CapabilityClient + NodeClient)</p>
 </div>
 
 <hr>
@@ -76,7 +76,7 @@
   <li><strong>Acesso Instantâneo e Desembaraçado:</strong> Visualização de lembretes e tarefas no pulso sem a necessidade de retirar o celular do bolso;</li>
   <li><strong>Conclusão em Um Toque:</strong> Marcar lembretes como concluídos diretamente na tela redonda do relógio com resposta visual imediata (checkmark ✓);</li>
   <li><strong>Sincronização em Segundo Plano:</strong> Notificações e lembretes são entregues no relógio mesmo que a tela do aplicativo no celular esteja fechada (via <code>WearableListenerService</code>);</li>
-  <li><strong>Operação Offline Resiliente:</strong> O relógio mantém seu estado em memória através de <code>LembreteRepository</code> e notifica o celular quando a conexão for restabelecida.</li>
+  <li><strong>Operação Offline Resiliente:</strong> O relógio guarda a agenda e os feitos no aparelho, e os eventos gravados como DataItems chegam ao celular quando a conexão for restabelecida.</li>
 </ul>
 
 <hr>
@@ -87,29 +87,30 @@
 <pre><code>WearableAPP/app/src/main/java/com/borabill/lembriwearable/
 ├── LembriWearApplication.kt       # Application class: instancia o AppContainer singleton
 ├── di/
-│   └── AppContainer.kt            # Cria instâncias únicas de CelularDataSource e LembreteRepository
+│   └── AppContainer.kt            # Cria a instância única de AgendaRepository
 ├── data/
-│   ├── model/
-│   │   └── Lembrete.kt            # Modelos Lembrete e Confirmacao + serialização JSON
+│   ├── model/                     # AgendaRelogio, LembreteAgenda e EventoRelogio + JSON
 │   ├── comunicacao/
-│   │   ├── ContratoComunicacao.kt # Constantes de paths e capabilities
-│   │   ├── CelularDataSource.kt   # Envio de mensagens ao celular via MessageClient
-│   │   └── LembriWearListenerService.kt # Serviço background para escutar mensagens recebidas
+│   │   ├── ContratoComunicacao.kt # Constantes de paths e ids de exercício
+│   │   ├── CelularDataSource.kt   # Lê a agenda, grava eventos e checa a conexão
+│   │   └── LembriWearListenerService.kt # Recebe a agenda em segundo plano
 │   └── repository/
-│       └── LembreteRepository.kt  # Fonte da verdade em StateFlow para a UI
+│       ├── AgendaRepository.kt    # Fonte da verdade em StateFlow para a UI
+│       └── FeitosLocais.kt        # Feitos e desfazer pendente (SharedPreferences)
 └── presentation/
-    ├── MainActivity.kt            # Ponto de entrada nativo: injeta ViewModel na Screen
-    ├── LembretesViewModel.kt      # Observa StateFlow do repositório e expõe UiState
-    ├── LembretesScreen.kt         # Interface Compose for Wear OS (Material 3 stateless)
-    └── theme/
-        └── Theme.kt               # Tokens de cor e tipografia otimizados para telas OLED
+    ├── MainActivity.kt            # Ponto de entrada nativo
+    ├── navigation/                # Rotas e SwipeDismissableNavHost
+    ├── inicio/                    # Próximo lembrete, "Mais tarde" e rodapé de conexão
+    ├── sequencia/ e guardar/      # Exercícios do relógio
+    ├── resumo/                    # Resultado do exercício
+    ├── comum/                     # Componentes reutilizados
+    └── theme/                     # Cores, tipografia e dimensões
 </code></pre>
 
 <h3>Destaques de Implementação da UI no Relógio:</h3>
 <ul>
-  <li><strong><code>ScreenScaffold</code> &amp; <code>EdgeButton</code>:</strong> Fornece o layout padrão do Wear OS Material 3, posicionando a ação de "Atualizar Conexão" na curvatura inferior da tela redonda;</li>
-  <li><strong><code>TransformingLazyColumn</code>:</strong> Lista otimizada para displays circulares que escala e rotaciona os itens suavemente à medida que passam pelas bordas da tela;</li>
-  <li><strong>Feedback Visual Imediato:</strong> O botão do lembrete é desabilitado e transita para <code>"Concluído ✓"</code> no milissegundo do clique, disparando a confirmação ao celular de forma assíncrona.</li>
+  <li><strong><code>ScreenScaffold</code> &amp; <code>ScalingLazyColumn</code>:</strong> Layout padrão do Wear OS Material 3, com lista que escala os itens nas bordas da tela redonda;</li>
+  <li><strong>Feedback Visual Imediato:</strong> O botão <code>Feito</code> vira <code>Desfazer</code> por 10 segundos. Só depois disso o evento é gravado para o celular.</li>
 </ul>
 
 <hr>
@@ -119,27 +120,27 @@
 
 <pre><code>Celular (MobileAPP - React Native)                  Relógio (WearableAPP - Kotlin)
 ─────────────────────────────────                  ──────────────────────────────
-[Usuário cria lembrete]
+[Lembretes ou feitos mudam]
           │
           ▼
-wearService.enviarLembrete()
+useSincronizarRelogio → publicarAgendaAtual()
           │
-  /lembri/lembrete (JSON) ─────────────────────────▶ LembriWearListenerService
-  { id, titulo, horario }                                   │
+  /lembri/agenda (DataItem) ───────────────────────▶ LembriWearListenerService
+  { v, geradoEm, lembretes: hoje + amanhã }                 │
                                                             ▼
-                                                    LembreteRepository.receber()
+                                                    AgendaRepository.receberAgenda()
                                                             │
                                                             ▼
                                                     StateFlow atualiza UI
                                                             │
-                                                  [Usuário toca no lembrete]
+                                         [Feito depois de 10 s ou exercício concluído]
                                                             │
-                                                            ▼
-                                                    LembreteRepository.concluir()
-                                                            │
-Atualiza Store Zustand ◀────── /lembri/confirmacao ─────────┘
-Status: "Concluído no relógio ✓"   { lembreteId, concluidoEm }
+EventosRelogioService ◀── /lembri/eventos/&lt;uuid&gt; ──────────┘
+          │                (DataItem)
+          ▼
+processarEventos(): aplica nas stores → cancela avisos → publica agenda → apaga evento
 </code></pre>
+<p>O serviço aciona uma tarefa headless, então funciona com o processo do app encerrado e também com ele aberto. Ao abrir o app, os eventos pendentes são lidos de novo, como garantia. Processar o mesmo evento duas vezes não duplica nada.</p>
 
 <h3>Contrato Compartilhado e Espelhado:</h3>
 <p>O contrato é rigorosamente sincronizado entre os dois projetos:</p>
@@ -158,24 +159,19 @@ Status: "Concluído no relógio ✓"   { lembreteId, concluidoEm }
   </thead>
   <tbody>
     <tr>
-      <td><code>CAPABILITY_MOBILE</code></td>
-      <td><code>"lembri_mobile"</code></td>
-      <td>Capability anunciada pelo app companion do celular em <code>res/values/wear.xml</code></td>
-    </tr>
-    <tr>
       <td><code>CAPABILITY_WEAR</code></td>
       <td><code>"lembri_wear"</code></td>
       <td>Capability anunciada pelo relógio em <code>res/values/wear.xml</code></td>
     </tr>
     <tr>
-      <td><code>PATH_LEMBRETE</code></td>
-      <td><code>"/lembri/lembrete"</code></td>
-      <td>Celular envia lembrete para ser renderizado no relógio</td>
+      <td><code>PATH_AGENDA</code></td>
+      <td><code>"/lembri/agenda"</code></td>
+      <td>Celular publica os lembretes de hoje e amanhã (um único DataItem)</td>
     </tr>
     <tr>
-      <td><code>PATH_CONFIRMACAO</code></td>
-      <td><code>"/lembri/confirmacao"</code></td>
-      <td>Relógio notifica o celular que o item foi concluído no pulso</td>
+      <td><code>PATH_EVENTOS</code></td>
+      <td><code>"/lembri/eventos/&lt;uuid&gt;"</code></td>
+      <td>Relógio grava cada Feito ou resultado de exercício; o celular apaga depois de aplicar</td>
     </tr>
   </tbody>
 </table>
@@ -185,7 +181,8 @@ Status: "Concluído no relógio ✓"   { lembreteId, concluidoEm }
 <h2 id="modulo-nativo">4. Módulo Nativo Expo (MobileAPP/modules/wear-connector)</h2>
 <p>Para permitir que o React Native 0.88 / Expo SDK 58 se comunique com as APIs nativas do Android, foi criado o módulo nativo customizado <code>wear-connector</code>:</p>
 <ul>
-  <li><strong><code>WearConnectorModule.kt</code>:</strong> Implementa chamadas nativas em Kotlin utilizando <code>Wearable.getMessageClient</code>, <code>Wearable.getCapabilityClient</code> e <code>Wearable.getNodeClient</code>;</li>
+  <li><strong><code>WearConnectorModule.kt</code>:</strong> Transporte genérico em Kotlin (<code>publicarDado</code>, <code>listarDados</code>, <code>apagarDado</code>, <code>listarRelogios</code>) sobre <code>Wearable.getDataClient</code>, <code>Wearable.getCapabilityClient</code> e <code>Wearable.getNodeClient</code>;</li>
+  <li><strong><code>EventosRelogioService.kt</code>:</strong> Escuta <code>DATA_CHANGED</code> em <code>/lembri/eventos</code> e inicia a tarefa headless <code>lembri-eventos-relogio</code>;</li>
   <li><strong><code>with-shared-debug-keystore.js</code>:</strong> Plugin de configuração do Expo que garante que o APK de debug do celular seja assinado com a mesma chave (<code>~/.android/debug.keystore</code>) do Android Studio, requisito obrigatório para o Google Play Services parear os apps;</li>
   <li><strong>Fallback Resiliente:</strong> Caso a capability não propague de imediato no emulador, o módulo detecta os nós pareados diretamente via <code>NodeClient.getConnectedNodes()</code>.</li>
 </ul>
