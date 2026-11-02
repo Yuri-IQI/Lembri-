@@ -47,7 +47,9 @@ export interface Exercicio {
   /** Parágrafo sobre as dicas nas casas, exibido só com a configuração ligada. */
   instrucaoDicas?: string;
   /** Ícone da família do exercício, em assets/exercicios. */
-  icone: 'associacao' | 'ordem' | 'sequencia';
+  icone: 'associacao' | 'compras' | 'contexto' | 'guardar' | 'numeros' | 'ordem' | 'palavras' | 'sequencia';
+  /** Ícone do card que reúne os modos de um mesmo `grupo`. */
+  iconeGrupo?: Exercicio['icone'];
   /** Título motivacional da etapa de memorização (ex: "Lembre-se das Sequências!"). */
   tituloMemorizacao: string;
   /** Modo de entrada das respostas (teclado numérico ou seleção de chips). */

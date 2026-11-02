@@ -87,7 +87,7 @@ const ExerciciosScreen = () => {
     return (
       <GrupoExerciciosCard
         titulo={primeiro.grupo}
-        icone={primeiro.icone}
+        icone={primeiro.iconeGrupo ?? primeiro.icone}
         totalModos={item.length}>
         {item.map(renderExercicio)}
       </GrupoExerciciosCard>

@@ -1,29 +1,22 @@
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { Botao } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { useLembretesStore } from '@/stores/useLembretesStore';
 
-export const AgendaVazia = () => {
-  const resetarParaMocks = useLembretesStore((state) => state.resetarParaMocks);
+const criarLembrete = () => router.push('/lembrete/novo');
 
-  return (
-    <Card style={styles.vazio}>
-      <ThemedText type="subheading">Nenhum lembrete</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary">
-        Você pode restaurar os exemplos de demonstração a qualquer momento.
-      </ThemedText>
-      <Botao
-        rotulo="Restaurar Exemplos"
-        onPress={resetarParaMocks}
-        accessibilityLabel="Restaurar lembretes de demonstração"
-        style={styles.botao}
-      />
-    </Card>
-  );
-};
+export const AgendaVazia = () => (
+  <Card style={styles.vazio}>
+    <ThemedText type="subheading">Nenhum lembrete</ThemedText>
+    <ThemedText type="small" themeColor="textSecondary">
+      Crie seu primeiro lembrete para ele aparecer aqui.
+    </ThemedText>
+    <Botao rotulo="Criar lembrete" onPress={criarLembrete} style={styles.botao} />
+  </Card>
+);
 
 const styles = StyleSheet.create({
   vazio: {

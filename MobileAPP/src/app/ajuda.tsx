@@ -6,7 +6,7 @@ import { TopBar } from '@/components/app-bar/top-bar';
 import { GrupoCard } from '@/components/grupo-card';
 import { LinhaAcao } from '@/components/linha-acao';
 import { ThemedText } from '@/components/themed-text';
-import { CONTATO_SUPORTE, PERGUNTAS_FREQUENTES } from '@/constants/ajuda';
+import { CONTATO_SUPORTE, PERGUNTAS_FREQUENTES, PERGUNTAS_RELOGIO } from '@/constants/ajuda';
 import { Spacing } from '@/constants/theme';
 
 const voltar = () => router.back();
@@ -17,7 +17,7 @@ const abrir = (url: string) => {
 };
 
 /**
- * Tela de ajuda (Figma Android Compact - 9): dúvidas frequentes sobre o app e contato com o suporte.
+ * Tela de ajuda (Figma Android Compact - 9): dúvidas sobre o app e o relógio e contato com o suporte.
  */
 const AjudaScreen = () => (
   <View style={styles.tela}>
@@ -35,6 +35,12 @@ const AjudaScreen = () => (
             resposta={item.resposta}
             abertaAoIniciar={index === 0}
           />
+        ))}
+      </GrupoCard>
+
+      <GrupoCard titulo="USAR O RELÓGIO">
+        {PERGUNTAS_RELOGIO.map((item) => (
+          <PerguntaFrequente key={item.pergunta} pergunta={item.pergunta} resposta={item.resposta} />
         ))}
       </GrupoCard>
 
