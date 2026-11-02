@@ -1,15 +1,20 @@
 import { useExerciciosStore } from '../useExerciciosStore';
 import { useLembretesStore } from '../useLembretesStore';
+import { useSettingsStore } from '../useSettingsStore';
 import { useTiposLembreteStore } from '../useTiposLembreteStore';
+import { apagarTodosOsDados } from '../../utils/apagar-dados';
 import { dadosIniciais } from '../../utils/dados-iniciais';
 import {
+  avaliarCasa,
   calcularStreak,
   corrigirRodada,
   embaralhar,
   estatisticasDoExercicio,
-  filtrarExercicios,
   resultadoDaSessao,
 } from '../../utils/exercicio';
+import { gerarRodadas } from '../../utils/gerar-rodadas';
+import { filtrarLembretes } from '../../utils/lembrete';
+import type { Lembrete } from '../../types/lembrete';
 import { criarTentativaMock } from '../../mocks/historico-tentativas.mock';
 
 // Prover mock leve de localStorage caso executado em ambiente Node puro (sem Jest/browser)
@@ -292,19 +297,87 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.ok(sessaoAtiva, 'Sessão deve ser iniciada');
   assert.strictEqual(sessaoAtiva?.rodadaAtual, 0, 'Rodada inicial deve ser 0');
 
+  const rodadasSorteadas = useExerciciosStore
+    .getState()
+    .exercicios.find((item) => item.id === ex.id)!.rodadas;
+  assert.strictEqual(rodadasSorteadas.length, 3, 'Devem ser sorteadas 3 rodadas');
+
+  const rodadasPalavras = gerarRodadas('exercicio-5')!;
+  assert.ok(
+    rodadasPalavras.every((rodada) => rodada.itens.length === 4),
+    'Sequência de palavras deve ter 4 palavras por rodada'
+  );
+  assert.ok(
+    rodadasPalavras.every(
+      (r) => new Set([...r.itens, ...(r.distratores ?? [])]).size === 7
+    ),
+    'As opções de uma frase não devem se repetir'
+  );
+  assert.ok(
+    rodadasPalavras.every((r) => r.itens.every((palavra) => palavra.length >= 3)),
+    'Frases não devem ter artigos nem termos curtos'
+  );
+
+  for (const id of ['exercicio-3', 'exercicio-4']) {
+    const rodadasContexto = gerarRodadas(id)!;
+    assert.strictEqual(new Set(rodadasContexto.map((r) => r.cor)).size, 3, 'Cada contexto tem sua cor');
+    assert.ok(
+      rodadasContexto.every((r) => r.itens.length === 4 && r.dicas?.length === 4),
+      'Contexto deve ter 4 pares'
+    );
+    assert.ok(
+      rodadasContexto.every(
+        (r) => new Set([...r.itens, ...(r.distratores ?? [])]).size === 6
+      ),
+      'Contexto deve ter 2 opções erradas sem repetir'
+    );
+  }
+
+  const rodadasOrdenacao = gerarRodadas('exercicio-2')!;
+  assert.ok(
+    rodadasOrdenacao.every((r) => r.numerada && r.rotulo !== 'ORDEM'),
+    'Ordenação deve mostrar a atividade e a posição dos passos'
+  );
+
+  const [crescente, decrescente] = gerarRodadas('exercicio-1')!;
+  assert.strictEqual(crescente.itens.join(), [...crescente.itens].sort().join(), '1ª rodada crescente');
+  assert.strictEqual(
+    decrescente.itens.join(),
+    [...decrescente.itens].sort().reverse().join(),
+    '2ª rodada decrescente'
+  );
+
+  const itensAvaliados = ['20', '40', '60'];
+  assert.strictEqual(avaliarCasa('20', 0, itensAvaliados).estado, 'correta', 'Casa certa');
+  assert.strictEqual(avaliarCasa('60', 0, itensAvaliados).estado, 'lugar', 'Número de outra posição');
+  assert.strictEqual(avaliarCasa('60', 0, itensAvaliados).direcao, 'acima', 'Acima do alvo');
+  assert.strictEqual(avaliarCasa('60', 0, itensAvaliados).posicaoCerta, 3, 'Posição certa do item');
+  assert.strictEqual(avaliarCasa('15', 1, itensAvaliados).direcao, 'abaixo', 'Abaixo do alvo');
+  assert.strictEqual(avaliarCasa('sol', 0, ['lua']).estado, 'errada', 'Palavra fora da rodada');
+  assert.strictEqual(avaliarCasa('60', 0, itensAvaliados, false).estado, 'errada', 'Sem dicas, só errada');
+  assert.strictEqual(avaliarCasa('60', 0, itensAvaliados, false).direcao, undefined, 'Sem dicas, sem direção');
+  assert.strictEqual(avaliarCasa('20', 0, itensAvaliados, false).estado, 'correta', 'Sem dicas, certa continua');
+  assert.strictEqual(avaliarCasa('sol', 0, ['lua']).direcao, undefined, 'Palavra não tem direção');
+
+  assert.strictEqual(
+    new Set(rodadasSorteadas[0].itens).size,
+    5,
+    'Os números de uma sequência não devem se repetir'
+  );
+
   // Responder rodada 1
-  const r1 = useExerciciosStore.getState().responderRodada(['80', '32', '12', '67', '55']);
+  const r1 = useExerciciosStore.getState().responderRodada(rodadasSorteadas[0].itens);
   assert.strictEqual(r1?.acertos, 5, 'Rodada 1 deve ter 5 acertos');
 
   // Avançar para rodada 2 e responder
   const temMais1 = useExerciciosStore.getState().avancarRodada();
   assert.strictEqual(temMais1, true, 'Deve avançar para rodada 2');
-  useExerciciosStore.getState().responderRodada(['02', '04', '05', '06', '02']);
+  useExerciciosStore.getState().responderRodada(rodadasSorteadas[1].itens);
 
   // Avançar para rodada 3 e responder
   const temMais2 = useExerciciosStore.getState().avancarRodada();
   assert.strictEqual(temMais2, true, 'Deve avançar para rodada 3');
-  useExerciciosStore.getState().responderRodada(['01', '02', '03', '05', '11']);
+  useExerciciosStore.getState().responderRodada(rodadasSorteadas[2].itens);
 
   // Concluir sessão (T5)
   const tentativaGravada = useExerciciosStore.getState().concluirSessao();
@@ -351,12 +424,13 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.ok(typeof stats.mediaAcertos === 'number', 'Deve ter média de acertos');
 }
 
-// Teste T9: filtrarExercicios
+// Teste T9: filtrarLembretes
 {
-  const exercicios = useExerciciosStore.getState().exercicios;
-  const resultado = filtrarExercicios(exercicios, 'ORDENACAO');
-  assert.strictEqual(resultado.length, 1, 'Deve encontrar 1 exercício');
-  assert.strictEqual(resultado[0].titulo, 'Ordenação', 'Deve encontrar Ordenação mesmo sem acento');
+  const lembretes = [{ titulo: 'Tomar remédio' }, { titulo: 'Caminhar' }] as Lembrete[];
+  const resultado = filtrarLembretes(lembretes, 'REMEDIO');
+  assert.strictEqual(resultado.length, 1, 'Deve encontrar 1 lembrete');
+  assert.strictEqual(resultado[0].titulo, 'Tomar remédio', 'Deve encontrar o lembrete mesmo sem acento');
+  assert.strictEqual(filtrarLembretes(lembretes, '  ').length, 2, 'Busca vazia mantém todos');
 }
 
 // Teste RN-07: Restauração de Fábrica (Reset)
@@ -373,9 +447,27 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Deve restaurar os 2 tipos');
   assert.strictEqual(
     useExerciciosStore.getState().exercicios.length,
-    4,
-    'Deve restaurar os 4 exercícios'
+    5,
+    'Deve restaurar os 5 exercícios'
   );
+}
+
+// Teste: apagar todos os dados
+{
+  useSettingsStore.getState().toggleReminderAlerts();
+  useSettingsStore.getState().setLargeText(true);
+  apagarTodosOsDados();
+
+  assert.strictEqual(useLembretesStore.getState().lembretes.length, 0, 'Sem lembretes');
+  assert.strictEqual(useLembretesStore.getState().ultimoExcluido, null, 'Sem exclusão para desfazer');
+  assert.strictEqual(useExerciciosStore.getState().historico.length, 0, 'Sem histórico');
+  assert.strictEqual(useExerciciosStore.getState().exercicios.length, 5, 'Mantém o catálogo');
+  assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Tipos iniciais');
+  assert.strictEqual(useSettingsStore.getState().reminderAlerts, true, 'Avisos voltam ao padrão');
+  assert.strictEqual(useSettingsStore.getState().isLargeText, false, 'Texto volta ao padrão');
+
+  useLembretesStore.getState().resetarParaMocks();
+  useExerciciosStore.getState().resetarParaMocks();
 }
 
 // Teste RN-08: Contadores de Ativos e Por Categoria (CARD-31 e CARD-34)

@@ -8,7 +8,7 @@ import type {
   TentativaExercicio,
 } from '@/types/exercicio';
 import { chaveData, somarDias } from '@/utils/data';
-import { formatarHora, normalizarBusca } from '@/utils/texto';
+import { formatarHora } from '@/utils/texto';
 
 /**
  * Retorna a tentativa mais recente de um exercício dentro do histórico, independentemente
@@ -191,6 +191,49 @@ export const corrigirRodada = (
   };
 };
 
+/** Resultado de uma casa conferida: certa, de outra posição da rodada ou fora da rodada. */
+export interface AvaliacaoCasa {
+  estado: 'correta' | 'lugar' | 'errada';
+  /** Só para números: de que lado do valor certo a resposta está. */
+  direcao?: 'acima' | 'abaixo';
+  /** Posição certa do item na rodada (a partir de 1), quando ele é de outra posição. */
+  posicaoCerta?: number;
+}
+
+/**
+ * Avalia uma casa da resposta contra os itens da rodada.
+ *
+ * @param resposta - Valor informado na casa.
+ * @param indice - Posição da casa.
+ * @param itens - Itens da rodada na ordem correta.
+ * @param comDicas - Se falso, a casa informa só se está certa ou errada.
+ * @returns Estado da casa e, para números errados, a direção em relação ao valor certo.
+ */
+export const avaliarCasa = (
+  resposta: string,
+  indice: number,
+  itens: string[],
+  comDicas = true
+): AvaliacaoCasa => {
+  const normalizar = (texto: string) => texto.trim().toLowerCase();
+  const valor = normalizar(resposta);
+  const alvo = normalizar(itens[indice] ?? '');
+  if (valor === alvo) {
+    return { estado: 'correta' };
+  }
+  if (!comDicas) {
+    return { estado: 'errada' };
+  }
+
+  const indiceCerto = itens.findIndex((item) => normalizar(item) === valor);
+  const estado = indiceCerto >= 0 ? 'lugar' : 'errada';
+  const posicaoCerta = indiceCerto >= 0 ? indiceCerto + 1 : undefined;
+  const numerico = /^\d+$/.test(valor) && /^\d+$/.test(alvo);
+  return numerico
+    ? { estado, posicaoCerta, direcao: Number(valor) > Number(alvo) ? 'acima' : 'abaixo' }
+    : { estado, posicaoCerta };
+};
+
 /**
  * Resultado apurado da sessão inteira de um exercício.
  */
@@ -251,21 +294,24 @@ export const embaralhar = <T>(
 };
 
 /**
- * Filtra a lista de exercícios pelo título, ignorando diferenças de caixa e diacríticos (RN-EX-01).
+ * Junta os exercícios do mesmo grupo, na posição do primeiro; os demais ficam sozinhos.
  *
  * @param exercicios - Catálogo de exercícios.
- * @param busca - Termo digitado pelo usuário.
- * @returns Lista filtrada de exercícios correspondentes.
+ * @returns Uma lista por card a exibir.
  */
-export const filtrarExercicios = (
-  exercicios: Exercicio[],
-  busca: string
-): Exercicio[] => {
-  const termo = normalizarBusca(busca);
-  if (!termo) {
-    return exercicios;
+export const agruparExercicios = (exercicios: Exercicio[]): Exercicio[][] => {
+  const itens: Exercicio[][] = [];
+  for (const exercicio of exercicios) {
+    const doGrupo = exercicio.grupo
+      ? itens.find(([primeiro]) => primeiro.grupo === exercicio.grupo)
+      : undefined;
+    if (doGrupo) {
+      doGrupo.push(exercicio);
+    } else {
+      itens.push([exercicio]);
+    }
   }
-  return exercicios.filter((item) => normalizarBusca(item.titulo).includes(termo));
+  return itens;
 };
 
 /**

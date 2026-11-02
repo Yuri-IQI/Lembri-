@@ -1,35 +1,34 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Botao } from '@/components/botao';
 import { ExercicioCard } from '@/components/cards/exercicio-card';
-import { CampoBusca } from '@/components/exercicio/campo-busca';
-import { DestaqueStreak } from '@/components/exercicio/destaque-streak';
+import { GrupoExerciciosCard } from '@/components/cards/grupo-exercicios-card';
 import { MainContainer } from '@/components/main-container';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
+import { useComandosDeVoz } from '@/hooks/use-comandos-de-voz';
 import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import type { Exercicio } from '@/types/exercicio';
 import {
+  agruparExercicios,
   calcularStreak,
   descreverUltimaAtividade,
-  filtrarExercicios,
+  historicoDoExercicio,
   ultimaTentativa,
 } from '@/utils/exercicio';
 
 /**
  * Tela principal de catálogo e acompanhamento dos exercícios cognitivos do Lembri (CARD-35 / frame exercicios_lista).
  *
- * Apresenta o catálogo "Treine sua memória", busca reativa sem acentos, sequência de dias (streak geral)
- * e cartões padronizados com navegação direta para Começar ou Detalhes.
+ * Apresenta o catálogo "Treine sua memória" em cartões padronizados, com a sequência de dias de cada exercício e navegação direta para Começar ou Detalhes.
  */
 const ExerciciosScreen = () => {
   const agora = useAgora();
-  const [busca, setBusca] = useState('');
 
   const { exercicios, historico, iniciarSessao, resetarParaMocks } = useExerciciosStore(
     useShallow((state) => ({
@@ -40,12 +39,19 @@ const ExerciciosScreen = () => {
     }))
   );
 
-  const streakGeral = useMemo(() => calcularStreak(historico, agora), [historico, agora]);
+  const itensDaLista = useMemo(() => agruparExercicios(exercicios), [exercicios]);
 
-  const exerciciosFiltrados = useMemo(
-    () => filtrarExercicios(exercicios, busca),
-    [exercicios, busca]
+  const comandosVoz = useMemo(
+    () =>
+      exercicios.map((exercicio) => ({
+        id: `exercicio-${exercicio.id}`,
+        rotulo: exercicio.titulo,
+        frases: exercicio.grupo ? [exercicio.titulo, exercicio.grupo] : [exercicio.titulo],
+        executar: () => router.push(`/exercicio/${exercicio.id}`),
+      })),
+    [exercicios]
   );
+  useComandosDeVoz(comandosVoz);
 
   const handleComecar = (exercicio: Exercicio) => {
     iniciarSessao(exercicio.id);
@@ -56,22 +62,40 @@ const ExerciciosScreen = () => {
     router.push(`/exercicio/${exercicio.id}`);
   };
 
-  const renderItem = ({ item }: { item: Exercicio }) => {
+  const renderExercicio = (item: Exercicio) => {
     const tentativa = ultimaTentativa(historico, item.id);
     const ultimaAtividade = descreverUltimaAtividade(tentativa, agora);
 
     return (
       <ExercicioCard
+        key={item.id}
         exercicio={item}
         ultimaAtividade={ultimaAtividade}
+        diasSeguidos={calcularStreak(historicoDoExercicio(historico, item.id), agora)}
         onComecar={() => handleComecar(item)}
         onDetalhes={() => handleDetalhes(item)}
       />
     );
   };
 
+  const renderItem = ({ item }: { item: Exercicio[] }) => {
+    const [primeiro] = item;
+    if (!primeiro.grupo) {
+      return renderExercicio(primeiro);
+    }
+
+    return (
+      <GrupoExerciciosCard
+        titulo={primeiro.grupo}
+        icone={primeiro.icone}
+        totalModos={item.length}>
+        {item.map(renderExercicio)}
+      </GrupoExerciciosCard>
+    );
+  };
+
   return (
-    <MainContainer>
+    <MainContainer style={styles.container}>
       <View style={styles.cabecalho}>
         <ThemedText type="title" accessibilityRole="header">
           Treine sua memória
@@ -81,49 +105,25 @@ const ExerciciosScreen = () => {
         </ThemedText>
       </View>
 
-      <DestaqueStreak dias={streakGeral} />
-
-      <CampoBusca
-        valor={busca}
-        aoMudar={setBusca}
-        aoLimpar={() => setBusca('')}
-      />
-
       <FlatList
-        data={exerciciosFiltrados}
-        keyExtractor={(item) => item.id}
+        data={itensDaLista}
+        keyExtractor={([primeiro]) => primeiro.grupo ?? primeiro.id}
         renderItem={renderItem}
         contentContainerStyle={styles.listaConteudo}
         ListEmptyComponent={
-          busca.length > 0 ? (
-            <Card style={styles.cardVazio}>
-              <ThemedText type="subheading">Nenhum exercício encontrado</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                Não há resultados para &ldquo;{busca}&rdquo;.
-              </ThemedText>
-              <Botao
-                rotulo="Limpar busca"
-                variante="secundario"
-                accessibilityLabel="Limpar termo de busca"
-                onPress={() => setBusca('')}
-                style={styles.botaoAcao}
-              />
-            </Card>
-          ) : (
-            <Card style={styles.cardVazio}>
-              <ThemedText type="subheading">Nenhum exercício carregado</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                Restaure os exercícios de demonstração do Figma.
-              </ThemedText>
-              <Botao
-                rotulo="Restaurar Exercícios"
-                variante="primario"
-                accessibilityLabel="Restaurar catálogo de exercícios padrão"
-                onPress={resetarParaMocks}
-                style={styles.botaoAcao}
-              />
-            </Card>
-          )
+          <Card style={styles.cardVazio}>
+            <ThemedText type="subheading">Nenhum exercício carregado</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Restaure os exercícios de demonstração do Figma.
+            </ThemedText>
+            <Botao
+              rotulo="Restaurar Exercícios"
+              variante="primario"
+              accessibilityLabel="Restaurar catálogo de exercícios padrão"
+              onPress={resetarParaMocks}
+              style={styles.botaoAcao}
+            />
+          </Card>
         }
       />
     </MainContainer>
@@ -131,9 +131,11 @@ const ExerciciosScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: Spacing.two,
+  },
   cabecalho: {
     gap: Spacing.one,
-    paddingTop: Spacing.one,
   },
   listaConteudo: {
     gap: Spacing.two,
