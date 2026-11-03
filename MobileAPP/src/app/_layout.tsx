@@ -1,43 +1,98 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useFonts, type FontFamilyDefinition } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar, useColorScheme } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Platform, StatusBar, StyleSheet, View, type ViewProps } from 'react-native';
+
+import { DialogoVoz } from '@/components/voz/dialogo-voz';
 
 import { Loading } from '@/components/loading/loading';
 import { Splash } from '@/components/splash';
-import { DialogoVoz } from '@/components/voz/dialogo-voz';
-import { LoadingEclipse } from '@/constants/theme';
+import { SettingsPersistenceFeedback } from '@/components/ajustes/settings-persistence-feedback';
+import { Colors, FontFamily, LoadingEclipse } from '@/constants/theme';
 import { useRespostasNotificacao } from '@/hooks/use-respostas-notificacao';
 import { useSincronizarNotificacoes } from '@/hooks/use-sincronizar-notificacoes';
 import { useSincronizarRelogio } from '@/hooks/use-sincronizar-relogio';
 import { useStoresHidratadas } from '@/hooks/use-stores-hidratadas';
 import { useTempoMinimo } from '@/hooks/use-tempo-minimo';
-import { useSettingsStore } from '@/stores/useSettingsStore';
+import { useSettingsPersistenceStore, useSettingsStore } from '@/stores/useSettingsStore';
 
 SplashScreen.preventAutoHideAsync();
 
+/** O config plugin incorpora as fontes no Android; a web carrega as mesmas famílias em runtime. */
+const webFonts: FontFamilyDefinition[] = Platform.OS === 'web' ? [
+  {
+    fontFamily: FontFamily,
+    fontDefinitions: [
+      { path: require('@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf'), weight: 400 },
+      { path: require('@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf'), weight: 500 },
+      { path: require('@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf'), weight: 600 },
+      { path: require('@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf'), weight: 700 },
+      { path: require('@expo-google-fonts/inter/900Black/Inter_900Black.ttf'), weight: 900 },
+    ],
+  },
+  {
+    fontFamily: LoadingEclipse.fonteMarca,
+    fontDefinitions: [
+      { path: require('@expo-google-fonts/eb-garamond/500Medium/EBGaramond_500Medium.ttf'), weight: 500 },
+    ],
+  },
+] : [];
+
+/** Mantém a navegação no tema claro definido em app.json e usado pelos componentes do Lembri. */
+const navigationTheme = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: Colors.background },
+};
+
 const RootLayout = () => {
-  const colorScheme = useColorScheme();
   const hydrated = useStoresHidratadas();
+  const [fontsLoaded, fontError] = useFonts(webFonts);
+  const ready = hydrated && (fontsLoaded || Boolean(fontError));
+  const [loadingVisible, setLoadingVisible] = useState(true);
+  const [contentDrawn, setContentDrawn] = useState(false);
+  const finishLoading = useCallback(() => setLoadingVisible(false), []);
+  // React Native Web encaminha inert ao DOM; no nativo, a árvore de acessibilidade é ocultada.
+  const webInertProps: ViewProps & { inert?: boolean } = Platform.OS === 'web' ? { inert: loadingVisible } : {};
   const tempoMinimoPassou = useTempoMinimo(LoadingEclipse.tempoMinimoMs);
   const hasSeenSplash = useSettingsStore((s) => s.hasSeenSplash);
   const markSplashSeen = useSettingsStore((s) => s.markSplashSeen);
+  const settingsError = useSettingsPersistenceStore((state) => state.error);
   useSincronizarNotificacoes(hydrated);
   useRespostasNotificacao(hydrated);
   useSincronizarRelogio(hydrated);
 
   return (
     <>
-      {hydrated && (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-          <Stack screenOptions={{ headerShown: false }} />
-          <DialogoVoz />
-          {!hasSeenSplash && <Splash onFim={markSplashSeen} />}
+      {ready && (
+        <ThemeProvider value={navigationTheme}>
+          <View
+            style={styles.app}
+            onLayout={() => setContentDrawn(true)}
+            pointerEvents={loadingVisible ? 'none' : 'auto'}
+            accessibilityElementsHidden={loadingVisible}
+            importantForAccessibility={loadingVisible ? 'no-hide-descendants' : 'auto'}
+            aria-hidden={loadingVisible}
+            {...webInertProps}>
+            <StatusBar barStyle="dark-content" />
+            <Stack screenOptions={{ headerShown: false }} />
+            <SettingsPersistenceFeedback />
+            <DialogoVoz />
+            {!hasSeenSplash && !settingsError && <Splash onFim={markSplashSeen} />}
+          </View>
         </ThemeProvider>
       )}
-      {(!hydrated || !tempoMinimoPassou) && <Loading onDesenhada={SplashScreen.hideAsync} />}
+      {loadingVisible && (
+        <Loading
+          ready={ready && tempoMinimoPassou && contentDrawn}
+          onDesenhada={SplashScreen.hideAsync}
+          onFinished={finishLoading}
+        />
+      )}
     </>
   );
 };
+
+const styles = StyleSheet.create({ app: { flex: 1 } });
 
 export default RootLayout;

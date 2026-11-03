@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -74,8 +74,8 @@ export const TecladoNumerico = ({
                 borderColor: theme.borderSubtle,
               },
             ]}>
-            <SymbolView
-              name={{ android: 'backspace' }}
+            <MaterialSymbol
+              name="backspace"
               size={26}
               tintColor={theme.text}
             />

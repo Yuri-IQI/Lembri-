@@ -1,6 +1,7 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import type { AndroidSymbol } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -44,7 +45,7 @@ export const ItemLista = ({
         },
       ]}>
       <View style={styles.iconeContainer}>
-        <SymbolView name={{ android: icone }} size={28} tintColor={theme.primary} />
+        <MaterialSymbol name={icone} size={28} tintColor={theme.primary} />
       </View>
       <View style={styles.textos}>
         <ThemedText type="defaultBold">{titulo}</ThemedText>
@@ -55,7 +56,7 @@ export const ItemLista = ({
         ) : null}
       </View>
       <View style={styles.setaContainer}>
-        <SymbolView name={{ android: 'chevron_right' }} size={24} tintColor={theme.textSecondary} />
+        <MaterialSymbol name="chevron_right" size={24} tintColor={theme.textSecondary} />
       </View>
     </Pressable>
   );

@@ -1,44 +1,101 @@
-import { useEffect, useRef } from 'react';
-import { AppState } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
+import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
+import { AppState, Platform } from 'react-native';
 
+import { useExerciciosStore } from '@/stores/useExerciciosStore';
 import { useLembretesStore } from '@/stores/useLembretesStore';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { sincronizarNotificacoes, type DadosNotificacao } from '@/utils/agendar-notificacoes';
+import { useNotificationSyncStore } from '@/stores/useNotificationSyncStore';
+import { useSettingsPersistenceStore, useSettingsStore } from '@/stores/useSettingsStore';
+import { sincronizarNotificacoes } from '@/utils/agendar-notificacoes';
+import { chaveData } from '@/utils/data';
+import { exerciseNotifications } from '@/utils/exercise-notifications';
+import { isOwnedNotificationId, readNotificationData } from '@/utils/notification-data';
+import { enqueueNotificationOperation } from '@/utils/notification-queue';
 import { notificacoesDesejadas } from '@/utils/notificacoes';
 import { pedirPermissaoNotificacoes } from '@/utils/preparar-notificacoes';
 
-/**
- * Mantém as notificações agendadas de acordo com os lembretes e os "Fiz": ao abrir o app, ao
- * voltar para ele e a cada mudança. Uma sincronização espera a anterior terminar. Só começa
- * com as stores hidratadas, senão a lista vazia cancelaria tudo o que estava agendado. Com os
- * avisos desligados nos ajustes, cancela tudo, inclusive as adiadas.
- */
-export const useSincronizarNotificacoes = (hidratado: boolean) => {
-  const { lembretes, registros } = useLembretesStore(
-    useShallow((state) => ({ lembretes: state.lembretes, registros: state.registros }))
-  );
-  const avisosLigados = useSettingsStore((state) => state.reminderAlerts);
-  const fila = useRef(Promise.resolve());
-
+/** Uma fila para os dois domínios; cada execução lê o snapshot mais recente já hidratado. */
+export const useSincronizarNotificacoes = (hydrated: boolean) => {
   useEffect(() => {
-    if (!hidratado) return;
-    const sincronizar = () => {
-      const feitos = new Set(registros.map((registro) => registro.chave));
-      const ativos = new Set(lembretes.filter((l) => l.ativo).map((l) => l.id));
-      const manterAdiada = (dados: DadosNotificacao) =>
-        avisosLigados && ativos.has(dados?.lembreteId) && !feitos.has(dados.ocorrencia);
-      const desejadas = avisosLigados ? notificacoesDesejadas(lembretes, feitos, new Date()) : [];
-      fila.current = fila.current
-        .then(() => (desejadas.length > 0 ? pedirPermissaoNotificacoes() : false))
-        .then(() => sincronizarNotificacoes(desejadas, manterAdiada))
-        .catch((erro) => console.warn('Não foi possível agendar as notificações', erro));
+    if (!hydrated) return;
+    if (Platform.OS === 'web') {
+      useNotificationSyncStore.setState({ permission: 'unsupported' });
+      return;
+    }
+    let active = true;
+    const requestSync = () => {
+      void enqueueNotificationOperation(async () => {
+        if (!active) return;
+        useNotificationSyncStore.setState({ isSyncing: true });
+        try {
+          if (useSettingsPersistenceStore.getState().operation === 'load') throw new Error('Preferências indisponíveis.');
+          if (![useSettingsStore, useLembretesStore, useExerciciosStore].every((store) => store.persist.hasHydrated())) return;
+          const settings = useSettingsStore.getState();
+          const { lembretes, registros } = useLembretesStore.getState();
+          const { historico } = useExerciciosStore.getState();
+          const isCurrent = () => active
+            && settings.reminderNotificationsEnabled === useSettingsStore.getState().reminderNotificationsEnabled
+            && settings.exerciseNotificationsEnabled === useSettingsStore.getState().exerciseNotificationsEnabled
+            && lembretes === useLembretesStore.getState().lembretes
+            && registros === useLembretesStore.getState().registros
+            && historico === useExerciciosStore.getState().historico;
+          const now = new Date();
+          const completed = new Set(registros.map((record) => record.chave));
+          const enabled = new Set(lembretes.filter((item) => item.ativo).map((item) => item.id));
+          const desired = [
+            ...(settings.reminderNotificationsEnabled ? notificacoesDesejadas(lembretes, completed, now) : []),
+            ...(settings.exerciseNotificationsEnabled ? exerciseNotifications(historico, now) : []),
+          ];
+          const permission = desired.length ? await pedirPermissaoNotificacoes()
+            : (await Notifications.getPermissionsAsync()).granted;
+          await sincronizarNotificacoes(desired, (data) => settings.reminderNotificationsEnabled
+            && enabled.has(data.lembreteId) && !completed.has(data.ocorrencia), isCurrent);
+          if (!isCurrent()) return;
+          const practicedToday = historico.some((attempt) => chaveData(new Date(attempt.dataHora)) === chaveData(now));
+          for (const notification of await Notifications.getPresentedNotificationsAsync()) {
+            if (!isCurrent()) return;
+            if (!isOwnedNotificationId(notification.request.identifier)) continue;
+            const data = readNotificationData(notification.request.content.data);
+            if (data && (data.kind === 'exercise'
+              ? !settings.exerciseNotificationsEnabled || practicedToday
+              : !settings.reminderNotificationsEnabled)) {
+              await Notifications.dismissNotificationAsync(notification.request.identifier);
+            }
+          }
+          useNotificationSyncStore.setState({ permission: permission ? 'granted' : 'denied', error: null });
+        } catch {
+          useNotificationSyncStore.setState({ error: 'Não foi possível atualizar todos os avisos no celular. Tente novamente.' });
+        } finally {
+          useNotificationSyncStore.setState({ isSyncing: false });
+        }
+      });
     };
-
-    sincronizar();
-    const assinatura = AppState.addEventListener('change', (estado) => {
-      if (estado === 'active') sincronizar();
+    requestSync();
+    const reminders = useLembretesStore.subscribe((state, previous) => {
+      if (state.lembretes !== previous.lembretes || state.registros !== previous.registros) requestSync();
     });
-    return () => assinatura.remove();
-  }, [hidratado, lembretes, registros, avisosLigados]);
+    const exercises = useExerciciosStore.subscribe((state, previous) => {
+      if (state.historico !== previous.historico) requestSync();
+    });
+    const settings = useSettingsStore.subscribe((state, previous) => {
+      if (state.reminderNotificationsEnabled !== previous.reminderNotificationsEnabled
+        || state.exerciseNotificationsEnabled !== previous.exerciseNotificationsEnabled) requestSync();
+    });
+    const retry = useNotificationSyncStore.subscribe((state, previous) => {
+      if (state.revision !== previous.revision) requestSync();
+    });
+    const persistence = useSettingsPersistenceStore.subscribe((state, previous) => {
+      if (state.operation !== previous.operation) requestSync();
+    });
+    const hydration = [useSettingsStore, useLembretesStore, useExerciciosStore]
+      .map((store) => store.persist.onFinishHydration(requestSync));
+    const foreground = AppState.addEventListener('change', (state) => {
+      if (state === 'active') requestSync();
+    });
+    return () => {
+      active = false;
+      reminders(); exercises(); settings(); retry(); persistence(); foreground.remove();
+      hydration.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [hydrated]);
 };

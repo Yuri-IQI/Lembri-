@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { Botao } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing, TouchTarget } from '@/constants/theme';
@@ -26,7 +26,7 @@ export const ListaVaziaLembretes = ({ onNovo }: ListaVaziaLembretesProps) => {
           styles.iconeContainer,
           { backgroundColor: theme.surface, borderColor: theme.border },
         ]}>
-        <SymbolView name={{ android: 'notifications_off' }} size={44} tintColor={theme.textSecondary} />
+        <MaterialSymbol name="notifications_off" size={44} tintColor={theme.textSecondary} />
       </View>
 
       <View style={styles.textos}>

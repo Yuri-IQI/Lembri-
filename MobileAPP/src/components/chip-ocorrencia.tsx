@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,7 +26,7 @@ export const ChipOcorrencia = ({ horario, estado, descricao, onAlternar }: ChipO
   const cor = estado === 'nao_marcado' ? 'danger' : 'text';
   const conteudo = (
     <>
-      <SymbolView name={{ android: ICONE[estado] }} size={20} tintColor={theme[cor]} />
+      <MaterialSymbol name={ICONE[estado]} size={20} tintColor={theme[cor]} />
       <ThemedText type="smallBold" themeColor={cor}>
         {horario}
       </ThemedText>
@@ -54,6 +54,7 @@ export const ChipOcorrencia = ({ horario, estado, descricao, onAlternar }: ChipO
       onPress={onAlternar}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: feito }}
+      aria-checked={feito}
       accessibilityLabel={`${descricao} às ${horario}`}
       style={({ pressed }) => [estilo, { opacity: pressed ? 0.6 : 1 }]}>
       {conteudo}

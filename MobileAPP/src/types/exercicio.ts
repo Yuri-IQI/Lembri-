@@ -76,12 +76,16 @@ export interface TentativaExercicio {
   dataHora: string;
   /** Tempo total consumido na execução em segundos. */
   tempoGastoSegundos: number;
-  /** Quantidade de respostas corretas obtidas. */
+  /** Quantidade de acertos da primeira tentativa. */
   acertos: number;
   /** Quantidade total de perguntas ou etapas do exercício. */
   totalQuestoes: number;
-  /** Pontuação percentual calculada (0 a 100). */
+  /** Pontuação percentual da primeira tentativa (0 a 100). */
   pontuacaoPercentual: number;
+  /** Acertos após as correções; ausente nos registros antigos e enviados pelo relógio. */
+  correctedHits?: number;
+  /** Percentual após as correções, separado da pontuação da primeira resposta. */
+  correctedScorePercent?: number;
   /** Onde o exercício foi feito; sem valor, no celular. */
   origem?: 'celular' | 'relogio';
 }
@@ -106,8 +110,10 @@ export interface SessaoExercicio {
   inicio: string;
   /** Índice da rodada ativa no momento (base zero). */
   rodadaAtual: number;
-  /** Matriz de respostas fornecidas por rodada e por casa. */
+  /** Primeiras respostas fornecidas por rodada e por casa. */
   respostas: string[][];
+  /** Últimas respostas conferidas; opcional para compatibilidade com sessões anteriores. */
+  correctedAnswers?: string[][];
   /** Chips de opções embaralhados por rodada no modo 'opcoes'. */
   opcoes: string[][];
   /** Identificador da tentativa persistida ao concluir (assegura idempotência). */

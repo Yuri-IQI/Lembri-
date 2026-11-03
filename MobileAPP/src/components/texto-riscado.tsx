@@ -23,6 +23,7 @@ export const TextoRiscado = ({ riscado, children }: TextoRiscadoProps) => {
 
 const styles = StyleSheet.create({
   caixa: {
+    maxWidth: '100%',
     alignSelf: 'flex-start',
     justifyContent: 'center',
   },

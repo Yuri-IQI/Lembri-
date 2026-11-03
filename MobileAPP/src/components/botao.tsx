@@ -1,6 +1,8 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
-import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import type { AndroidSymbol } from 'expo-symbols';
+import type { ComponentRef, Ref } from 'react';
+import { Pressable, StyleSheet, type StyleProp, type View, type ViewStyle } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -16,6 +18,9 @@ export type BotaoProps = {
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   desabilitado?: boolean;
+  /** Operação em andamento, anunciada pelo leitor de tela. */
+  ocupado?: boolean;
+  controlRef?: Ref<ComponentRef<typeof View>>;
 };
 
 /**
@@ -35,6 +40,8 @@ export const Botao = ({
   accessibilityLabel,
   style,
   desabilitado = false,
+  ocupado = false,
+  controlRef,
 }: BotaoProps) => {
   const theme = useTheme();
 
@@ -63,11 +70,14 @@ export const Botao = ({
 
   return (
     <Pressable
+      ref={controlRef}
       onPress={desabilitado ? undefined : onPress}
       disabled={desabilitado}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? rotulo}
-      accessibilityState={{ disabled: desabilitado }}
+      accessibilityState={{ disabled: desabilitado, busy: ocupado }}
+      aria-disabled={desabilitado}
+      aria-busy={ocupado}
       style={({ pressed }) => [
         styles.botao,
         {
@@ -77,8 +87,8 @@ export const Botao = ({
         },
         style,
       ]}>
-      {icone && <SymbolView name={{ android: icone }} size={28} tintColor={theme[corTexto]} />}
-      <ThemedText type={tamanho === 'normal' ? 'button' : 'smallBold'} themeColor={corTexto}>
+      {icone && <MaterialSymbol name={icone} size={28} tintColor={theme[corTexto]} />}
+      <ThemedText type={tamanho === 'normal' ? 'button' : 'smallBold'} themeColor={corTexto} style={styles.label}>
         {rotulo}
       </ThemedText>
     </Pressable>
@@ -86,8 +96,13 @@ export const Botao = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    flexShrink: 1,
+    textAlign: 'center',
+  },
   botao: {
     minHeight: TouchTarget,
+    minWidth: TouchTarget,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

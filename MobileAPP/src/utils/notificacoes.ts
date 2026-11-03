@@ -16,6 +16,7 @@ const MAIOR_REAVISO_MIN = 15;
 export type CategoriaNotificacao = 'tomei' | 'fiz';
 
 export type NotificacaoLembrete = {
+  kind?: 'reminder';
   /** Chave da ocorrência, com sufixo nos avisos extras (`#reaviso`, `#antes-1h`…). */
   id: string;
   /** Chave da ocorrência a que o aviso se refere. */

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { AvaliacaoCasa } from '@/utils/exercicio';
+import { getBalancedCellWidth } from '@/utils/exercise-grid';
 
 export interface CasasRespostaProps {
   respostas: string[];
@@ -15,6 +17,8 @@ export interface CasasRespostaProps {
   avaliacoes?: (AvaliacaoCasa | null)[];
   /** Quantas casas ampliadas cabem por linha; sem valor, usa as casas compactas. */
   colunas?: number;
+  /** Mantém números inteiros em casas compactas e distribui as linhas sem uma casa isolada. */
+  numeric?: boolean;
   /** Cor do contexto da rodada, que contorna as casas conferidas. */
   cor?: ThemeColor;
   /** Mostra a posição de cada casa, para atividades em que a ordem importa. */
@@ -49,12 +53,17 @@ export const CasasResposta = ({
   rascunho = '',
   avaliacoes,
   colunas,
+  numeric = false,
   cor,
   numerada = false,
   aoSelecionarCasa,
 }: CasasRespostaProps) => {
   const theme = useTheme();
   const ampliadas = colunas !== undefined;
+  const [availableWidth, setAvailableWidth] = useState(0);
+  const gap = numeric ? Spacing.one : Spacing.two;
+  const numericWidth = getBalancedCellWidth(respostas.length, availableWidth, TouchTarget, gap);
+  const wordWidth = colunas ? Math.max(TouchTarget, (availableWidth - gap * (colunas - 1)) / colunas) : undefined;
 
   return (
     <View style={styles.container}>
@@ -62,7 +71,9 @@ export const CasasResposta = ({
         RESPOSTA
       </ThemedText>
 
-      <View style={styles.fileira}>
+      <View
+        onLayout={(event) => setAvailableWidth(event.nativeEvent.layout.width)}
+        style={[styles.fileira, numeric && { gap }]}>
         {respostas.map((valor, index) => {
           const estaAtiva = index === casaAtiva;
           const digitando = estaAtiva && rascunho.length > 0;
@@ -111,7 +122,8 @@ export const CasasResposta = ({
               accessibilityLabel={rotuloAcessivel}
               style={[
                 styles.casa,
-                ampliadas && [styles.casaAmpliada, { width: `${90 / colunas}%` }],
+                ampliadas && !numeric && [styles.casaAmpliada, { width: wordWidth }],
+                numeric && { width: numericWidth, minWidth: TouchTarget },
                 numerada && styles.casaNumerada,
                 {
                   borderColor: bordaCor,
@@ -119,15 +131,14 @@ export const CasasResposta = ({
                   borderWidth: estaAtiva || (avaliacao && cor) ? BorderWidth.regular : BorderWidth.hairline,
                   borderStyle: estaPreenchida || estaAtiva ? 'solid' : 'dashed',
                 },
-              ]}
-              hitSlop={8}>
+              ]}>
               {dica && (
                 <ThemedText type="small" themeColor="textSecondary" style={styles.dica}>
                   {dica}
                 </ThemedText>
               )}
               <ThemedText
-                type={ampliadas ? 'subheading' : 'defaultBold'}
+                type={numeric ? 'subheading' : 'defaultBold'}
                 style={[styles.texto, { color: estaPreenchida ? theme.text : theme.textSecondary }]}>
                 {numerada && texto ? `${index + 1}º ${texto}` : texto}
               </ThemedText>
@@ -153,7 +164,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Spacing.two,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   casa: {
     minWidth: 54,
@@ -165,7 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   casaAmpliada: {
-    minHeight: 96,
+    minHeight: TouchTarget,
     paddingHorizontal: 2,
   },
   casaNumerada: {
@@ -177,9 +188,11 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   texto: {
+    maxWidth: '100%',
     textAlign: 'center',
   },
   marca: {
+    maxWidth: '100%',
     fontSize: 13,
     lineHeight: 18,
     textAlign: 'center',

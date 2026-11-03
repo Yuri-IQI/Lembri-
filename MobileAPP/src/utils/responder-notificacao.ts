@@ -1,54 +1,88 @@
-import type * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 
 import { publicarAgendaAtual } from '@/services/wear/sincronizar-agenda';
 import { useLembretesStore } from '@/stores/useLembretesStore';
+import { useNotificationSyncStore } from '@/stores/useNotificationSyncStore';
+import { useSettingsPersistenceStore, useSettingsStore } from '@/stores/useSettingsStore';
+import type { AppNotificationData } from '@/types/notification';
 import {
   adiarNotificacao,
   encerrarOcorrencia,
-  type DadosNotificacao,
 } from '@/utils/agendar-notificacoes';
-import { esperarHidratacao } from '@/utils/esperar-hidratacao';
+import { readNotificationData } from '@/utils/notification-data';
+import { enqueueNotificationOperation } from '@/utils/notification-queue';
 import { ocorrenciaDaChave } from '@/utils/notificacoes';
 import { ACAO_ADIAR, ACAO_FEITO } from '@/utils/preparar-notificacoes';
 
 type ConteudoRecebido = { data?: unknown; dataString?: string };
 
-const ehDados = (dados: unknown): dados is DadosNotificacao =>
-  !!dados && typeof dados === 'object' && 'ocorrencia' in dados;
-
 /** Na tarefa em segundo plano do Android os dados chegam como texto JSON em `dataString`. */
-const lerDados = (notificacao: Notifications.Notification): DadosNotificacao | null => {
+const lerDados = (notificacao: Notifications.Notification): AppNotificationData | null => {
   const conteudo = notificacao.request.content as ConteudoRecebido;
-  if (ehDados(conteudo.data)) return conteudo.data;
-  const lidos: unknown = conteudo.dataString ? JSON.parse(conteudo.dataString) : null;
-  return ehDados(lidos) ? lidos : null;
+  const data = readNotificationData(conteudo.data);
+  if (data) return data;
+  try {
+    return readNotificationData(conteudo.dataString ? JSON.parse(conteudo.dataString) : null);
+  } catch {
+    return null;
+  }
 };
+
+const storesLoaded = async (includeSettings: boolean) => {
+  for (const store of includeSettings ? [useSettingsStore, useLembretesStore] : [useLembretesStore]) {
+    if (!store.persist.hasHydrated()) await store.persist.rehydrate();
+    if (!store.persist.hasHydrated()) throw new Error('Não foi possível carregar os lembretes.');
+  }
+  if (includeSettings && useSettingsPersistenceStore.getState().operation === 'load') throw new Error('Preferências indisponíveis.');
+};
+
+export type NotificationDestination = { kind: 'exercise' } | { kind: 'reminder'; id: string };
 
 /**
  * Trata o toque na notificação ou num botão dela. "Tomei"/"Fiz" marca o horário como feito;
- * "Lembrar em 10 min" adia. Retorna o lembrete a abrir quando a pessoa tocou na notificação.
+ * "Lembrar em 10 min" valida preferências, item e conclusão depois de hidratar as stores.
+ * Exercícios só retornam destino ao toque; ações de lembretes não se aplicam a eles.
  */
 export const responderNotificacao = async (
   resposta: Notifications.NotificationResponse
-): Promise<string | null> => {
+): Promise<NotificationDestination | null> => {
   const notificacao = resposta.notification;
   const dados = lerDados(notificacao);
   if (!dados) return null;
+  if (dados.kind === 'exercise') {
+    return resposta.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER ? { kind: 'exercise' } : null;
+  }
 
-  if (resposta.actionIdentifier === ACAO_ADIAR) {
-    await adiarNotificacao(notificacao, dados);
-    return null;
+  if (resposta.actionIdentifier === ACAO_ADIAR || resposta.actionIdentifier === ACAO_FEITO) {
+    return enqueueNotificationOperation(async () => {
+      try {
+        await storesLoaded(resposta.actionIdentifier === ACAO_ADIAR);
+        const { lembretes, registros, marcarFeito } = useLembretesStore.getState();
+        const occurrence = ocorrenciaDaChave(dados.ocorrencia, lembretes);
+        if (resposta.actionIdentifier === ACAO_FEITO) {
+          if (occurrence) marcarFeito(occurrence);
+          await encerrarOcorrencia(notificacao, dados);
+          await publicarAgendaAtual().catch((erro) =>
+            console.warn('Não foi possível publicar a agenda do relógio', erro)
+          );
+        } else if (useSettingsStore.getState().reminderNotificationsEnabled && occurrence?.lembrete.ativo
+          && occurrence.lembrete.id === dados.lembreteId && !registros.some((record) => record.chave === dados.ocorrencia)) {
+          const canSnooze = () => {
+            const current = useLembretesStore.getState();
+            return useSettingsStore.getState().reminderNotificationsEnabled
+              && current.lembretes.some((item) => item.id === dados.lembreteId && item.ativo)
+              && !current.registros.some((record) => record.chave === dados.ocorrencia);
+          };
+          await adiarNotificacao(notificacao, dados, canSnooze);
+          if (!useSettingsStore.getState().reminderNotificationsEnabled) {
+            await encerrarOcorrencia(notificacao, dados);
+          }
+        }
+      } catch {
+        useNotificationSyncStore.setState({ error: 'Não foi possível atualizar este aviso. Abra o Lembri e tente novamente.' });
+      }
+      return null;
+    });
   }
-  if (resposta.actionIdentifier === ACAO_FEITO) {
-    await esperarHidratacao(useLembretesStore);
-    const { lembretes, marcarFeito } = useLembretesStore.getState();
-    const ocorrencia = ocorrenciaDaChave(dados.ocorrencia, lembretes);
-    if (ocorrencia) marcarFeito(ocorrencia);
-    await encerrarOcorrencia(notificacao, dados);
-    await publicarAgendaAtual().catch((erro) =>
-      console.warn('Não foi possível publicar a agenda do relógio', erro)
-    );
-    return null;
-  }
-  return dados.lembreteId;
+  return { kind: 'reminder', id: dados.lembreteId };
 };

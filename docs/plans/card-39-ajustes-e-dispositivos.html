@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDD Front-end — CARD-39: Ajustes e dispositivos (Projeto Lembri)</title>
+  <style>
+    :root {
+      --brand-strong: #000000;
+      --brand: #1a1a1a;
+      --brand-surface: #f4f4f4;
+      --brand-border: #d0d0d0;
+      --brand-hover: #eaeaea;
+      --text-primary: #000000;
+      --text-secondary: #4e4e4e;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #cbd5e1;
+      --code-inline-bg: #f1f5f9;
+      --code-inline-border: #cbd5e1;
+      --code-block-bg: #0f172a;
+      --code-block-text: #f8fafc;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); max-width: 960px; margin: 40px auto; padding: 0 28px 60px; color: var(--text-primary); line-height: 1.75; background: var(--bg-page); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 1.6rem; color: var(--text-primary); border-bottom: 3px solid var(--brand); padding-bottom: 10px; margin: 28px 0 18px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; color: var(--brand); margin: 2.2rem 0 10px; padding-left: 12px; border-left: 4px solid var(--brand); line-height: 1.35; }
+    h3 { font-size: 1.03rem; color: var(--text-secondary); margin: 1.4rem 0 8px; }
+    p { margin: 10px 0; }
+    .meta-block { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 6px; padding: 14px 18px; margin: 18px 0 24px; font-size: 0.93rem; line-height: 1.85; }
+    .notice-block { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; color: #713f12; }
+    .toc { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px 18px 14px 34px; margin: 18px 0 28px; font-size: 0.92rem; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9rem; background: var(--bg-card); }
+    thead th { background: var(--brand); color: #ffffff; padding: 10px 13px; text-align: left; font-weight: 600; }
+    tbody td { padding: 9px 13px; border: 1px solid var(--border-subtle); vertical-align: top; }
+    tbody tr:nth-child(even) td { background: var(--brand-surface); }
+    code { background: var(--code-inline-bg); border: 1px solid var(--code-inline-border); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.86em; color: #000; }
+    pre { background: var(--code-block-bg); color: var(--code-block-text); border-radius: 6px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.85rem; line-height: 1.6; }
+    ul, ol { padding-left: 1.5em; margin: 10px 0; }
+    ul.check { list-style: none; padding-left: 4px; }
+    ul.check li { margin: 7px 0; display: flex; align-items: baseline; gap: 8px; }
+    ul.check input { width: 16px; height: 16px; accent-color: var(--brand); flex-shrink: 0; }
+    blockquote { border-left: 4px solid var(--brand); background: var(--brand-surface); margin: 14px 0; padding: 12px 18px; color: var(--text-secondary); border-radius: 0 6px 6px 0; }
+    hr { border: none; border-top: 1px solid var(--border-subtle); margin: 28px 0; }
+      td, code { overflow-wrap: anywhere; }
+    @media(max-width: 640px) { body { margin: 16px auto; padding: 0 14px 32px; } th, td { padding: 8px; } }
+  </style>
+</head>
+<body>
+
+<h1>SDD Front-end — CARD-39: Ajustes e dispositivos</h1>
+
+<div class="meta-block">
+  <p><strong>Tarefa / Funcionalidade:</strong> <code>CARD-39</code> — Ajustes e dispositivos</p>
+  <p><strong>Branch (Gitflow):</strong> <code>feat/ajustes-e-dispositivos</code> (proposta; criar a partir de <code>develop</code> → PR para <code>develop</code>)</p>
+  <p><strong>Escopo Tecnológico:</strong> React Native (Expo SDK 58), React 19, Zustand e Wear OS Data Layer</p>
+  <p><strong>Módulo:</strong> <code>CONFIGURACOES</code></p>
+  <p><strong>Camada de Dados:</strong> Majoritariamente Mockada (Fixtures em <code>src/mocks/</code> e Stores em <code>src/stores/</code>)</p>
+  <p><strong>Data:</strong> 2026-11-02</p>
+</div>
+
+<div class="notice-block"><strong>SDD — CARD-39 · Decisões funcionais resolvidas</strong> Plano técnico para revisão, sem implementação de código. Decisões do usuário registradas na seção 2.</div>
+<ol class="toc">
+  <li><a href="#s1">Contexto, Objetivo e Escopo Front-end</a></li>
+  <li><a href="#s2">Requisitos e Regras de Negócio (Casos de Borda)</a></li>
+  <li><a href="#s3">Estrutura de Arquivos e Componentes</a></li>
+  <li><a href="#s4">Modelagem de Dados e Tipos TypeScript (src/types/)</a></li>
+  <li><a href="#s5">Gerenciamento de Estado no Zustand e Mocks</a></li>
+  <li><a href="#s6">Front-end — Telas Expo Router e 5 Estados Visuais</a></li>
+  <li><a href="#s7">Acessibilidade Mobile (WCAG 2.2 Nível AAA — TouchTarget = 56)</a></li>
+  <li><a href="#s8">Integração com Wearable (se aplicável)</a></li>
+  <li><a href="#s9">Casos de Teste e Verificação no Emulador</a></li>
+  <li><a href="#s10">Checklist Pré-PR</a></li>
+  <li><a href="#s11">Atualização da Documentação do Módulo</a></li>
+  <li><a href="#s12">Princípios de Desenvolvimento e Restrições</a></li>
+</ol>
+
+<hr>
+
+<h2 id="s1">1. Contexto, Objetivo e Escopo Front-end</h2>
+<p>Completar Ajustes com acessibilidade, notificações reais, dispositivos simulados e acesso à ajuda. Fonte: <a href="https://trello.com/c/9RLyu5pu">CARD-39</a>, lista “Esta semana”, sem checklist adicional. Frames consultados pela API do Figma: <a href="https://www.figma.com/design/QKjpXmagXvBkc1QU24ryjJ/LEMBRI-?node-id=152-957">Android Compact - 7 (152:957)</a> e <a href="https://www.figma.com/design/QKjpXmagXvBkc1QU24ryjJ/LEMBRI-?node-id=152-1033">Android Compact - 10 (152:1033)</a>; cópias equivalentes 80:1860 e 102:1379.</p>
+<p><strong>Base inspecionada:</strong> branch <code>feat/modulo-exercicios</code>, commit <code>677b3ae</code>, em 02/11/2026. O planejamento foi feito nessa base; a branch proposta ainda não foi criada. <code>useSettingsStore</code>, <code>CartaoAjuste</code> e escala 1,2× já existem. Apenas <code>hasSeenSplash</code> e <code>reminderLimit</code> são persistidos atualmente.</p>
+<p><strong>Escopo:</strong> ampliar a tela existente, estender preferências persistidas, integrar notificações e simular conexão de relógios. A ajuda pertence ao <a href="card-40-ajuda.html">CARD-40</a>. Não implementar pareamento Bluetooth, alterações Kotlin, sincronização nova com Wear OS, voz ou backend.</p>
+
+<hr>
+
+<h2 id="s2">2. Requisitos e Regras de Negócio (Casos de Borda)</h2>
+<h3>Decisões confirmadas nesta conversa</h3><table><thead><tr><th scope="col">Decisão</th><th scope="col">Definição</th></tr></thead><tbody><tr><td>D1 — Avisos reais</td><td>O usuário aceitou a recomendação de aplicar os toggles aos avisos reais e confirmar antes de desligar. O Figma define exatamente “Avisos de Lembretes” e “Avisos de Exercícios”.</td></tr>
+<tr><td>D2 — Persistência</td><td>Salvar texto ampliado e ambos os avisos entre reinicializações.</td></tr>
+<tr><td>D3 — Exercícios</td><td>Aviso diário às 09h no horário local se não houver exercício concluído naquele dia; cancelar o aviso daquele dia ao concluir.</td></tr>
+<tr><td>D4 — Conteúdo</td><td>Usuário autorizou propor textos e dispositivos. Usar os nomes do Figma: Relógio 1 / Smartwatch AB1 e Relógio 2 / Smartwatch AB2.</td></tr>
+<tr><td>D5 — Contatos</td><td>Suporte encaminha à ajuda; contatos demonstrativos sem acionamento até configuração real, conforme CARD-40.</td></tr></tbody></table>
+<h3>Requisitos verificáveis</h3><ul><li><strong>RF1:</strong> Alternar “Texto ampliado” atualiza imediatamente todos os consumidores de <code>ThemedText</code>/<code>useTheme</code>; manter fator 1,2× e tetos existentes. Reabrir o app restaura o valor e o fator coerente. Usar o rótulo do cartão (“Texto ampliado”), corrigindo “Texto Amplificado” do desenho.</li>
+<li><strong>RF2:</strong> Ao tentar desligar um aviso, abrir diálogo sem mudar o switch. “Manter avisos”, voltar do Android e cancelar preservam o estado. “Desligar avisos” confirma a preferência e dispara reconciliação. Reativar é direto; exibir o estado da permissão do sistema separadamente da preferência.</li>
+<li><strong>RF3:</strong> “Avisos de Lembretes” abrange todos os templates e seus avisos na hora, antecipações, reavisos e adiamentos. Desligar cancela somente notificações desse domínio; não altera <code>ativo</code>, agenda visível, lembretes ou histórico. Reativar recalcula apenas notificações futuras válidas; não dispara retroativos.</li>
+<li><strong>RF4:</strong> “Avisos de Exercícios” habilita um aviso às 09h, sem exigir pontuação mínima: qualquer tentativa concluída em <code>historico</code> conta. Sessão iniciada/abandonada não conta. Se o horário de hoje já passou, começar no próximo dia; ao concluir antes das 09h, retirar o aviso de hoje e preservar os demais dias.</li>
+<li><strong>RF5:</strong> Dispositivos começa recolhido; expandir mostra os dois relógios e ações coerentes com o status. Proposta: AB1 conectado e AB2 desconectado, corrigindo o par contraditório “Conectado”/“Conectar” do Figma. Cada relógio alterna independentemente; conectar novamente um conectado não duplica itens. Desconectar pede confirmação e permite reconectar.</li>
+<li><strong>RF6:</strong> “Instruções de uso” abre <code>/ajuda</code>; “Suporte” abre <code>/ajuda?section=contact</code>. Preservar a seção Desenvolvimento existente em builds <code>__DEV__</code>.</li>
+<li><strong>Defaults propostos:</strong> texto ampliado desligado; avisos de lembretes ligados para preservar o comportamento atual; avisos de exercícios desligados até ativação explícita. Conexões simuladas duram a sessão e não representam estado real do hardware.</li>
+<li><strong>Limite operacional:</strong> seguir a janela existente de 7 dias de notificações futuras, renovada ao abrir/retomar o app e ao mudar os dados. Não prometer avisos ilimitados após mais de 7 dias sem abrir o app. Essa limitação deve constar da ajuda; agendamento permanente exigiria outra solução.</li></ul>
+
+<hr>
+
+<h2 id="s3">3. Estrutura de Arquivos e Componentes</h2>
+<table><thead><tr><th scope="col">Arquivo / grupo</th><th scope="col">Mudança planejada</th></tr></thead><tbody><tr><td><code>src/app/(tabs)/configuracoes.tsx</code></td><td>Compor as quatro seções do Figma, rolagem e links de ajuda.</td></tr>
+<tr><td><code>src/types/settings.ts</code>, <code>src/mocks/settings.mock.ts</code>, <code>src/stores/useSettingsStore.ts</code></td><td>Preferências novas, ações explícitas e hidratação retrocompatível.</td></tr>
+<tr><td><code>src/types/device.ts</code>, <code>src/mocks/devices.mock.ts</code>, <code>src/services/devices-repository.ts</code>, <code>src/stores/useDevicesStore.ts</code></td><td>Contratos e simulação isolados do transporte Wear real.</td></tr>
+<tr><td><code>src/components/ajustes/notification-settings.tsx</code>, <code>device-section.tsx</code></td><td>Composição dos toggles/diálogos e lista expansível. Reusar CartaoAjuste, DialogoConfirmacao e Botao.</td></tr>
+<tr><td><code>src/hooks/use-sincronizar-notificacoes.ts</code></td><td>Orquestrador único com preferências, histórico de exercícios e reconciliação serializada.</td></tr>
+<tr><td><code>src/utils/notificacoes.ts</code>, <code>agendar-notificacoes.ts</code>, <code>responder-notificacao.ts</code>, <code>src/hooks/use-respostas-notificacao.ts</code></td><td>Filtrar lembretes, separar propriedade dos agendamentos, proteger adiamento em background e rotear toque do exercício.</td></tr>
+<tr><td><code>src/utils/exercise-notifications.ts</code></td><td>Cálculo puro das datas locais e aviso de exercícios; sem UI e sem imports nativos.</td></tr>
+<tr><td><code>src/stores/__tests__/useSettingsStore.test.ts</code> e testes de notificações</td><td>Ampliar testes dos contratos alterados; adequar execução ao harness real, pois package.json não declara script test.</td></tr></tbody></table><p>Todos os caminhos são relativos a <code>MobileAPP/</code>. Reutilizar <code>chaveData</code>, <code>useStoresHidratadas</code> e <code>useExerciciosStore.historico</code>. Não criar uma segunda coleção de conclusões.</p>
+
+<hr>
+
+<h2 id="s4">4. Modelagem de Dados e Tipos TypeScript (src/types/)</h2>
+<pre><code>type NotificationPreference = 'reminderNotificationsEnabled' | 'exerciseNotificationsEnabled';
+// Adicionar a UserSettings, preservando os campos existentes:
+reminderNotificationsEnabled: boolean;
+exerciseNotificationsEnabled: boolean;
+
+interface SimulatedDevice {
+  id: string;
+  name: string;
+  model: string;
+  status: 'connected' | 'disconnected';
+}
+interface DevicesRepository {
+  list(): Promise&lt;SimulatedDevice[]&gt;;
+  setConnected(id: string, connected: boolean): Promise&lt;SimulatedDevice&gt;;
+}</code></pre><p>IDs estáveis <code>demo-watch-1</code>/<code>demo-watch-2</code>. Estado transitório <code>pendingDeviceId</code>, carregamento e erro pertencem à store da operação; expansão e confirmação pendente são locais aos componentes. O contrato Wear <code>RelogioConectado</code> permanece separado.</p>
+<p>Payload de notificação de exercício: discriminador <code>kind: 'exercise'</code> e chave de data local. Preservar a leitura dos payloads legados de lembrete; não forçar <code>lembreteId</code> fictício. IDs de exercício usam prefixo próprio, por exemplo <code>lembri:exercise:AAAA-MM-DD</code>.</p>
+
+<hr>
+
+<h2 id="s5">5. Gerenciamento de Estado no Zustand e Mocks</h2>
+<h3>Preferências e hidratação</h3><ul><li>Adicionar <code>setNotificationPreference(key, enabled)</code> à store existente; manter ações imutáveis e seletores atômicos. Store define preferência, não abre diálogos nem chama Expo Notifications.</li>
+<li>Manter chave <code>lembri-settings</code> e incluir as três preferências em <code>partialize</code>. Persistir o booleano isLargeText; recalcular textScaleFactor no merge/hidratação usando TextScale. Não persistir duas fontes independentes de escala.</li>
+<li>Adicionar versão de schema e migração do estado legado: preservar hasSeenSplash/reminderLimit, completar apenas campos ausentes com defaults. Testar valor false explícito, snapshot parcial e ausência de storage.</li>
+<li>Manter semântica de resetToDefaults: restaurar preferências visuais preservando hasSeenSplash, reminderLimit e as novas preferências de avisos; reset visual não pode reativar notificações silenciosamente.</li>
+<li>O root já aguarda useStoresHidratadas. Reconciliar somente após settings, lembretes e exercícios estarem hidratados. Erro de gravação/hidratação exige feedback de falha de persistência; não declarar que a preferência foi salva se a gravação falhou.</li></ul><h3>Notificações reais: pontos críticos</h3><ul><li>Reusar a fila de useSincronizarNotificacoes. Observar preferências e histórico de exercícios, além de lembretes/registros. Cada execução lê o snapshot mais recente, evitando que uma operação antiga reagende avisos depois de desligados. Ao terminar, reconciliar novamente se a versão dos dados mudou.</li>
+<li>O sincronizador atual percorre e cancela todo agendamento não desejado. Antes de adicionar exercícios, limitar cancelamentos aos IDs de lembretes reconhecidos e aos IDs de exercícios do Lembri. Manter compatibilidade com IDs legados de ocorrência/sufixos; não cancelar notificações desconhecidas.</li>
+<li>Uma única reconciliação deve calcular ambos os domínios; não criar dois loops concorrentes que apaguem os agendamentos um do outro. Preservar o limite atual de 100 lembretes; adicionar no máximo 7 avisos de exercícios, com limite explícito de até 107 agendamentos no Android e teste no dispositivo.</li>
+<li>Adiamentos: manterAdiada precisa também verificar reminderNotificationsEnabled. A ação “Lembrar em 10 min” em background deve aguardar hidratação de settings e lembretes, validar preferência, item ativo e ocorrência não concluída antes de agendar. A conclusão “Fiz/Tomei” continua válida mesmo com avisos desligados.</li>
+<li>Exercícios: calcular datas às 09h pelo calendário local, sem somar 24h em milissegundos. Recalcular ao retomar o app, inclusive após mudança de fuso/data. Filtrar histórico por dia local. Cancelar aviso agendado de hoje ao concluir e dispensar aviso de exercício já apresentado quando pertinente.</li>
+<li>Permissão negada não transforma preferência em falsa: apresentar “Avisos ativados no Lembri, mas bloqueados no celular” e ação para ajustes do sistema. Falha ao agendar/cancelar gera estado parcial, mensagem persistente e “Tentar novamente”; não anunciar sucesso até o sistema confirmar.</li>
+<li>Não atribuir payload de lembrete ao exercício: toque em aviso de exercício abre /exercicios; em inicialização fria, rotear somente após hidratação. A tarefa de background ignora payloads de exercício sem ação de lembrete.</li>
+<li>Documentação consultada: <a href="https://docs.expo.dev/versions/v58.0.0/sdk/notifications/">Expo Notifications SDK 58</a>. Agendamento, cancelamento e respostas usam o módulo já instalado; validar permissões e comportamento real no development build Android.</li></ul><h3>Fixtures</h3><p>Repositório simulado retorna cópias dos dois relógios, com operação idempotente e teste de ID inexistente. Cenários injetáveis: lista vazia, nomes longos, falha de carga/conexão e recuperação; não inserir erros aleatórios na experiência normal. Identificar a seção como “Relógios de demonstração” para não induzir pareamento real.</p>
+
+<hr>
+
+<h2 id="s6">6. Front-end — Telas Expo Router e 5 Estados Visuais</h2>
+<p>Ordem: título Ajustes → Acessibilidade / Texto ampliado → Notificações / dois CartaoAjuste → Dispositivos / seção expansível → Sobre / Instruções de uso e Suporte → Desenvolvimento quando aplicável. Manter as quatro abas existentes; o código atual ainda tem Home, Exercícios, Lembretes e Ajustes.</p>
+<table><thead><tr><th scope="col">Estado</th><th scope="col">Comportamento</th></tr></thead><tbody><tr><td>Ideal</td><td>Preferências e relógios carregados; status textual e ação coerentes.</td></tr>
+<tr><td>Carregando</td><td>Indicador e texto na operação de dispositivos ou reconciliação; bloquear duplicatas, preservar leitura da tela.</td></tr>
+<tr><td>Vazio</td><td>“Nenhum relógio disponível” com nova tentativa. Preferências continuam utilizáveis.</td></tr>
+<tr><td>Erro</td><td>Mensagem junto à seção afetada; preservar último estado confirmado do dispositivo e oferecer nova tentativa.</td></tr>
+<tr><td>Parcial</td><td>Preferência definida, mas notificação bloqueada pelo sistema ou reconciliação falhou: informar claramente e permitir recuperação.</td></tr></tbody></table>
+<p>Texto proposto para desligar lembretes: “Você deixará de receber avisos dos seus lembretes neste celular. Seus lembretes continuarão salvos.” Para exercícios: “Você deixará de receber o aviso diário para praticar exercícios.” Descrição de exercícios informa 09h. Desconexão menciona o nome do relógio e que se trata de demonstração.</p>
+
+<hr>
+
+<h2 id="s7">7. Acessibilidade Mobile (WCAG 2.2 Nível AAA)</h2>
+<ul><li>Usar <code>ThemedText</code>, <code>Card</code>, <code>Botao</code>, <code>MainContainer</code>, <code>TopBar</code> e <code>BottomBar</code>. Cores, espaçamentos e dimensões vêm de <code>theme.ts</code>; código novo em inglês e textos/TSDoc em português.</li>
+<li>Texto normal com contraste mínimo 7:1; texto grande 4,5:1. Usar <code>text</code>/<code>textSecondary</code> em superfícies claras. Não copiar o cinza fraco do Figma para conteúdo informativo.</li>
+<li>Todos os controles com área mínima de 56×56dp e espaçamento de 8dp. Cabeçalhos expansíveis anunciam <code>accessibilityState.expanded</code>; switches anunciam <code>checked</code>; botões anunciam <code>disabled</code>/<code>busy</code> quando aplicável.</li>
+<li>Rótulos autônomos, ordem de foco lógica e ícones decorativos fora da árvore acessível. Modal mantém o foco no diálogo e devolve-o ao controle de origem ao fechar.</li>
+<li>Entrelinha mínima 1,5; texto alinhado à esquerda, respostas completas sem truncamento. Validar escala do app de 1,2× combinada com fonte ampliada do sistema, em telas pequenas e orientação horizontal.</li>
+<li>Conteúdo com rolagem e safe areas: <code>MainContainer</code> é apenas uma View e não fornece rolagem automaticamente. Botões e rodapé precisam continuar alcançáveis. Nenhuma resposta ou confirmação expira por tempo.</li>
+<li>Auditar as dez heurísticas: status explícito; linguagem PT-BR; voltar/cancelar; componentes consistentes; prevenção de erros; ações reconhecíveis; acesso direto à ajuda; seções enxutas; recuperação de falhas; instruções contextuais. Essa lista é critério de verificação, não declaração de conformidade já testada.</li></ul>
+
+<hr>
+
+<h2 id="s8">8. Integração com Wearable (se aplicável)</h2>
+<p>O cartão pede relógios simulados. <code>useWear</code> e <code>wear-service.ts</code> listam dispositivos reais, enviam mensagens e escutam confirmações, mas não oferecem conectar/desconectar. Não usá-los para fingir pareamento.</p><p>Os estados simulados não filtram nem modificam o envio real existente de lembretes. O plano antigo da Home antecipava uso de useWear em Ajustes; o escopo explícito do cartão atual limita esta entrega à simulação. Não alterar <code>contrato.ts</code>, Kotlin ou o histórico de confirmações Wear pendente no código.</p>
+
+<hr>
+
+<h2 id="s9">9. Casos de Teste e Verificação no Emulador</h2>
+<table><thead><tr><th scope="col">Teste</th><th scope="col">Resultado esperado</th></tr></thead><tbody><tr><td>T1 — Texto e reinício</td><td>Ativar, navegar por todas as telas, reiniciar: mesma escala; hidratação não produz flash do padrão.</td></tr>
+<tr><td>T2 — Migração</td><td>Storage legado preserva boas-vindas/limite; defaults novos válidos; false explícito mantido.</td></tr>
+<tr><td>T3 — Diálogo</td><td>Cancelar, voltar Android ou fechar mantém avisos; confirmar desliga; reativar habilita.</td></tr>
+<tr><td>T4 — Lembretes</td><td>Remédio, compromisso, tarefa e livre; antecipações, reavisos e adiados cancelados quando desligados. Agenda/histórico intactos.</td></tr>
+<tr><td>T5 — Isolamento</td><td>Desligar lembretes preserva exercícios; desligar exercícios preserva lembretes. IDs desconhecidos preservados; legados tratados.</td></tr>
+<tr><td>T6 — Exercícios</td><td>08:59 sem conclusão agenda hoje; conclusão às 08:59 cancela hoje; após 09h começa amanhã. Tentativa com 0% conta; abandono não conta.</td></tr>
+<tr><td>T7 — Calendário</td><td>Virada de mês/ano, fuso e horário de verão: 09h local; limite de 7 dias explícito; retorno renova janela.</td></tr>
+<tr><td>T8 — Corridas/background</td><td>Desligar durante agendamento e acionar adiamento antigo não recriam aviso proibido. Reinício frio hidrata antes de agir.</td></tr>
+<tr><td>T9 — Permissões/falhas</td><td>Negar permissão, falhar cancelamento ou storage e repetir operação: estado parcial claro e recuperação sem sucesso falso.</td></tr>
+<tr><td>T10 — Dispositivos</td><td>Expandir, conectar AB2, cancelar/confirmar desconexão AB1 e reconectar; sem duplicação, sem chamada nativa.</td></tr>
+<tr><td>T11 — Navegação</td><td>Instruções abre FAQ; Suporte abre seção de contato; voltar preserva Ajustes. Toque em aviso de exercício abre catálogo.</td></tr>
+<tr><td>T12 — Acessibilidade</td><td>TalkBack/VoiceOver, 56dp, contraste e fonte ampliada; ambos os botões do diálogo e rodapé alcançáveis.</td></tr></tbody></table><p>Ordem de implementação: tipos/defaults e migração → repositório/fixtures de dispositivos → ações das stores → política pura e reconciliação de notificações → componentes/tela → integração com CARD-40 → testes e evidências. Este plano não executa testes de app.</p>
+
+<hr>
+
+<h2 id="s10">10. Checklist Pré-PR</h2>
+<ul><li>Antes de implementar, conferir o diff local, atualizar <code>develop</code> em checkout limpo e criar a branch indicada. Não transportar nem sobrescrever as alterações locais existentes de <code>MobileAPP/package.json</code> e <code>package-lock.json</code>.</li>
+<li>Executar em MobileAPP: <code>npx tsc --noEmit</code> e <code>npx expo lint</code>; na raiz: <code>node docs/scripts/lembri-check.mjs</code>. Executar os testes relevantes conforme o runner disponível no momento da implementação.</li>
+<li>Não adicionar bibliotecas sem necessidade: Zustand, AsyncStorage, expo-linking e expo-notifications já estão instalados. Se necessário instalar dependência, usar <code>npx expo install</code>.</li>
+<li>Validar cenários manuais, TalkBack/VoiceOver, fonte ampliada e contraste; anexar evidências ao PR para develop. Commits Conventional Commits.</li>
+<li>Este trabalho produz somente SDD. Compilação, testes funcionais e validação mobile descritos aqui são passos futuros, não resultados executados nesta etapa.</li></ul>
+
+<hr>
+
+<h2 id="s11">11. Atualização da Documentação do Módulo</h2>
+<p>Criar ou atualizar <code>docs/modulos/CONFIGURACOES.html</code> após implementação com preferências, persistência, simulação de relógios e limite dos avisos. Atualizar documentação de LEMBRETES e EXERCICIOS somente nos pontos de integração de notificações. Relacionar CARD-40.</p>
+
+<hr>
+
+<h2 id="s12">12. Princípios de Desenvolvimento e Restrições</h2>
+<p>Padrões do projeto → escopo de impacto → compatibilidade de contratos → imutabilidade/idempotência → YAGNI → DRY → SOLID → KISS → Clean Code. O reuso da escala, do diálogo e do sincronizador evita duplicação; o tratamento explícito de propriedade dos agendamentos evita regressão funcional.</p><p><strong>Dúvidas funcionais:</strong> resolvidas na conversa. Defaults, textos complementares e correção do status AB2 são propostas técnicas dentro da autorização para propor conteúdo. Fidelidade visual dos frames 7/10 foi analisada pela estrutura/texto da API; revisão no emulador permanece obrigatória.</p>
+
+</body>
+</html>

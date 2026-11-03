@@ -13,7 +13,7 @@ import { CasasResposta } from '@/components/exercicio/casas-resposta';
 import { OpcoesResposta } from '@/components/exercicio/opcoes-resposta';
 import { TecladoNumerico } from '@/components/exercicio/teclado-numerico';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { BorderWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useSessaoExercicio } from '@/hooks/use-sessao-exercicio';
 import { useAvisoStore } from '@/stores/useAvisoStore';
@@ -164,6 +164,7 @@ const FormularioRodada = ({
           rascunho={bufferDigitos}
           avaliacoes={avaliacoes}
           colunas={modoTeclado ? totalCasas : rodadaAtual.numerada ? 1 : 2}
+          numeric={modoTeclado}
           cor={rodadaAtual.cor}
           numerada={rodadaAtual.numerada}
           aoSelecionarCasa={handleSelecionarCasa}
@@ -177,24 +178,27 @@ const FormularioRodada = ({
           </ThemedText>
         )}
 
-        <View style={[styles.divisor, { backgroundColor: theme.divider }]} />
+      </ScrollView>
 
-        {modoTeclado ? (
-          <TecladoNumerico
-            aoDigitar={handleDigitar}
-            aoApagar={handleApagar}
-          />
-        ) : (
+      {!modoTeclado && (
+        <ScrollView
+          style={[styles.rolagem, styles.optionsPanel, { borderTopColor: theme.divider }]}
+          contentContainerStyle={styles.optionsContent}
+          keyboardShouldPersistTaps="handled">
           <OpcoesResposta
             opcoes={opcoesRodada}
             respostasAtuais={respostas}
+            activePosition={casaAtiva + 1}
+            twoColumns={rodadaAtual.numerada}
             aoSelecionarOpcao={handleSelecionarOpcao}
           />
-        )}
-
-      </ScrollView>
+        </ScrollView>
+      )}
 
       <SafeAreaView edges={['bottom']} style={styles.rodape}>
+        {modoTeclado && (
+          <TecladoNumerico aoDigitar={handleDigitar} aoApagar={handleApagar} />
+        )}
         <BarraAcoesExercicio
           onContinuar={handleContinuar}
           continuarHabilitado={todasPreenchidas}
@@ -228,7 +232,7 @@ const ResponderExercicioScreen = () => {
   const avancarRodada = useExerciciosStore((state) => state.avancarRodada);
   const concluirSessao = useExerciciosStore((state) => state.concluirSessao);
 
-  const aviso = useAvisoStore((state) => state.mensagem);
+  const aviso = useAvisoStore((state) => state.scope === 'exercise' ? state.mensagem : null);
   const fecharAviso = useAvisoStore((state) => state.fechar);
   const mostrarAviso = useAvisoStore((state) => state.mostrar);
 
@@ -279,7 +283,7 @@ const ResponderExercicioScreen = () => {
     );
 
     if (resultado.percentual === 100) {
-      mostrarAviso('Tudo certo!');
+      mostrarAviso('Tudo certo!', 'exercise');
       AccessibilityInfo.announceForAccessibility('Tudo certo!');
 
       irParaProximaRodada();
@@ -336,21 +340,25 @@ const styles = StyleSheet.create({
   },
   rodape: {
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
+    paddingVertical: Spacing.two,
+    gap: Spacing.two,
+    flexShrink: 0,
   },
   conteudo: {
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
-    paddingBottom: Spacing.five,
-    gap: Spacing.three,
+    paddingBottom: Spacing.two,
+    gap: Spacing.two,
   },
   progresso: {
     alignItems: 'center',
-    paddingVertical: Spacing.one,
   },
-  divisor: {
-    height: 1,
-    marginVertical: Spacing.one,
+  optionsPanel: {
+    borderTopWidth: BorderWidth.hairline,
+  },
+  optionsContent: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
   },
   conteudoVazio: {
     flex: 1,

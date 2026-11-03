@@ -23,7 +23,7 @@ const MemorizarExercicioScreen = () => {
   const { sessaoValida, exercicio, rodadaAtual, indiceRodada, totalRodadas, pedirSaida, dialogoSaida } =
     useSessaoExercicio({ confirmarSaida: true });
 
-  const aviso = useAvisoStore((state) => state.mensagem);
+  const aviso = useAvisoStore((state) => state.scope === 'exercise' ? state.mensagem : null);
   const fecharAviso = useAvisoStore((state) => state.fechar);
 
   if (!sessaoValida || !exercicio || !rodadaAtual) {
@@ -57,7 +57,7 @@ const MemorizarExercicioScreen = () => {
       <TopBar onVoltar={pedirSaida} saidaProtegida />
 
       <ScrollView style={styles.rolagem} contentContainerStyle={styles.conteudo}>
-        {aviso && <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />}
+        {indiceRodada > 0 && aviso && <AvisoSucesso mensagem={aviso} onFechar={fecharAviso} />}
 
         <ThemedText type="label" themeColor="textSecondary" style={styles.progresso}>
           RODADA {indiceRodada + 1} DE {totalRodadas}
@@ -78,6 +78,7 @@ const MemorizarExercicioScreen = () => {
           dicas={rodadaAtual.dicas}
           cor={rodadaAtual.cor}
           numerada={rodadaAtual.numerada}
+          numeric={exercicio.modoResposta === 'teclado'}
           estadoPadrao="neutra"
         />
       </ScrollView>

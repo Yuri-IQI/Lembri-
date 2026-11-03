@@ -1,11 +1,10 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { MarcadorFeito } from '@/components/marcador-feito';
+import { Botao } from '@/components/botao';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { OcorrenciaLembrete } from '@/types/lembrete';
-import { rotuloFeito } from '@/utils/lembrete';
 
 type ProximoLembreteCardProps = {
   ocorrencia: OcorrenciaLembrete | null;
@@ -31,9 +30,12 @@ export const ProximoLembreteCard = ({
   if (!ocorrencia) return null;
 
   const { lembrete } = ocorrencia;
+  const actionLabel = feito
+    ? 'Desfazer conclusão'
+    : lembrete.template === 'remedio' ? 'Marcar como tomado' : 'Marcar como feito';
 
   return (
-    <View style={[styles.card, styles.linha, fundo]}>
+    <View style={[styles.card, fundo]}>
       <Pressable
         onPress={() => onAbrir(ocorrencia)}
         accessibilityRole="button"
@@ -47,11 +49,12 @@ export const ProximoLembreteCard = ({
         <ThemedText type="defaultBold">{quando}</ThemedText>
       </Pressable>
       {onAlternarFeito && (
-        <MarcadorFeito
-          feito={feito}
-          onAlternar={onAlternarFeito}
-          descricao={`${lembrete.titulo}, ${quando}`}
-          rotulo={rotuloFeito(lembrete)}
+        <Botao
+          rotulo={actionLabel}
+          icone={feito ? 'undo' : 'check'}
+          variante={feito ? 'secundario' : 'primario'}
+          onPress={onAlternarFeito}
+          accessibilityLabel={`${actionLabel}: ${lembrete.titulo}, ${quando}`}
         />
       )}
     </View>
@@ -60,18 +63,12 @@ export const ProximoLembreteCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    gap: Spacing.one,
+    gap: Spacing.three,
     padding: Spacing.three,
     borderWidth: BorderWidth.thin,
     borderRadius: Radius.lg,
   },
-  linha: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
   conteudo: {
-    flex: 1,
     gap: Spacing.one,
   },
 });

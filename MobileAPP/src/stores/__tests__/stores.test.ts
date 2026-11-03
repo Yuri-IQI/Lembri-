@@ -447,23 +447,23 @@ useExerciciosStore.getState().resetarParaMocks();
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Deve restaurar os 2 tipos');
   assert.strictEqual(
     useExerciciosStore.getState().exercicios.length,
-    5,
-    'Deve restaurar os 5 exercícios'
+    6,
+    'Deve restaurar os 6 exercícios, incluindo o exclusivo do relógio'
   );
 }
 
 // Teste: apagar todos os dados
 {
-  useSettingsStore.getState().toggleReminderAlerts();
+  useSettingsStore.getState().setNotificationPreference('reminderNotificationsEnabled', false);
   useSettingsStore.getState().setLargeText(true);
   apagarTodosOsDados();
 
   assert.strictEqual(useLembretesStore.getState().lembretes.length, 0, 'Sem lembretes');
   assert.strictEqual(useLembretesStore.getState().ultimoExcluido, null, 'Sem exclusão para desfazer');
   assert.strictEqual(useExerciciosStore.getState().historico.length, 0, 'Sem histórico');
-  assert.strictEqual(useExerciciosStore.getState().exercicios.length, 5, 'Mantém o catálogo');
+  assert.strictEqual(useExerciciosStore.getState().exercicios.length, 6, 'Mantém o catálogo');
   assert.strictEqual(useTiposLembreteStore.getState().tipos.length, 2, 'Tipos iniciais');
-  assert.strictEqual(useSettingsStore.getState().reminderAlerts, true, 'Avisos voltam ao padrão');
+  assert.strictEqual(useSettingsStore.getState().reminderNotificationsEnabled, true, 'Avisos voltam ao padrão');
   assert.strictEqual(useSettingsStore.getState().isLargeText, false, 'Texto volta ao padrão');
 
   useLembretesStore.getState().resetarParaMocks();

@@ -1,7 +1,8 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import type { AndroidSymbol } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { MensagemErro } from '@/components/formulario/mensagem-erro';
 import { RotuloCampo } from '@/components/formulario/rotulo-campo';
 import { ThemedText } from '@/components/themed-text';
@@ -94,7 +95,7 @@ export const CampoTexto = ({
             accessibilityRole="button"
             accessibilityLabel={acao.rotulo}
             style={({ pressed }) => [styles.acao, { opacity: pressed ? 0.6 : 1 }]}>
-            <SymbolView name={{ android: acao.icone }} size={28} tintColor={theme.textSecondary} />
+            <MaterialSymbol name={acao.icone} size={28} tintColor={theme.textSecondary} />
           </Pressable>
         )}
       </View>

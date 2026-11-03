@@ -27,7 +27,7 @@ export interface ExerciciosState {
   // Ações
   /** Abre uma nova sessão de execução para o exercício informado e sorteia as opções. */
   iniciarSessao: (exercicioId: string) => void;
-  /** Grava a primeira resposta da rodada atual, a que conta na pontuação, e retorna a avaliação. */
+  /** Preserva a primeira resposta e atualiza a resposta corrigida da rodada atual. */
   responderRodada: (respostas: string[]) => ResultadoRodada | null;
   /** Avança para a próxima rodada da sessão; retorna falso quando for a última rodada. */
   avancarRodada: () => boolean;
@@ -79,6 +79,7 @@ export const useExerciciosStore = create<ExerciciosState>()(
           inicio: new Date().toISOString(),
           rodadaAtual: 0,
           respostas,
+          correctedAnswers: respostas.map((round) => [...round]),
           opcoes,
           tentativaId: null,
         };
@@ -115,6 +116,9 @@ export const useExerciciosStore = create<ExerciciosState>()(
           sessao: {
             ...sessao,
             respostas: novasRespostas,
+            correctedAnswers: (sessao.correctedAnswers ?? sessao.respostas).map((round, index) =>
+              index === sessao.rodadaAtual ? [...respostas] : round
+            ),
           },
         });
 
@@ -162,6 +166,10 @@ export const useExerciciosStore = create<ExerciciosState>()(
         }
 
         const { acertos, total, percentual } = resultadoDaSessao(exercicio, sessao);
+        const corrected = resultadoDaSessao(exercicio, {
+          ...sessao,
+          respostas: sessao.correctedAnswers ?? sessao.respostas,
+        });
         const agoraMs = Date.now();
         const inicioMs = new Date(sessao.inicio).getTime();
         const tempoGastoSegundos = Math.max(1, Math.round((agoraMs - inicioMs) / 1000));
@@ -175,6 +183,10 @@ export const useExerciciosStore = create<ExerciciosState>()(
           acertos,
           totalQuestoes: total,
           pontuacaoPercentual: percentual,
+          ...(sessao.correctedAnswers ? {
+            correctedHits: corrected.acertos,
+            correctedScorePercent: corrected.percentual,
+          } : {}),
         };
 
         set({

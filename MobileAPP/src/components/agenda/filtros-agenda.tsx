@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BotaoFiltro } from '@/components/agenda/botao-filtro';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, TouchTarget } from '@/constants/theme';
@@ -56,11 +56,12 @@ export const FiltrosAgenda = ({ ativa, pausados, onSelecionar }: FiltrosAgendaPr
         onPress={alternar}
         accessibilityRole="button"
         accessibilityState={{ expanded: aberto }}
+        aria-expanded={aberto}
         accessibilityLabel={aberto ? 'Menos opções de filtro' : 'Mais opções de filtro'}
         style={({ pressed }) => [styles.mais, { opacity: pressed ? 0.7 : 1 }]}>
         <ThemedText type="smallBold">{aberto ? 'Menos opções' : 'Mais opções'}</ThemedText>
-        <SymbolView
-          name={{ android: aberto ? 'expand_less' : 'expand_more' }}
+        <MaterialSymbol
+          name={aberto ? 'expand_less' : 'expand_more'}
           size={24}
           tintColor={theme.text}
         />

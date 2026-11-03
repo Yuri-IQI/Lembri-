@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CONFIGURACOES — Módulo de Ajustes e Ajuda (Projeto Lembri)</title>
+  <style>
+    :root {
+      --brand-strong: #000000;
+      --brand: #1a1a1a;
+      --brand-surface: #f4f4f4;
+      --brand-border: #d0d0d0;
+      --brand-hover: #eaeaea;
+      --text-primary: #000000;
+      --text-secondary: #4e4e4e;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-subtle: #cbd5e1;
+      --code-inline-bg: #f1f5f9;
+      --code-inline-border: #cbd5e1;
+      --code-block-bg: #0f172a;
+      --code-block-text: #f8fafc;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); max-width: 960px; margin: 40px auto; padding: 0 28px 60px; color: var(--text-primary); line-height: 1.75; background: var(--bg-page); -webkit-font-smoothing: antialiased; }
+    h1 { font-size: 1.6rem; color: var(--text-primary); border-bottom: 3px solid var(--brand); padding-bottom: 10px; margin: 28px 0 18px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; color: var(--brand); margin: 2.2rem 0 10px; padding-left: 12px; border-left: 4px solid var(--brand); line-height: 1.35; }
+    h3 { font-size: 1.03rem; color: var(--text-secondary); margin: 1.4rem 0 8px; }
+    p { margin: 10px 0; }
+    .meta-block { background: var(--brand-surface); border: 1px solid var(--brand-border); border-radius: 6px; padding: 14px 18px; margin: 18px 0 24px; font-size: 0.93rem; line-height: 1.85; }
+    .notice-block { background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #ca8a04; border-radius: 6px; padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; color: #713f12; }
+    .toc { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 14px 18px 14px 34px; margin: 18px 0 28px; font-size: 0.92rem; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.9rem; background: var(--bg-card); }
+    thead th { background: var(--brand); color: #ffffff; padding: 10px 13px; text-align: left; font-weight: 600; }
+    tbody td { padding: 9px 13px; border: 1px solid var(--border-subtle); vertical-align: top; }
+    tbody tr:nth-child(even) td { background: var(--brand-surface); }
+    code { background: var(--code-inline-bg); border: 1px solid var(--code-inline-border); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.86em; color: #000; }
+    pre { background: var(--code-block-bg); color: var(--code-block-text); border-radius: 6px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: 0.85rem; line-height: 1.6; }
+    ul, ol { padding-left: 1.5em; margin: 10px 0; }
+    blockquote { border-left: 4px solid var(--brand); background: var(--brand-surface); margin: 14px 0; padding: 12px 18px; color: var(--text-secondary); border-radius: 0 6px 6px 0; }
+    hr { border: none; border-top: 1px solid var(--border-subtle); margin: 28px 0; }
+  </style>
+</head>
+<body>
+
+<h1>CONFIGURACOES — Módulo de Ajustes e Ajuda</h1>
+
+<div class="meta-block">
+  <p><strong>Módulo:</strong> <code>CONFIGURACOES</code></p>
+  <p><strong>Índice de referência:</strong> <code>docs/manuais/modulos.md</code></p>
+  <p><strong>Telas Expo Router:</strong> <code>MobileAPP/src/app/</code></p>
+  <p><strong>Componentes UI:</strong> <code>MobileAPP/src/components/</code></p>
+  <p><strong>Stores Zustand:</strong> <code>MobileAPP/src/stores/</code></p>
+  <p><strong>Mocks & Fixtures:</strong> <code>MobileAPP/src/mocks/</code></p>
+  <p><strong>Data da Documentação:</strong> 2026-11-02</p>
+</div>
+
+<hr>
+
+<h2>1. Visão Geral do Módulo</h2>
+<p>Os cartões <a href="../plans/card-39-ajustes-e-dispositivos.html">CARD-39</a> e <a href="../plans/card-40-ajuda.html">CARD-40</a> acrescentam preferências persistidas, controle dos avisos reais do celular, relógios de demonstração e ajuda local. Implementação na branch conjunta <code>feat/ajustes-dispositivos-e-ajuda</code>, sobre <code>677b3ae</code>, conforme decisão do usuário.</p>
+<p>Texto ampliado começa desligado; avisos de lembretes ligados; avisos de exercícios desligados. A preferência do aplicativo é independente da permissão do sistema. Os contatos apresentados são demonstrativos e suas ações permanecem indisponíveis.</p>
+
+<hr>
+
+<h2>2. Telas e Fluxos no Expo Router</h2>
+<ul><li><code>/configuracoes</code>: Ajustes → Acessibilidade → Notificações → Dispositivos → Sobre → Desenvolvimento somente em <code>__DEV__</code>. Conteúdo com rolagem e quatro abas preservadas.</li>
+<li>Desligar avisos abre confirmação. Cancelar ou voltar mantém o switch; confirmar altera a preferência. Permissão bloqueada, falha de reconciliação e falha de armazenamento têm mensagens e recuperação explícitas.</li>
+<li>Dispositivos começa recolhido; expandir carrega os relógios simulados. Conectar é idempotente; desconectar pede confirmação. As operações preservam o último estado confirmado em caso de erro.</li>
+<li>Instruções de uso e botão Ajuda das abas abrem <code>/ajuda</code>. Suporte abre <code>/ajuda?section=contact</code> e posiciona a seção Falar com alguém após o layout. Outros valores de section mantêm o FAQ.</li>
+<li>FAQ com três perguntas; primeira aberta, uma aberta por vez, podendo fechar todas. Voltar retorna à origem; acesso direto sem histórico retorna a Ajustes. Rodapé usa os mesmos descritores das quatro abas e <code>router.dismissTo</code>.</li></ul>
+
+<hr>
+
+<h2>3. Gerenciamento de Estado no Zustand</h2>
+<table><thead><tr><th>Estado</th><th>Responsabilidade</th></tr></thead><tbody>
+<tr><td><code>useSettingsStore</code></td><td><code>lembri-settings</code>, schema 1; persiste isLargeText, hasSeenSplash, reminderLimit e ambos os avisos. Migração preserva false explícito e completa snapshots antigos. textScaleFactor deriva de isLargeText (1× / 1,2×). resetToDefaults só restaura a escala visual.</td></tr>
+<tr><td><code>useSettingsPersistenceStore</code></td><td>Falha de leitura/gravação e nova tentativa. Separada do estado persistido para não gerar recursão de gravações. Erros de leitura preservam o estado em memória; novas gravações são serializadas.</td></tr>
+<tr><td><code>useDevicesStore</code></td><td>devices, loaded, isLoading, pendingDeviceId e error. Repositório injetável, cópias imutáveis, resetToMocks e proteção contra respostas antigas após reset. Sem persistência.</td></tr>
+<tr><td><code>useNotificationSyncStore</code></td><td>Resultado da integração com o sistema: permissão, operação pendente, erro e nova tentativa.</td></tr>
+<tr><td>Estado local</td><td>Expansão, confirmação, posição do contato e abertura externa de suporte. Ajuda não cria store global.</td></tr></tbody></table>
+<h3>Reconciliação única dos avisos</h3>
+<p><code>useSincronizarNotificacoes</code> aguarda settings, lembretes e exercícios hidratados, lê o snapshot mais recente na fila e revalida após operações nativas. Renova ao abrir, retomar ou mudar preferências/dados. A mesma fila serializa respostas em background. Notificações desconhecidas não são canceladas.</p>
+<p>Até 100 avisos de lembretes, incluindo antecipações, reavisos e adiamentos, e até 7 avisos de exercícios: teto operacional de 107 no Android. Um adiamento no limite substitui o aviso regular mais distante. Desligar lembretes não modifica itens, histórico ou estado ativo; reativar calcula somente avisos futuros.</p>
+<p>Avisos de exercícios são calculados às 09h pelo calendário local. Qualquer tentativa concluída em historico, inclusive com 0% de acertos, suprime o aviso daquele dia; sessão iniciada ou abandonada não conta. Conclusão cancela o aviso agendado e dispensa os avisos apresentados pertinentes. Toque abre <code>/exercicios</code> após hidratação.</p>
+<p>Abra o aplicativo pelo menos a cada 7 dias para renovar a janela. No navegador, a interface informa que os avisos estão disponíveis no aplicativo para celular. Não há garantia de agendamento permanente sem reabrir o aplicativo.</p>
+
+<hr>
+
+<h2>4. Catálogo de Componentes e Tokens Visuais</h2>
+<p>Reuso de MainContainer, ThemedText, Card, CartaoAjuste, DialogoConfirmacao, Botao, TopBar e BottomBar. Componentes específicos: NotificationSettings, DeviceSection, SettingsPersistenceFeedback, FaqSection e SupportSection. <code>constants/navigation.ts</code> concentra os descritores das abas.</p>
+<p>O serviço <code>support-service.ts</code> recebe SupportContact discriminado: demo, phone ou email. Demonstração nunca monta URI. Configuração real válida usa <code>expo-linking</code>, normaliza o telefone, abre discador/e-mail e traduz rejeições em mensagem com nova tentativa, sem enviar mensagens ou ligar automaticamente.</p>
+<p>Tokens de <code>theme.ts</code>: Colors.text/textSecondary em superfícies claras, Spacing, Radius, BorderWidth e TouchTarget. Nenhuma dependência foi adicionada nesta implementação.</p>
+
+<hr>
+
+<h2>5. Massa de Dados Mockados e Fixtures</h2>
+<p><code>settings.mock.ts</code> define defaults; <code>devices.mock.ts</code> contém Relógio 1 / Smartwatch AB1 conectado e Relógio 2 / Smartwatch AB2 desconectado; <code>help.mock.ts</code> contém as três perguntas e respostas. IDs dos relógios: demo-watch-1 e demo-watch-2. Contatos em <code>constants/support.ts</code>: 0800 1234 5678 e email@email.com, ambos demonstrativos.</p>
+<p>Execução reproduzível: <code>cd MobileAPP</code> e <code>node --test scripts/test-settings-help.cjs</code>. O runner usa TypeScript já instalado e Node Test Runner, substitui AsyncStorage, Expo Notifications e abertura de contatos; não chama hardware nem serviços externos. Cobre migração, persistência, falhas, concorrência, calendário, limite, isolamento dos domínios, respostas em background e regressões de lembretes/templates.</p>
+<p><strong>Evidências de 02/11/2026:</strong> 22 testes aprovados; <code>npx tsc --noEmit</code> e <code>npx expo lint</code> sem erros; <code>node docs/scripts/lembri-check.mjs --all</code> auditou 202 arquivos sem bloqueios, com duas mensagens de commits anteriores fora do padrão. Exportação Android concluída com 1.545 módulos e bundle Hermes em <code>.tmp/cards-39-40-android</code>; exportação web concluída com 1.108 módulos em <code>.tmp/cards-39-40-web</code>, incluindo Ajuda e Ajustes. As exportações confirmam empacotamento, sem substituir teste em dispositivo.</p>
+
+<hr>
+
+<h2>6. Acessibilidade Mobile (WCAG 2.2 AAA)</h2>
+<p>Controles com alvo mínimo de 56dp, switches com estado checked e área própria sem hitSlop sobreposto, acordeões com expanded, botões com disabled/busy, respostas completas sem truncamento e entrelinha dos tokens ≥ 1,5. O texto ampliado é aplicado por ThemedText. Os diálogos direcionam o foco ao título e devolvem-no ao controle de origem; seus botões quebram em linhas em telas estreitas.</p>
+<p>As dez heurísticas de Nielsen orientam status textual, linguagem PT-BR, cancelar/voltar, reuso, confirmação e bloqueio de duplicatas, ações reconhecíveis, ajuda direta, seções recolhíveis, mensagens recuperáveis e instruções locais.</p>
+<p><strong>Limites da validação:</strong> testes automatizados de domínio e validação estática não comprovam conformidade AAA completa. Conferência visual, TalkBack/VoiceOver, fonte do sistema, paisagem, navegação headless e avisos reais em development build Android permanecem pendentes. O controle de navegador e de aplicativos estava indisponível nesta sessão (host e pipe ausentes).</p>
+
+<hr>
+
+<h2>7. Integração com Relógio Wear OS (se aplicável)</h2>
+<p>As conexões desta tela são apenas demonstração em memória. Não chamam useWear, Bluetooth, Kotlin nem modificam o contrato Wear. A sincronização real já existente permanece independente desses status. Consultar <a href="WEAR_CONNECTOR.html">WEAR_CONNECTOR</a>, <a href="LEMBRETES.html">LEMBRETES</a> e <a href="EXERCICIOS.html">EXERCICIOS</a>.</p>
+<p>Referências das APIs: <a href="https://docs.expo.dev/versions/v58.0.0/sdk/notifications/">Expo Notifications 58</a>, <a href="https://docs.expo.dev/versions/v58.0.0/sdk/router/">Expo Router 58</a>, <a href="https://docs.expo.dev/versions/v58.0.0/sdk/linking/">Expo Linking 58</a> e <a href="https://reactnative.dev/docs/accessibilityinfo">AccessibilityInfo 0.88</a>.</p>
+
+</body>
+</html>

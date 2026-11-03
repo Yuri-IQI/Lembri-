@@ -7,9 +7,10 @@ import type { UserSettings } from '@/types/settings';
 export const defaultSettingsMock: UserSettings = {
   isLargeText: false,
   showExerciseHints: true,
-  reminderAlerts: true,
   hasSeenSplash: false,
   reminderLimit: LIMITE_LEMBRETES_PADRAO,
+  reminderNotificationsEnabled: true,
+  exerciseNotificationsEnabled: false,
 };
 
 /**

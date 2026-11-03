@@ -7,7 +7,7 @@
     "icon": "./assets/icon/icon.png",
     "scheme": "mobileapp",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#FAF7EC",
+    "backgroundColor": "#F2F1ED",
     "android": {
       "package": "com.borabill.lembriwearable",
       "adaptiveIcon": {
@@ -27,7 +27,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F2F2F2",
+          "backgroundColor": "#F2F1ED",
           "image": "./assets/splash/splash-native.png",
           "imageWidth": 240
         }

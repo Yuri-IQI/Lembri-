@@ -1,4 +1,5 @@
-import { StyleSheet, Text, type TextProps } from 'react-native';
+import type { ComponentProps } from 'react';
+import { StyleSheet, Text } from 'react-native';
 
 import {
   FontFamily,
@@ -8,7 +9,7 @@ import {
 } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export type ThemedTextProps = TextProps & {
+export type ThemedTextProps = ComponentProps<typeof Text> & {
   type?: TextVariant;
   themeColor?: ThemeColor;
 };

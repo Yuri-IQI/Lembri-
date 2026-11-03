@@ -1,6 +1,7 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import type { AndroidSymbol } from 'expo-symbols';
 import { Pressable, StyleSheet, type PressableProps } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -24,7 +25,7 @@ export const BotaoIcone = ({ icone, disabled, ...rest }: BotaoIconeProps) => {
       ]}
       disabled={disabled}
       {...rest}>
-      <SymbolView name={{ android: icone }} size={32} tintColor={theme.onPrimary} />
+      <MaterialSymbol name={icone} size={32} tintColor={theme.onPrimary} />
     </Pressable>
   );
 };

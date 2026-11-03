@@ -1,6 +1,7 @@
-import { SymbolView, type AndroidSymbol } from 'expo-symbols';
+import type { AndroidSymbol } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -33,7 +34,7 @@ export const LinhaAcao = ({
       accessibilityRole="button"
       accessibilityLabel={`${titulo}. ${descricao}`}
       style={({ pressed }) => [styles.linha, { opacity: pressed ? 0.7 : 1 }]}>
-      {icone && <SymbolView name={{ android: icone }} size={32} tintColor={theme.text} />}
+      {icone && <MaterialSymbol name={icone} size={32} tintColor={theme.text} />}
       <View style={styles.textos}>
         <ThemedText type="subheading" style={abreOutraTela && styles.sublinhado}>
           {titulo}
@@ -43,7 +44,7 @@ export const LinhaAcao = ({
         </ThemedText>
       </View>
       {abreOutraTela && (
-        <SymbolView name={{ android: 'open_in_new' }} size={32} tintColor={theme.text} />
+        <MaterialSymbol name={'open_in_new'} size={32} tintColor={theme.text} />
       )}
     </Pressable>
   );

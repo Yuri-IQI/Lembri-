@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet } from 'react-native';
 
+import { DeviceSection } from '@/components/ajustes/device-section';
+import { NotificationSettings } from '@/components/ajustes/notification-settings';
 import { LinhaInterruptor } from '@/components/ajustes/linha-interruptor';
 import { SecaoApagarDados } from '@/components/ajustes/secao-apagar-dados';
 import { SecaoDesenvolvimento } from '@/components/ajustes/secao-desenvolvimento';
@@ -20,8 +22,6 @@ const abrirAjuda = () => router.push('/ajuda');
 const ConfiguracoesScreen = () => {
   const isLargeText = useSettingsStore((state) => state.isLargeText);
   const toggleLargeText = useSettingsStore((state) => state.toggleLargeText);
-  const reminderAlerts = useSettingsStore((state) => state.reminderAlerts);
-  const toggleReminderAlerts = useSettingsStore((state) => state.toggleReminderAlerts);
   const showExerciseHints = useSettingsStore((state) => state.showExerciseHints);
   const toggleExerciseHints = useSettingsStore((state) => state.toggleExerciseHints);
 
@@ -34,21 +34,14 @@ const ConfiguracoesScreen = () => {
 
         <GrupoCard titulo="ACESSIBILIDADE">
           <LinhaInterruptor
-            titulo="Texto Amplificado"
+            titulo="Texto ampliado"
             descricao="Aumente o tamanho do texto para melhorar sua visibilidade."
             ligado={isLargeText}
             onAlternar={toggleLargeText}
           />
         </GrupoCard>
 
-        <GrupoCard titulo="NOTIFICAÇÕES">
-          <LinhaInterruptor
-            titulo="Avisos de Lembretes"
-            descricao="Receba notificações no seu dispositivo para se manter atualizado sobre os prazos dos lembretes."
-            ligado={reminderAlerts}
-            onAlternar={toggleReminderAlerts}
-          />
-        </GrupoCard>
+        <NotificationSettings />
 
         <GrupoCard titulo="EXERCÍCIOS">
           <LinhaInterruptor
@@ -58,6 +51,8 @@ const ConfiguracoesScreen = () => {
             onAlternar={toggleExerciseHints}
           />
         </GrupoCard>
+
+        <DeviceSection />
 
         <GrupoCard titulo="SOBRE">
           <LinhaAcao
@@ -70,7 +65,7 @@ const ConfiguracoesScreen = () => {
             titulo="Suporte"
             descricao="Entrar em contato com a equipe de suporte."
             abreOutraTela
-            onPress={abrirAjuda}
+            onPress={() => router.push({ pathname: '/ajuda', params: { section: 'contact' } })}
           />
         </GrupoCard>
 
