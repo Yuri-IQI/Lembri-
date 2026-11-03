@@ -1,5 +1,7 @@
 # Lembri: celular + relógio
 
+Versão pública: https://github.com/Yuri-IQI/Lembri-
+
 Dois apps que conversam pela **Wearable Data Layer API** (Google Play Services):
 
 | Pasta          | Tecnologia                          | Papel                                        |
@@ -54,6 +56,10 @@ Troque `emulator-5556` pelo serial do relógio:
 ```powershell
 $env:JAVA_HOME = "$env:LOCALAPPDATA\Programs\Android Studio\jbr"; $env:ANDROID_SERIAL = "emulator-5556"
 ```
+Encerre um daemon do Gradle que tenha ficado aberto com outro JDK. Ele ignora o `JAVA_HOME` novo:
+```powershell
+.\gradlew.bat --stop
+```
 ```powershell
 .\gradlew.bat :app:installDebug
 ```
@@ -67,9 +73,9 @@ Alternativa: abra `WearableAPP/` no Android Studio e clique em **Run**. A IDE j�
 ```powershell
 cd MobileAPP
 ```
-Ajuste o caminho para o seu JDK 17:
+Ajuste o caminho para o seu JDK 17. O `ANDROID_HOME` evita o erro de SDK depois de um `prebuild --clean`:
 ```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"; $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 ```
 Este comando compila, instala, sobe o Metro e abre o app (use o **nome do AVD**, não o serial). Deixe o terminal aberto:
 ```powershell
@@ -82,19 +88,45 @@ npx expo start --dev-client
 ```
 Rode o `run:android` de novo quando mudar código nativo (`modules/`), `app.json`, plugins ou dependências.
 Se mudar `app.json` ou plugins, gere o nativo do zero com `npx expo prebuild -p android --clean`.
+Esse comando trava o Metro que estiver aberto: reinicie-o depois.
 
-### 4. Testar
+### 4. Sincronizar os emuladores
 
-1. No relógio, o app deve mostrar **"Celular conectado"** (toque em **Atualizar** se preciso).
-2. No celular, o card deve mostrar **"Conectado: <nome do relógio>"**.
-3. Digite um lembrete no celular e toque em **Enviar ao relógio**.
-4. Toque no lembrete no relógio. O celular mostra **"Concluído no relógio ✓"**.
+Os AVDs conversam pela porta 5601 do PC, e esse redirecionamento pode sumir. Recrie-o a cada sessão.
+Troque `emulator-5554` pelo serial do **celular**:
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 forward tcp:5601 tcp:5601
+```
+
+A reconexão pode levar cerca de 2 minutos. Para conferir, troque `emulator-5556` pelo serial do **relógio**.
+A saída deve mostrar `1 connected out of 1`:
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5556 shell dumpsys activity service com.google.android.gms/.wearable.service.WearableService | Select-String "connected out of"
+```
+
+Confira também a data do relógio. Ele só mostra os lembretes da data dele, então ela precisa ser a de hoje:
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5556 shell date
+```
+
+Abra o Lembri no celular para publicar a agenda. O relógio recebe mesmo com o app dele fechado.
+
+### 5. Testar
+
+1. Crie no celular um lembrete para hoje, em um horário que ainda não passou. Ele aparece no relógio como próximo lembrete ou em **Mais tarde**.
+2. Toque em **Feito** no próximo lembrete do relógio e espere os 10 segundos de **Desfazer**. O lembrete aparece como feito no celular.
+3. Deixe um lembrete chegar ao horário. O relógio avisa por conta própria, e o aviso abre o app ao ser tocado. Na primeira abertura, permita as notificações.
+4. Faça **Sequência** ou **Guardar no lugar** no relógio. A tentativa aparece no histórico do exercício no celular, marcada como **Relógio**.
 
 **Logs:**
-- **Celular:** os logs do JS aparecem no Terminal 2 (Metro).
-- **Relógio:** use o logcat filtrado pelas tags do app:
+- **Celular (JS):** aparecem no Terminal 2 (Metro).
+- **Celular (serviço que recebe eventos):**
 ```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5556 logcat -s LembriWearListener CelularDataSource
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 logcat -s EventosRelogio
+```
+- **Relógio:**
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5556 logcat -s AgendaRepository
 ```
 
 ## Configurar os emuladores
@@ -166,13 +198,22 @@ No celular, o app companion deve mostrar o relógio como **Conectado**.
 
 | Sintoma | Causa / solução |
 |---|---|
-| `jlink.exe` falha no build do relógio | `JAVA_HOME` aponta para a GraalVM. Use o JBR do Android Studio |
+| `jlink.exe` falha no build do relógio | O Gradle está usando a GraalVM, mesmo com outro `JAVA_HOME`: o relógio exige Java 25, e um daemon antigo pode ser reaproveitado. Defina o JBR do Android Studio, rode `.\gradlew.bat --stop` e repita o build. O JDK 17 serve só para o celular |
 | `configureCMakeDebug ... restricted method` no build do celular | JDK 24+. Use o JDK 17 |
-| `SDK location not found` | Crie `MobileAPP/android/local.properties` com `sdk.dir=C:\\Users\\<você>\\AppData\\Local\\Android\\Sdk` ou defina `ANDROID_HOME` |
+| `SDK location not found` | O `prebuild --clean` apaga `android/local.properties`. Defina `$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"` e repita |
 | `Could not find device with name` | O `--device` espera o nome do AVD (`Pixel_10_Pro`), não o serial |
-| `Wearable.API is not available on this device` | O celular não tem o app companion ou não está pareado. Veja o passo 1 |
+| `adb.exe: more than one device/emulator` | Há dois emuladores ligados. Use `adb -s <serial>` ou defina `$env:ANDROID_SERIAL` |
+| Build do celular instala no relógio, ou o contrário | `ANDROID_SERIAL` ou `JAVA_HOME` ficou de outro app no terminal. Use um terminal para cada app |
+| `Wearable.API is not available on this device` | O celular não tem o app companion ou não está pareado. Veja [Parear o relógio com o celular](#4-parear-o-relógio-com-o-celular) |
 | Celular na tela branca/preta | O Metro não está rodando. Rode `npx expo start --dev-client` |
-| Os apps não se encontram | Confira se os dois estão instalados e se o pareamento está ativo. Se necessário, faça **Cold Boot** nos dois AVDs e reinstale os apps |
+| Metro parou de responder depois do `prebuild --clean` | Encerre e suba o Metro de novo |
+| Tela de inicialização antiga no celular | A imagem é nativa. Rode `npx expo prebuild -p android --clean` e depois `npx expo run:android --device Pixel_10_Pro` |
+| Relógio mostra **Sem conexão com o celular** ou `0 connected out of 1` | Falta o redirecionamento: refaça [Sincronizar os emuladores](#4-sincronizar-os-emuladores). Sem conexão depois de 2 minutos? Rode `adb -s <relógio> reverse tcp:5601 tcp:5601` e `adb -s <aparelho> shell am force-stop com.google.android.gms` nos dois |
+| Relógio mostra **Nenhum lembrete para hoje**, mas o celular tem lembretes | Veja a data com `adb -s <relógio> shell date`. Se estiver errada, encerre com `adb -s <relógio> emu kill` e ligue sem snapshot: `emulator.exe -avd Wear_OS_Small_Round -no-snapshot-load`. Se continuar errada, ajuste a data nas configurações do relógio |
+| Relógio mostra **Abra o Lembri no celular** | Ele ainda não recebeu nenhuma agenda. Confira a conexão e abra o app no celular |
+| Relógio não avisa no horário do lembrete | Confira se as notificações do Lembri estão permitidas no relógio, se a data dele está certa e se a agenda chegou depois do último horário alterado |
+| Conectado, mas os dados não passam entre os apps | Os dois precisam ter o mesmo `applicationId` e a mesma assinatura. Veja [Requisitos](#requisitos-para-a-comunicação-funcionar) |
+| Pareamento inconsistente | Repita **Pair Wearable**. Se não resolver, siga **Recomeçar do zero** nas [Dicas](#dicas) |
 | App não abre no Expo Go | Esperado: o módulo nativo exige development build (`run:android`) |
 
 ## Exemplo implementado
@@ -229,6 +270,7 @@ data/comunicacao/
   ├─ ContratoComunicacao.kt       Paths e capabilities
   ├─ CelularDataSource.kt         Lê a agenda, grava eventos, checa a conexão
   └─ LembriWearListenerService.kt Recebe a agenda (mesmo com o app fechado)
+data/avisos/                      Alarmes e notificações dos lembretes no relógio
 data/model/                       Agenda, lembrete e evento + JSON
 data/repository/
   ├─ AgendaRepository.kt          Fonte única da verdade (StateFlow)

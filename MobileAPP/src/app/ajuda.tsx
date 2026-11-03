@@ -10,6 +10,7 @@ import { MainContainer } from '@/components/main-container';
 import { ThemedView } from '@/components/themed-view';
 import { navigationTabs } from '@/constants/navigation';
 import { Spacing } from '@/constants/theme';
+import { watchHelpMock } from '@/mocks/help.mock';
 import { focusAccessibleElement } from '@/utils/accessibility-focus';
 
 const goBack = () => router.canGoBack() ? router.back() : router.replace('/configuracoes');
@@ -42,6 +43,7 @@ export default function HelpScreen() {
         <ScrollView ref={scrollRef} contentContainerStyle={styles.content}
           onContentSizeChange={(_width, height) => setContentHeight(height)}>
           <FaqSection />
+          <FaqSection items={watchHelpMock} title="Usar o relógio" initiallyExpanded={false} />
           <View onLayout={(event) => setContactY(event.nativeEvent.layout.y)}>
             <SupportSection headingRef={headingRef} />
           </View>

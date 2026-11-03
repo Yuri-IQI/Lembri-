@@ -8,11 +8,15 @@ import { helpMock } from '@/mocks/help.mock';
 import type { FaqItem } from '@/types/help';
 
 /** Mantém uma resposta aberta por vez, com possibilidade de recolher todas. */
-export function FaqSection({ items = helpMock }: { items?: readonly FaqItem[] }) {
-  const [expandedId, setExpandedId] = useState<string | null>(items[0]?.id ?? null);
+export function FaqSection({ items = helpMock, title = 'Perguntas frequentes', initiallyExpanded = true }: {
+  items?: readonly FaqItem[];
+  title?: string;
+  initiallyExpanded?: boolean;
+}) {
+  const [expandedId, setExpandedId] = useState<string | null>(initiallyExpanded ? items[0]?.id ?? null : null);
   return (
     <View style={styles.section}>
-      <ThemedText type="label" accessibilityRole="header">Perguntas frequentes</ThemedText>
+      <ThemedText type="label" accessibilityRole="header">{title}</ThemedText>
       {items.length === 0 && <ThemedText>As instruções ainda não estão disponíveis.</ThemedText>}
       {items.map((item) => {
         const expanded = item.id === expandedId;

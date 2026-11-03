@@ -11,13 +11,14 @@ import { useLembretesStore } from '@/stores/useLembretesStore';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 /**
- * Ajustes visíveis só em builds de desenvolvimento: limite de lembretes salvos.
+ * Ajustes visíveis só em builds de desenvolvimento: limite de lembretes salvos e lembretes de exemplo.
  */
 export const SecaoDesenvolvimento = () => {
   const { limite, definirLimite } = useSettingsStore(
     useShallow((state) => ({ limite: state.reminderLimit, definirLimite: state.setReminderLimit })),
   );
   const total = useLembretesStore((state) => state.lembretes.length);
+  const restaurarExemplos = useLembretesStore((state) => state.resetarParaMocks);
   const { minimo, maximo, passo } = LIMITE_LEMBRETES_DEV;
 
   return (
@@ -41,6 +42,16 @@ export const SecaoDesenvolvimento = () => {
         variante="secundario"
         tamanho="compacto"
         onPress={() => definirLimite(LIMITE_LEMBRETES_PADRAO)}
+      />
+      <ThemedText type="small" themeColor="textSecondary">
+        Troca os lembretes e as marcações atuais pelos exemplos, sem pedir confirmação.
+      </ThemedText>
+      <Botao
+        rotulo="Restaurar Exemplos"
+        variante="secundario"
+        tamanho="compacto"
+        accessibilityLabel="Restaurar lembretes de demonstração"
+        onPress={restaurarExemplos}
       />
     </Card>
   );

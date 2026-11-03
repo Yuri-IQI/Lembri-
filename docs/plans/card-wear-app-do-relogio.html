@@ -98,7 +98,7 @@
     <tr><td>Lembretes de hoje, com o próximo em destaque e o botão <strong>Feito</strong></td><td>Criar, editar ou excluir lembretes no relógio</td></tr>
     <tr><td>Exercícios <strong>Sequência rápida</strong> e <strong>Guardar no lugar</strong>, com resumo</td><td>Tiles e complicações</td></tr>
     <tr><td>Sincronização da agenda, do Feito e dos resultados</td><td>Histórico de exercícios no relógio</td></tr>
-    <tr><td>Notificações espelhadas do celular</td><td>Tela <strong>Dispositivos conectados</strong>; suporte a iPhone</td></tr>
+    <tr><td>Avisos dos lembretes agendados pelo próprio relógio</td><td>Tela <strong>Dispositivos conectados</strong>; suporte a iPhone</td></tr>
   </tbody>
 </table>
 
@@ -381,12 +381,13 @@ addWatchEventListener(cb: () =&gt; void): Subscription;</code></pre>
 
 <h3>8.6 Notificações (Etapa C)</h3>
 <ul>
-  <li>O celular agenda e o Wear OS espelha. O relógio não agenda nada, o que evita avisos duplicados.</li>
+  <li><strong>Decisão revista em 2026-11-02:</strong> o relógio agenda os próprios avisos a partir da agenda recebida (<code>data/avisos/</code>), e o manifesto usa <code>NO_BRIDGING</code> para o aviso do celular não ser espelhado em duplicidade. O celular e o relógio avisam cada um por si.</li>
+  <li>O aviso do relógio é único, sem reavisos e sem botões: tocar abre o app, onde fica o <strong>Feito</strong>.</li>
   <li><strong>Sem notificação <code>sticky</code>:</strong> no Android 14 ou superior o usuário normalmente pode descartá-la, e notificações contínuas costumam não ser espelhadas. A regra passa a ser "continua avisando até confirmar", usando os reavisos já agendados.</li>
-  <li><strong>Só o que falta:</strong> validar o espelhamento e os botões no relógio.</li>
+  <li><strong>Só o que falta:</strong> testar os avisos do relógio em emulador e em relógio real.</li>
 </ul>
 <p><strong>Resultados (2026-11-02, emuladores em debug):</strong> <code>responderNotificacao</code> agora publica a agenda depois de "Tomei"/"Fiz". Com o app em segundo plano, tocar em Tomei registrou o feito, cancelou o reaviso e atualizou o início do relógio. O reaviso de uma ocorrência não confirmada também apareceu.</p>
-<p><strong>Espelhamento não confirmado:</strong> nos emuladores, nem a notificação do app nem uma notificação de controle criada pelo <code>adb</code> chegaram ao relógio. Validar em relógio real a vibração e os botões no pulso. "Lembrar em 10 min" fica para a bateria de testes.</p>
+<p><strong>Motivo da revisão:</strong> nos emuladores, nem a notificação do app nem uma notificação de controle criada pelo <code>adb</code> chegaram ao relógio pelo espelhamento. "Lembrar em 10 min" do celular fica para a bateria de testes.</p>
 
 <h3>8.7 Resultado de exercício no celular</h3>
 <p>Salvo como <code>TentativaExercicio</code> com <code>origem: 'relogio'</code> e exibido com o selo "Relógio". A associação com o catálogo depende da pendência 1, na seção 12.</p>
@@ -465,7 +466,7 @@ addWatchEventListener(cb: () =&gt; void): Subscription;</code></pre>
 <h3>Pendências de decisão</h3>
 <ol>
   <li><strong>Catálogo de exercícios:</strong> os exercícios do relógio não existem no catálogo, e incluí-los exibiria "Começar" em algo que o celular não executa. Recomendação: Sequência rápida entra no histórico de Sequências, e Guardar no lugar vira um item "Apenas no relógio", só com histórico. Resolver antes da Etapa B.</li>
-  <li><strong>Botões da notificação:</strong> continuam <strong>Tomei</strong> e <strong>Fiz</strong>, e aparecem assim no relógio por espelhamento. O <strong>Feito</strong> vale para o app do relógio. Recomendação: manter assim, sem alterar o celular.</li>
+  <li><strong>Botões da notificação:</strong> continuam <strong>Tomei</strong> e <strong>Fiz</strong> só no celular. O aviso do relógio não tem botões, e o <strong>Feito</strong> fica no app do relógio.</li>
   <li><strong>Base do PR:</strong> <code>develop</code> não existe localmente, e a branch padrão do remoto é <code>main</code>. Recomendação: confirmar antes de abrir o PR.</li>
   <li><strong>Documentação do projeto:</strong> o <code>CLAUDE.md</code> pede TSDoc em português, enquanto o pedido da equipe é evitar comentários. Este plano segue o pedido. Recomendação: ajustar o <code>CLAUDE.md</code> e o <code>AGENTS.md</code>.</li>
 </ol>

@@ -14,7 +14,6 @@ import { Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
 import { proximaOcorrenciaDoLembrete } from '@/stores/agenda-lembretes';
 import { useLembretesStore } from '@/stores/useLembretesStore';
-import { chaveData } from '@/utils/data';
 
 const voltar = () => router.back();
 
@@ -22,13 +21,6 @@ const DetalheLembreteScreen = () => {
   const agora = useAgora();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lembrete = useLembretesStore((state) => state.lembretes.find((item) => item.id === id));
-  const registros = useLembretesStore((state) => state.registros);
-  const feitosHoje = useMemo(() => {
-    const prefixo = `${id}@${chaveData(agora)}T`;
-    return registros
-      .filter((r) => r.chave.startsWith(prefixo))
-      .map((r) => r.chave.slice(prefixo.length));
-  }, [registros, id, agora]);
   const proxima = useMemo(
     () => (lembrete ? proximaOcorrenciaDoLembrete(lembrete, agora) : null),
     [lembrete, agora]
@@ -55,11 +47,7 @@ const DetalheLembreteScreen = () => {
         <AvisoGlobal />
         <CabecalhoLembrete lembrete={lembrete} />
         <BlocoProximaVez lembrete={lembrete} proxima={proxima} agora={agora} />
-        <BlocoConfiguracao
-          lembrete={lembrete}
-          horarioDestacado={proxima?.horario}
-          feitosHoje={feitosHoje}
-        />
+        <BlocoConfiguracao lembrete={lembrete} horarioDestacado={proxima?.horario} />
         <BlocoUltimasVezes lembreteId={lembrete.id} agora={agora} />
       </ScrollView>
       <AcoesLembrete lembrete={lembrete} />

@@ -3,6 +3,12 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -29,6 +35,11 @@
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
+
+        <!-- Aviso: o relógio agenda os próprios avisos; espelhar os do celular duplicaria cada um. -->
+        <meta-data
+            android:name="com.google.android.wearable.notificationBridgeMode"
+            android:value="NO_BRIDGING" />
 
         <activity
             android:name=".presentation.MainActivity"
@@ -57,6 +68,19 @@
                     android:scheme="wear" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".data.avisos.AvisoReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".data.avisos.RestaurarAvisosReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

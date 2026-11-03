@@ -75,6 +75,19 @@ test('web: FAQ distingue resposta inicial aberta das recolhidas', () => {
   assert.ok(!markup.includes('Resposta recolhida'));
 });
 
+test('merge: instruções do relógio ficam disponíveis em seção própria e começam recolhidas', () => {
+  const { watchHelpMock } = fromSource('mocks/help.mock.ts');
+  const markup = render(FaqSection, { items: watchHelpMock, title: 'Usar o relógio', initiallyExpanded: false });
+  assert.match(markup, /Usar o relógio/);
+  assert.equal(watchHelpMock.length, 5);
+  assert.equal((markup.match(/aria-expanded="false"/g) || []).length, 5);
+  assert.doesNotMatch(markup, /aria-expanded="true"/);
+  for (const item of watchHelpMock) {
+    assert.ok(markup.includes(item.question));
+    assert.ok(!markup.includes(item.answer));
+  }
+});
+
 test('web: dispositivos e explicações de avisos anunciam estado recolhido', () => {
   assert.match(render(DeviceSection), /aria-expanded="false"/);
   assert.match(render(CartaoAjuste, {
@@ -123,6 +136,17 @@ test('web: detalhes e começar são botões independentes no card de exercício'
   assert.equal((markup.match(/<button\b/g) || []).length, 2);
   assert.doesNotMatch(markup, /<button\b[^>]*>(?:(?!<\/button>)[\s\S])*<button\b/);
   assert.match(markup, /aria-label="Começar exercício Ordenação"/);
+});
+
+test('merge: card exclusivo do relógio mantém identificação e não oferece começar no celular', () => {
+  const markup = render(ExercicioCard, {
+    exercicio: { titulo: 'Guardar no lugar', icone: 'guardar', somenteRelogio: true },
+    ultimaAtividade: 'Ainda não praticado', diasSeguidos: 0, onComecar: noop, onDetalhes: noop,
+  });
+  assert.equal((markup.match(/<button\b/g) || []).length, 1);
+  assert.match(markup, /Ver detalhes do exercício Guardar no lugar\. Exercício do relógio\./);
+  assert.match(markup, />Exercício do relógio</);
+  assert.doesNotMatch(markup, /Começar exercício/);
 });
 
 test('web: histórico mantém as duas notas e usa o dia local perto da meia-noite UTC', () => {
