@@ -30,16 +30,24 @@ const ResumoExercicioScreen = () => {
     return resultadoDaSessao(exercicio, sessao);
   }, [exercicio, sessao]);
 
+  const correctedResult = useMemo(() => {
+    if (!exercicio || !sessao?.correctedAnswers) return null;
+    return resultadoDaSessao(exercicio, {
+      ...sessao,
+      respostas: sessao.correctedAnswers,
+    });
+  }, [exercicio, sessao]);
+
   const tempoGasto = tentativaSalva ? tentativaSalva.tempoGastoSegundos : 60;
   const duracaoTexto = formatarDuracao(tempoGasto);
 
   useEffect(() => {
     if (resultado) {
       AccessibilityInfo.announceForAccessibility(
-        `Você acertou ${resultado.acertos} de ${resultado.total} em ${duracaoTexto}.`
+        `Primeira tentativa: ${resultado.acertos} de ${resultado.total}.${correctedResult ? ` Após correções: ${correctedResult.acertos} de ${correctedResult.total}.` : ''} Tempo: ${duracaoTexto}.`
       );
     }
-  }, [resultado, duracaoTexto]);
+  }, [resultado, correctedResult, duracaoTexto]);
 
   if (!sessaoValida || !exercicio || !resultado) {
     return (
@@ -90,16 +98,21 @@ const ResumoExercicioScreen = () => {
 
         <View style={styles.rodadas}>
           {exercicio.rodadas.map((rodada, index) => (
-            <CartaoRodada
-              key={rodada.id}
-              rotulo={rodada.rotulo}
-              itens={rodada.itens}
-              dicas={rodada.dicas}
-              cor={rodada.cor}
-              numerada={rodada.numerada}
-              resultado={resultado.rodadas[index]}
-              mostrarPercentual={true}
-            />
+            <View key={rodada.id} style={styles.rodadas}>
+              <CartaoRodada
+                rotulo={`${rodada.rotulo} · primeira tentativa`}
+                itens={sessao?.respostas[index] ?? rodada.itens}
+                dicas={rodada.dicas}
+                cor={rodada.cor}
+                numerada={rodada.numerada}
+                numeric={exercicio.modoResposta === 'teclado'}
+                resultado={resultado.rodadas[index]}
+                mostrarPercentual={true}
+              />
+              {correctedResult && <ThemedText type="smallBold">
+                Após correções: {correctedResult.rodadas[index].acertos} de {correctedResult.rodadas[index].total} acertos ({correctedResult.rodadas[index].percentual}%).
+              </ThemedText>}
+            </View>
           ))}
         </View>
 
@@ -107,14 +120,20 @@ const ResumoExercicioScreen = () => {
           <ThemedText type="label" themeColor="textSecondary" accessibilityRole="header">
             PONTUAÇÃO TOTAL
           </ThemedText>
+          <ThemedText type="label">Primeira tentativa</ThemedText>
           <ThemedText
             type="display"
             style={styles.textoTotal}
             accessible={true}
             accessibilityRole="text"
-            accessibilityLabel={`${resultado.acertos} acertos de ${resultado.total} itens`}>
+            accessibilityLabel={`Primeira tentativa: ${resultado.acertos} acertos de ${resultado.total} itens`}>
             {resultado.acertos}/{resultado.total}
           </ThemedText>
+          <ThemedText type="label">Após correções</ThemedText>
+          {correctedResult ? <ThemedText type="display" style={styles.textoTotal} accessible accessibilityRole="text"
+            accessibilityLabel={`Após correções: ${correctedResult.acertos} acertos de ${correctedResult.total} itens`}>
+            {correctedResult.acertos}/{correctedResult.total}
+          </ThemedText> : <ThemedText>Não registrada nesta execução.</ThemedText>}
         </Card>
 
         <View style={styles.botoes}>

@@ -51,6 +51,7 @@ export const SeletorDias = ({
               onPress={() => handleToggle(item.dia)}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: ativo }}
+              aria-checked={ativo}
               accessibilityLabel={item.nomeCompleto}
               style={({ pressed }) => [
                 styles.botaoDia,

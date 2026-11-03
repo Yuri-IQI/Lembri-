@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BorderWidth, ComponentSize, Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -26,6 +26,7 @@ export const MarcadorFeito = ({
       onPress={onAlternar}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: feito }}
+      aria-checked={feito}
       accessibilityLabel={`${rotulo}: ${descricao}`}
       style={({ pressed }) => [styles.area, { opacity: pressed ? 0.6 : 1 }]}>
       <View
@@ -33,7 +34,7 @@ export const MarcadorFeito = ({
           styles.circulo,
           { backgroundColor: feito ? theme.primary : theme.surface, borderColor: theme.primary },
         ]}>
-        {feito && <SymbolView name={{ android: 'check' }} size={28} tintColor={theme.onPrimary} />}
+        {feito && <MaterialSymbol name="check" size={28} tintColor={theme.onPrimary} />}
       </View>
     </Pressable>
   );

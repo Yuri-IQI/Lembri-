@@ -39,6 +39,8 @@ export interface TentativaExercicio {
   acertos: number;
   totalQuestoes: number;
   pontuacaoPercentual: number;
+  correctedHits?: number;
+  correctedScorePercent?: number;
   origem?: 'celular' | 'relogio';
 }
 
@@ -54,6 +56,7 @@ export interface SessaoExercicio {
   inicio: string;
   rodadaAtual: number;
   respostas: string[][];
+  correctedAnswers?: string[][];
   opcoes: string[][];
   tentativaId: string | null;
 }

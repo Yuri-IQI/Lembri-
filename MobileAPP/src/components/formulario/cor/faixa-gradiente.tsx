@@ -7,7 +7,7 @@ import { paradasDeMatizes } from '@/utils/cor/cor';
 const PARADAS = paradasDeMatizes();
 
 export const FaixaGradiente = () => (
-  <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+  <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} pointerEvents="none">
     <Defs>
       <LinearGradient id="matizes" x1="0" y1="0" x2="1" y2="0">
         {PARADAS.map((parada) => (

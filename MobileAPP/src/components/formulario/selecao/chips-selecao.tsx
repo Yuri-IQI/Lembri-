@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -54,7 +54,8 @@ export function ChipsSelecao<T extends string>({
               key={opcao.valor}
               onPress={() => handlePress(opcao.valor)}
               accessibilityRole={multipla ? 'checkbox' : 'radio'}
-              accessibilityState={multipla ? { checked: ativo } : { selected: ativo }}
+              accessibilityState={{ checked: ativo }}
+              aria-checked={ativo}
               accessibilityLabel={opcao.rotulo}
               style={({ pressed }) => [
                 styles.chip,
@@ -65,7 +66,7 @@ export function ChipsSelecao<T extends string>({
                 },
               ]}>
               {ativo && (
-                <SymbolView name={{ android: 'check' }} size={20} tintColor={theme.primary} />
+                <MaterialSymbol name="check" size={20} tintColor={theme.primary} />
               )}
               <ThemedText type={ativo ? 'defaultBold' : 'default'}>{opcao.rotulo}</ThemedText>
             </Pressable>

@@ -17,7 +17,7 @@ const mesmaCor = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 
 export const SeletorCor = ({ rotulo, valor, onAlterar }: SeletorCorProps) => {
   const naPaleta = PaletaTipos.some((cor) => mesmaCor(cor.corHex, valor));
-  const [matiz, setMatiz] = useState(() => (naPaleta ? 0 : matizDaCor(valor)));
+  const [matiz, setMatiz] = useState(() => Math.round(matizDaCor(valor)));
   const [largura, setLargura] = useState(0);
   const cabem = Math.max(1, Math.floor((largura + Spacing.two) / (TouchTarget + Spacing.two)));
 
@@ -40,7 +40,10 @@ export const SeletorCor = ({ rotulo, valor, onAlterar }: SeletorCorProps) => {
               corHex={cor.corHex}
               nome={cor.nome}
               selecionado={mesmaCor(cor.corHex, valor)}
-              onPress={() => onAlterar(cor.corHex)}
+              onPress={() => {
+                setMatiz(Math.round(matizDaCor(cor.corHex)));
+                onAlterar(cor.corHex);
+              }}
             />
           ))}
       </View>

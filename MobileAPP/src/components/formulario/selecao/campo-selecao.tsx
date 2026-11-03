@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { CaixaDialogo } from '@/components/feedback/caixa-dialogo';
 import { CampoRotulado } from '@/components/formulario/base/campo-rotulado';
 import { ThemedText } from '@/components/themed-text';
@@ -38,7 +38,7 @@ export const CampoSelecao = <T,>({ rotulo, opcoes, valor, onAlterar }: CampoSele
           },
         ]}>
         <ThemedText style={styles.texto}>{atual}</ThemedText>
-        <SymbolView name={{ android: 'expand_more' }} size={28} tintColor={theme.text} />
+        <MaterialSymbol name="expand_more" size={28} tintColor={theme.text} />
       </Pressable>
       <CaixaDialogo
         visivel={aberta}
@@ -59,9 +59,10 @@ export const CampoSelecao = <T,>({ rotulo, opcoes, valor, onAlterar }: CampoSele
                 }}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: escolhida }}
+                aria-checked={escolhida}
                 style={styles.opcao}>
-                <SymbolView
-                  name={{ android: escolhida ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                <MaterialSymbol
+                  name={escolhida ? 'radio_button_checked' : 'radio_button_unchecked'}
                   size={28}
                   tintColor={theme.text}
                 />

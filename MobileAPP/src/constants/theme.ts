@@ -4,14 +4,16 @@ import type { TextStyle } from 'react-native';
  * Aviso: `textMuted` (#949494) possui contraste ~3.06:1 e deve ser restrito exclusivamente
  * a placeholders de input ou elementos desabilitados (isento pela WCAG 1.4.6).
  */
+const appBackground = '#F2F1ED';
+
 export const Colors = {
   text: '#000000',
   textSecondary: '#4E4E4E',
   textMuted: '#949494',
 
-  background: '#F2F2F2',
-  surface: '#FFFFFF',
-  inputBackground: '#F9F9F9',
+  background: appBackground,
+  surface: '#FAF9F6',
+  inputBackground: '#F6F5F1',
 
   border: '#949494',
   borderSubtle: '#D0D0D0',
@@ -30,7 +32,7 @@ export const Colors = {
   tagLilas: '#CDB8F5',
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
-  chipBackground: '#fcfcfc',
+  chipBackground: '#FAF9F6',
   borderDashed: '#292626',
   tabActive: '#F8EB5C',
   success: '#A8D5A2',
@@ -39,7 +41,7 @@ export const Colors = {
   danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
 
-  loadingFundo: '#FAF7EC',
+  loadingFundo: appBackground,
   loadingLua: '#E8E08A',
   loadingSombra: '#1B1B1B',
   loadingPonto: '#7E7E7E',
@@ -79,11 +81,18 @@ export const LoadingEclipse = {
   pausaMs: 300,
   pulsoMs: 1500,
   tempoMinimoMs: 2500,
+  fadeOutMs: 400,
 } as const;
 
 export const TextScale = {
   normal: 1,
   large: 1.2,
+} as const;
+
+export const LabelTextFitting = {
+  maximumCompressionEm: 0.06,
+  measurementWidthMultiplier: 2,
+  roundingInset: 0.5,
 } as const;
 
 export type TextVariant =
@@ -223,6 +232,7 @@ export const ComponentSize = {
   topBarHeight: 64,
   barFrameHeight: 72,
   bottomBarHeight: 80,
+  exerciseNumberMinWidth: 44,
 
   switchWidth: 56,
   switchHeight: 32,

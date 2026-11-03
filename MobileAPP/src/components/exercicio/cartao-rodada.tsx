@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { CasaItem } from '@/components/exercicio/casa-item';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
-import { Spacing, type ThemeColor } from '@/constants/theme';
+import { ComponentSize, Spacing, type ThemeColor } from '@/constants/theme';
 import type { ResultadoRodada } from '@/types/exercicio';
+import { getBalancedCellWidth } from '@/utils/exercise-grid';
 
 export interface CartaoRodadaProps {
   rotulo: string;
@@ -12,6 +14,7 @@ export interface CartaoRodadaProps {
   dicas?: string[];
   cor?: ThemeColor;
   numerada?: boolean;
+  numeric?: boolean;
   resultado?: ResultadoRodada;
   estadoPadrao?: 'neutra' | 'correta' | 'errada';
   mostrarPercentual?: boolean;
@@ -23,10 +26,15 @@ export const CartaoRodada = ({
   dicas,
   cor,
   numerada = false,
+  numeric = false,
   resultado,
   estadoPadrao = 'neutra',
   mostrarPercentual = false,
 }: CartaoRodadaProps) => {
+  const [availableWidth, setAvailableWidth] = useState(0);
+  const gap = numeric ? Spacing.one : Spacing.two;
+  const numericWidth = getBalancedCellWidth(itens.length, availableWidth, ComponentSize.exerciseNumberMinWidth, gap);
+  const cellWidth = numeric ? numericWidth : Math.max(0, (availableWidth - gap) / 2);
   return (
     <Card style={styles.card}>
       <View style={styles.cabecalho}>
@@ -43,7 +51,9 @@ export const CartaoRodada = ({
         )}
       </View>
 
-      <View style={styles.fileiraItens}>
+      <View
+        onLayout={(event) => setAvailableWidth(event.nativeEvent.layout.width)}
+        style={[styles.fileiraItens, { gap }]}>
         {itens.map((item, index) => {
           let estado = estadoPadrao;
           if (resultado) {
@@ -58,6 +68,8 @@ export const CartaoRodada = ({
               dica={dicas ? dicas[index] : undefined}
               cor={cor}
               ordem={numerada ? index + 1 : undefined}
+              numeric={numeric}
+              style={{ width: cellWidth }}
             />
           );
         })}
@@ -81,6 +93,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Spacing.two,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
 });

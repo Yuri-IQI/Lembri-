@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -25,7 +25,7 @@ export const CardTemplate = ({ template, onEscolher }: CardTemplateProps) => {
         { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
       ]}>
       <View style={[styles.icone, { backgroundColor: theme.accent }]}>
-        <SymbolView name={{ android: template.icone }} size={32} tintColor={theme.text} />
+        <MaterialSymbol name={template.icone} size={32} tintColor={theme.text} />
       </View>
       <View style={styles.textos}>
         <ThemedText type="subheading">{template.nome}</ThemedText>
@@ -33,7 +33,7 @@ export const CardTemplate = ({ template, onEscolher }: CardTemplateProps) => {
           {template.exemplo}
         </ThemedText>
       </View>
-      <SymbolView name={{ android: 'chevron_right' }} size={32} tintColor={theme.text} />
+      <MaterialSymbol name="chevron_right" size={32} tintColor={theme.text} />
     </Pressable>
   );
 };

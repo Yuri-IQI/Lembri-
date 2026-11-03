@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
 
 import { BotaoIcone } from '@/components/controles/botao-icone';
 import { ThemedText } from '@/components/themed-text';
@@ -11,6 +11,17 @@ export type SeletorHorarioProps = {
   valor: string;
   onAlterar: (horario: string) => void;
   passoMinutos?: number;
+};
+
+const keyboardAdjustment = (adjust: (delta: number) => void): NonNullable<ViewProps['onKeyDown']> => (event) => {
+  const { key } = event.nativeEvent;
+  if (key === 'ArrowUp' || key === 'ArrowRight') {
+    event.preventDefault();
+    adjust(1);
+  } else if (key === 'ArrowDown' || key === 'ArrowLeft') {
+    event.preventDefault();
+    adjust(-1);
+  }
 };
 
 export const SeletorHorario = ({
@@ -48,7 +59,13 @@ export const SeletorHorario = ({
             accessible={true}
             accessibilityRole="adjustable"
             accessibilityLabel="Horas"
-            accessibilityValue={{ text: `${parseInt(hora, 10)} horas` }}
+            accessibilityValue={{ min: 0, max: 23, now: Number(hora), text: `${Number(hora)} horas` }}
+            aria-valuemin={0}
+            aria-valuemax={23}
+            aria-valuenow={Number(hora)}
+            aria-valuetext={`${Number(hora)} horas`}
+            focusable
+            onKeyDown={Platform.OS === 'web' ? keyboardAdjustment(alterarHora) : undefined}
             accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
             onAccessibilityAction={(event) => {
               if (event.nativeEvent.actionName === 'increment') {
@@ -88,7 +105,13 @@ export const SeletorHorario = ({
             accessible={true}
             accessibilityRole="adjustable"
             accessibilityLabel="Minutos"
-            accessibilityValue={{ text: `${parseInt(minuto, 10)} minutos` }}
+            accessibilityValue={{ min: 0, max: 59, now: Number(minuto), text: `${Number(minuto)} minutos` }}
+            aria-valuemin={0}
+            aria-valuemax={59}
+            aria-valuenow={Number(minuto)}
+            aria-valuetext={`${Number(minuto)} minutos`}
+            focusable
+            onKeyDown={Platform.OS === 'web' ? keyboardAdjustment(alterarMinuto) : undefined}
             accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
             onAccessibilityAction={(event) => {
               if (event.nativeEvent.actionName === 'increment') {

@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { BorderWidth, Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { corDeTextoLegivel } from '@/utils/cor/contraste';
@@ -19,7 +19,8 @@ export const CirculoCor = ({ corHex, nome, selecionado, onPress }: CirculoCorPro
     <Pressable
       onPress={onPress}
       accessibilityRole="radio"
-      accessibilityState={{ selected: selecionado }}
+      accessibilityState={{ checked: selecionado }}
+      aria-checked={selecionado}
       accessibilityLabel={`Cor ${nome}`}
       style={({ pressed }) => [
         styles.circulo,
@@ -31,7 +32,7 @@ export const CirculoCor = ({ corHex, nome, selecionado, onPress }: CirculoCorPro
         },
       ]}>
       {selecionado && (
-        <SymbolView name={{ android: 'check' }} size={26} tintColor={corDeTextoLegivel(corHex)} />
+        <MaterialSymbol name="check" size={26} tintColor={corDeTextoLegivel(corHex)} />
       )}
     </Pressable>
   );

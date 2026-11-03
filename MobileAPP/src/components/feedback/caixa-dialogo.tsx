@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
+import { KeyboardAvoidingView, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Botao, type BotaoVariante } from '@/components/controles/botao';
 import { ThemedText } from '@/components/themed-text';
-import { BorderWidth, Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { focusAccessibleElement } from '@/utils/accessibility-focus';
 
 export type CaixaDialogoProps = {
   visivel: boolean;
@@ -17,6 +18,7 @@ export type CaixaDialogoProps = {
   somenteConfirmar?: boolean;
   onConfirmar: () => void;
   onCancelar: () => void;
+  returnFocusRef?: RefObject<ComponentRef<typeof View> | null>;
 };
 
 export const CaixaDialogo = ({
@@ -30,11 +32,23 @@ export const CaixaDialogo = ({
   somenteConfirmar = false,
   onConfirmar,
   onCancelar,
+  returnFocusRef,
 }: CaixaDialogoProps) => {
   const theme = useTheme();
+  const titleRef = useRef<ComponentRef<typeof Text>>(null);
+  const wasVisible = useRef(false);
+  useEffect(() => {
+    if (wasVisible.current && !visivel) {
+      const frame = requestAnimationFrame(() => void focusAccessibleElement(returnFocusRef?.current ?? null));
+      wasVisible.current = visivel;
+      return () => cancelAnimationFrame(frame);
+    }
+    wasVisible.current = visivel;
+  }, [visivel, returnFocusRef]);
 
   return (
-    <Modal visible={visivel} transparent animationType="fade" onRequestClose={onCancelar}>
+    <Modal visible={visivel} transparent animationType="fade" onRequestClose={onCancelar}
+      onShow={() => void focusAccessibleElement(titleRef.current)}>
       <KeyboardAvoidingView
         behavior="padding"
         style={[styles.fundo, { backgroundColor: theme.overlay }]}>
@@ -45,7 +59,7 @@ export const CaixaDialogo = ({
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.conteudo}
             style={styles.rolagem}>
-            <ThemedText type="subheading" accessibilityRole="header">
+            <ThemedText ref={titleRef} accessible type="subheading" accessibilityRole="header">
               {titulo}
             </ThemedText>
             {children}
@@ -94,9 +108,11 @@ const styles = StyleSheet.create({
   },
   botoes: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.two,
   },
   botao: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: TouchTarget * 3,
   },
 });

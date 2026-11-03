@@ -5,7 +5,7 @@ import type { SvgProps } from 'react-native-svg';
 
 import { BarFrame } from '@/components/app-bar/bar-frame';
 import { ThemedText } from '@/components/themed-text';
-import { ComponentSize, Spacing } from '@/constants/theme';
+import { ComponentSize, Spacing, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type BottomBarIcone = ComponentType<SvgProps & { preenchimento?: string }>;
@@ -27,6 +27,7 @@ export const BottomBarItem = ({ Icone, rotulo, isFocused, style, ...rest }: Bott
       accessibilityRole="tab"
       accessibilityLabel={rotulo}
       accessibilityState={{ selected: isFocused }}
+      aria-selected={isFocused}
       style={(estado) => [typeof style === 'function' ? style(estado) : style, styles.item]}
       {...rest}>
       <Icone
@@ -34,7 +35,7 @@ export const BottomBarItem = ({ Icone, rotulo, isFocused, style, ...rest }: Bott
         height={36}
         preenchimento={isFocused ? theme.tabActive : 'transparent'}
       />
-      <ThemedText type="smallBold">{rotulo}</ThemedText>
+      <ThemedText type="smallBold" style={styles.label}>{rotulo}</ThemedText>
     </Pressable>
   );
 };
@@ -43,14 +44,22 @@ const styles = StyleSheet.create({
   barra: {
     minHeight: ComponentSize.bottomBarHeight,
     gap: 0,
-    paddingHorizontal: Spacing.two,
+    paddingHorizontal: 0,
   },
   item: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    minWidth: TouchTarget,
+    alignSelf: 'stretch',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     gap: Spacing.one,
     paddingVertical: Spacing.two,
+  },
+  label: {
+    maxWidth: '100%',
+    textAlign: 'center',
   },
 });

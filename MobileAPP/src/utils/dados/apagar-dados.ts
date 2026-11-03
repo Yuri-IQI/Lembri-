@@ -14,5 +14,5 @@ export const apagarTodosOsDados = () => {
   useExerciciosStore.setState({ historico: [], sessao: null });
   useTiposLembreteStore.getState().resetarParaMocks();
   useSugestoesStore.getState().resetarParaMocks();
-  useSettingsStore.getState().resetToDefaults();
+  useSettingsStore.getState().resetPreferences();
 };

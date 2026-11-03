@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { BorderWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { formatarData } from '@/utils/tempo/data';
+import { chaveData, formatarData } from '@/utils/tempo/data';
 import type { EstatisticasExercicio } from '@/utils/exercicio/exercicio';
 
 export interface IndicadoresExercicioProps {
@@ -15,7 +15,7 @@ export const IndicadoresExercicio = ({ estatisticas }: IndicadoresExercicioProps
   const theme = useTheme();
 
   const dataFormatada = estatisticas.ultima
-    ? formatarData(estatisticas.ultima.toISOString().split('T')[0])
+    ? formatarData(chaveData(estatisticas.ultima))
     : '—';
 
   const tempoFormatado =

@@ -1,6 +1,6 @@
-import { SymbolView } from 'expo-symbols';
 import { StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -9,7 +9,7 @@ const Aviso = () => {
   const theme = useTheme();
   return (
     <View style={styles.aviso}>
-      <SymbolView name={{ android: 'delete' }} size={28} tintColor={theme.onPrimary} />
+      <MaterialSymbol name="delete" size={28} tintColor={theme.onPrimary} />
       <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
         Excluir
       </ThemedText>

@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { TentativaExercicio } from '@/types/exercicio';
-import { formatarData } from '@/utils/tempo/data';
+import { chaveData, formatarData } from '@/utils/tempo/data';
 import { formatarDuracao } from '@/utils/exercicio/exercicio';
 
 export interface HistoricoTentativasProps {
@@ -25,11 +25,16 @@ export const HistoricoTentativas = ({ tentativas }: HistoricoTentativasProps) =>
       ) : (
         <View style={styles.lista}>
           {tentativas.map((item) => {
-            const dataFormatada = formatarData(item.dataHora.split('T')[0]);
+            const dataFormatada = formatarData(chaveData(new Date(item.dataHora)));
             const duracaoTexto = formatarDuracao(item.tempoGastoSegundos);
             const noRelogio = item.origem === 'relogio';
-            const descricao = `${dataFormatada} · ${item.acertos} de ${item.totalQuestoes} acertos · ${duracaoTexto}${noRelogio ? ' · Relógio' : ''}`;
-            const labelAcessivel = `Tentativa em ${dataFormatada}${noRelogio ? ', feita no relógio' : ''}: ${item.acertos} de ${item.totalQuestoes} acertos (${item.pontuacaoPercentual}%), concluída em ${duracaoTexto}`;
+            const correctedPercent = item.correctedScorePercent
+              ?? (item.totalQuestoes > 0 ? Math.round((item.correctedHits ?? 0) / item.totalQuestoes * 100) : 0);
+            const correctedSummary = item.correctedHits === undefined ? ''
+              : ` · Após correções: ${item.correctedHits} de ${item.totalQuestoes} acertos (${correctedPercent}%)`;
+            const initialLabel = item.correctedHits === undefined ? '' : 'Primeira tentativa: ';
+            const descricao = `${dataFormatada} · ${initialLabel}${item.acertos} de ${item.totalQuestoes} acertos${correctedSummary} · ${duracaoTexto}${noRelogio ? ' · Relógio' : ''}`;
+            const labelAcessivel = `Tentativa em ${dataFormatada}${noRelogio ? ', feita no relógio' : ''}: ${initialLabel}${item.acertos} de ${item.totalQuestoes} acertos (${item.pontuacaoPercentual}%)${correctedSummary}, concluída em ${duracaoTexto}`;
 
             return (
               <View

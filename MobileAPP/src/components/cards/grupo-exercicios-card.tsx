@@ -1,7 +1,7 @@
-import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { MaterialSymbol } from '@/components/material-symbol';
 import { IconeExercicio } from '@/components/exercicio/icone-exercicio';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/themed-view';
@@ -32,6 +32,7 @@ export const GrupoExerciciosCard = ({
         onPress={() => setExpandido((prev) => !prev)}
         accessibilityRole="button"
         accessibilityState={{ expanded: expandido }}
+        aria-expanded={expandido}
         accessibilityLabel={`${titulo}, ${plural(totalModos, 'modo de jogo', 'modos de jogo')}`}
         style={({ pressed }) => [styles.cabecalho, { opacity: pressed ? 0.7 : 1 }]}>
         <View style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}>
@@ -39,7 +40,7 @@ export const GrupoExerciciosCard = ({
         </View>
 
         <View style={styles.info}>
-          <ThemedText type="subheading" style={styles.titulo}>
+          <ThemedText type="subheading">
             {titulo}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
@@ -47,8 +48,8 @@ export const GrupoExerciciosCard = ({
           </ThemedText>
         </View>
 
-        <SymbolView
-          name={{ android: expandido ? 'expand_less' : 'expand_more' }}
+        <MaterialSymbol
+          name={expandido ? 'expand_less' : 'expand_more'}
           size={28}
           tintColor={theme.textSecondary}
         />
@@ -79,10 +80,6 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     gap: Spacing.one,
-  },
-  titulo: {
-    fontSize: 22,
-    lineHeight: 30,
   },
   modos: {
     gap: Spacing.two,

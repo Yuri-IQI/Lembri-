@@ -15,6 +15,7 @@ export const ListaEtiquetas = ({ tipos }: { tipos: TipoLembrete[] }) =>
 
 const styles = StyleSheet.create({
   grade: {
+    maxWidth: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.one,

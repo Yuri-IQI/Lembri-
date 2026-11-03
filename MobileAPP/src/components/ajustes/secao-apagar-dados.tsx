@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { AvisoSucesso } from '@/components/feedback/aviso-sucesso';
 import { Botao } from '@/components/controles/botao';
@@ -18,7 +18,9 @@ export const SecaoApagarDados = () => {
   const apagar = () => {
     setConfirmando(false);
     apagarTodosOsDados();
-    Notifications.dismissAllNotificationsAsync().catch(() => undefined);
+    if (Platform.OS !== 'web') {
+      Notifications.dismissAllNotificationsAsync().catch(() => undefined);
+    }
     setAviso('Todos os dados foram apagados.');
   };
 

@@ -1,73 +1,60 @@
-import { router } from 'expo-router';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
+import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PerguntaFrequente } from '@/components/ajuda/pergunta-frequente';
+import { BottomBar, BottomBarItem } from '@/components/app-bar/bottom-bar';
 import { TopBar } from '@/components/app-bar/top-bar';
-import { GrupoCard } from '@/components/cards/grupo-card';
-import { LinhaAcao } from '@/components/controles/linha-acao';
-import { ThemedText } from '@/components/themed-text';
-import { CONTATO_SUPORTE, PERGUNTAS_FREQUENTES, PERGUNTAS_RELOGIO } from '@/constants/ajuda';
+import { FaqSection } from '@/components/help/faq-section';
+import { SupportSection } from '@/components/help/support-section';
+import { MainContainer } from '@/components/main-container';
+import { ThemedView } from '@/components/themed-view';
+import { navigationTabs } from '@/constants/navigation';
 import { Spacing } from '@/constants/theme';
+import { watchHelpMock } from '@/mocks/help.mock';
+import { focusAccessibleElement } from '@/utils/accessibility-focus';
 
-const voltar = () => router.back();
+const goBack = () => router.canGoBack() ? router.back() : router.replace('/configuracoes');
 
-const abrir = (url: string) => {
-  Linking.openURL(url).catch(() => undefined);
-};
-
-const AjudaScreen = () => (
-  <View style={styles.tela}>
-    <TopBar onVoltar={voltar} semAjuda />
-    <ScrollView contentContainerStyle={styles.conteudo}>
-      <ThemedText type="title" accessibilityRole="header">
-        Ajuda
-      </ThemedText>
-
-      <GrupoCard titulo="DÚVIDAS FREQUENTES">
-        {PERGUNTAS_FREQUENTES.map((item, index) => (
-          <PerguntaFrequente
-            key={item.pergunta}
-            pergunta={item.pergunta}
-            resposta={item.resposta}
-            abertaAoIniciar={index === 0}
-          />
-        ))}
-      </GrupoCard>
-
-      <GrupoCard titulo="USAR O RELÓGIO">
-        {PERGUNTAS_RELOGIO.map((item) => (
-          <PerguntaFrequente key={item.pergunta} pergunta={item.pergunta} resposta={item.resposta} />
-        ))}
-      </GrupoCard>
-
-      <GrupoCard titulo="FALAR COM ALGUÉM">
-        <LinhaAcao
-          icone="call"
-          titulo="Ligar para o suporte"
-          descricao={CONTATO_SUPORTE.telefone}
-          onPress={() => abrir(`tel:${CONTATO_SUPORTE.telefone.replace(/\s/g, '')}`)}
-        />
-        <LinhaAcao
-          icone="mail"
-          titulo="Enviar Email"
-          descricao={CONTATO_SUPORTE.email}
-          onPress={() => abrir(`mailto:${CONTATO_SUPORTE.email}`)}
-        />
-      </GrupoCard>
-    </ScrollView>
-  </View>
-);
+export default function HelpScreen() {
+  const { section } = useLocalSearchParams<{ section?: string }>();
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const headingRef = useRef<ComponentRef<typeof Text>>(null);
+  const positioned = useRef(false);
+  const [contactY, setContactY] = useState<number | null>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  useEffect(() => {
+    if (section !== 'contact' || contactY === null || contentHeight === 0 || positioned.current) return;
+    const frame = requestAnimationFrame(() => {
+      positioned.current = true;
+      scrollRef.current?.scrollTo({ y: contactY, animated: false });
+      void focusAccessibleElement(headingRef.current);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [section, contactY, contentHeight]);
+  useEffect(() => {
+    const back = BackHandler.addEventListener('hardwareBackPress', () => { goBack(); return true; });
+    return () => back.remove();
+  }, []);
+  return (
+    <ThemedView style={styles.screen}>
+      <TopBar semAjuda titulo="Ajuda" onVoltar={goBack} />
+      <MainContainer>
+        <ScrollView ref={scrollRef} contentContainerStyle={styles.content}
+          onContentSizeChange={(_width, height) => setContentHeight(height)}>
+          <FaqSection />
+          <FaqSection items={watchHelpMock} title="Usar o relógio" initiallyExpanded={false} />
+          <View onLayout={(event) => setContactY(event.nativeEvent.layout.y)}>
+            <SupportSection headingRef={headingRef} />
+          </View>
+        </ScrollView>
+      </MainContainer>
+      <BottomBar>{navigationTabs.map((tab) => <BottomBarItem key={tab.name} Icone={tab.Icone} rotulo={tab.rotulo}
+        isFocused={false} onPress={() => router.dismissTo(tab.href)} />)}</BottomBar>
+    </ThemedView>
+  );
+}
 
 const styles = StyleSheet.create({
-  tela: {
-    flex: 1,
-  },
-  conteudo: {
-    gap: Spacing.three,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-    paddingBottom: Spacing.five,
-  },
+  screen: { flex: 1 },
+  content: { gap: Spacing.four, paddingBottom: Spacing.four },
 });
-
-export default AjudaScreen;

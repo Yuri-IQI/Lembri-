@@ -1,22 +1,13 @@
-import { useNavigation, type Href } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { TabList, TabSlot, Tabs, TabTrigger, useTabTrigger } from 'expo-router/ui';
 import { useEffect, useState } from 'react';
-import { BackHandler } from 'react-native';
+import { BackHandler, Platform, StyleSheet } from 'react-native';
 
-import IconeHome from '@/assets/bottom-bar/home.svg';
-import IconeAjustes from '@/assets/bottom-bar/settings.svg';
-import IconeExercicios from '@/assets/bottom-bar/task.svg';
-import IconeLembretes from '@/assets/bottom-bar/bell.svg';
-import { BottomBar, BottomBarItem, type BottomBarIcone } from '@/components/app-bar/bottom-bar';
+import { BottomBar, BottomBarItem } from '@/components/app-bar/bottom-bar';
 import { TopBar } from '@/components/app-bar/top-bar';
 import { useVozStore } from '@/stores/useVozStore';
 
-const ABAS: { name: string; href: Href; Icone: BottomBarIcone; rotulo: string }[] = [
-  { name: 'index', href: '/', Icone: IconeHome, rotulo: 'Home' },
-  { name: 'exercicios', href: '/exercicios', Icone: IconeExercicios, rotulo: 'Exercícios' },
-  { name: 'lembretes', href: '/lembretes', Icone: IconeLembretes, rotulo: 'Lembretes' },
-  { name: 'configuracoes', href: '/configuracoes', Icone: IconeAjustes, rotulo: 'Ajustes' },
-];
+import { navigationTabs as ABAS } from '@/constants/navigation';
 
 const BarraSuperior = () => {
   const navigation = useNavigation();
@@ -61,14 +52,14 @@ const BarraSuperior = () => {
     limparAbaPedida();
   }, [abaPedida, switchTab, limparAbaPedida]);
 
-  return <TopBar onVoltar={podeVoltar ? voltar : undefined} />;
+  return <TopBar onVoltar={abaAtual !== ABAS[0].name && podeVoltar ? voltar : undefined} />;
 };
 
 const TabsLayout = () => {
   return (
     <Tabs>
       <BarraSuperior />
-      <TabSlot />
+      <TabSlot style={Platform.OS === 'web' ? styles.tabSlot : undefined} />
       <TabList asChild>
         <BottomBar>
           {ABAS.map((aba) => (
@@ -81,5 +72,12 @@ const TabsLayout = () => {
     </Tabs>
   );
 };
+
+const styles = StyleSheet.create({
+  tabSlot: {
+    flex: 1,
+    flexShrink: 1,
+  },
+});
 
 export default TabsLayout;
