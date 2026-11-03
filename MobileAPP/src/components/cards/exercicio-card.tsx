@@ -22,7 +22,8 @@ export interface ExercicioCardProps {
  * Card padronizado de estímulo cognitivo do Lembri (CARD-35 / frame exercicios_lista).
  *
  * Apresenta área de ícone de 64x64, título do exercício, descrição da última atividade,
- * sequência de dias e o botão COMEÇAR de 56dp. Tocar no restante do card abre os detalhes.
+ * sequência de dias e o botão COMEÇAR de 56dp. O cabeçalho abre os detalhes;
+ * as duas ações são independentes, sem botões aninhados na web.
  */
 export const ExercicioCard = ({
   exercicio,
@@ -35,44 +36,42 @@ export const ExercicioCard = ({
   const sequencia = plural(diasSeguidos, 'dia seguido', 'dias seguidos');
 
   return (
-    <Pressable
-      onPress={onDetalhes}
-      accessibilityRole="button"
-      accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}. ${ultimaAtividade}`}
-      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-      <Card style={styles.card}>
-        <View style={styles.cabecalho}>
-          <View
-            style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}
-            importantForAccessibility="no-hide-descendants"
-            accessibilityElementsHidden={true}>
-            <IconeExercicio icone={exercicio.icone} />
-          </View>
-
-          <View style={styles.info}>
-            <ThemedText type="subheading" style={styles.titulo}>
-              {exercicio.titulo}
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {ultimaAtividade}
-            </ThemedText>
-            {diasSeguidos > 0 && (
-              <ThemedText type="small">{sequencia}</ThemedText>
-            )}
-          </View>
+    <Card style={styles.card}>
+      <Pressable
+        onPress={onDetalhes}
+        accessibilityRole="button"
+        accessibilityLabel={`Ver detalhes do exercício ${exercicio.titulo}. ${ultimaAtividade}`}
+        style={({ pressed }) => [styles.cabecalho, { opacity: pressed ? 0.7 : 1 }]}>
+        <View
+          style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}
+          importantForAccessibility="no-hide-descendants"
+          accessibilityElementsHidden={true}>
+          <IconeExercicio icone={exercicio.icone} />
         </View>
 
-        {!exercicio.somenteRelogio && (
-          <Botao
-            rotulo="COMEÇAR"
-            variante="primario"
-            onPress={onComecar}
-            accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
-            style={styles.botao}
-          />
-        )}
-      </Card>
-    </Pressable>
+        <View style={styles.info}>
+          <ThemedText type="subheading">
+            {exercicio.titulo}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {ultimaAtividade}
+          </ThemedText>
+          {diasSeguidos > 0 && (
+            <ThemedText type="small">{sequencia}</ThemedText>
+          )}
+        </View>
+      </Pressable>
+
+      {!exercicio.somenteRelogio && (
+        <Botao
+          rotulo="COMEÇAR"
+          variante="primario"
+          onPress={onComecar}
+          accessibilityLabel={`Começar exercício ${exercicio.titulo}`}
+          style={styles.botao}
+        />
+      )}
+    </Card>
   );
 };
 
@@ -95,10 +94,6 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     gap: Spacing.one,
-  },
-  titulo: {
-    fontSize: 22,
-    lineHeight: 30,
   },
   botao: {
     marginTop: Spacing.one,

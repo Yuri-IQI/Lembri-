@@ -40,6 +40,7 @@ export const ItemTipo = ({
         accessibilityState={
           selecionavel ? { checked: selecionado, disabled: !onAlternar } : undefined
         }
+        aria-checked={selecionavel ? selecionado : undefined}
         accessibilityLabel={`${nome}, ${detalhe}`}
         accessibilityHint={
           selecionavel && !onAlternar ? 'Já tem o máximo de tipos. Desmarque um antes.' : undefined
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: Spacing.two,
     minHeight: TouchTarget,
@@ -95,7 +97,8 @@ const styles = StyleSheet.create({
     borderWidth: BorderWidth.hairline,
   },
   textos: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: TouchTarget * 2,
   },
   lixeira: {
     width: TouchTarget,

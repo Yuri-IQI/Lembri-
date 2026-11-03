@@ -45,6 +45,7 @@ export const CartaoAjuste = ({
           onPress={() => setExpandido((prev) => !prev)}
           accessibilityRole="button"
           accessibilityState={{ expanded: expandido }}
+          aria-expanded={expandido}
           accessibilityLabel={rotuloBotaoExpansao}
           style={({ pressed }) => [styles.gatilhoExpansao, { opacity: pressed ? 0.7 : 1 }]}>
           <ThemedText type="subheading" style={styles.titulo}>

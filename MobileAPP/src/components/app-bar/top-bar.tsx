@@ -75,7 +75,7 @@ export const TopBar = ({ titulo, onVoltar, semAjuda = false, saidaProtegida = fa
 const styles = StyleSheet.create({
   barra: {
     minHeight: ComponentSize.topBarHeight,
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: Spacing.two,
   },
   voltarContainer: {
     minWidth: TouchTarget,

@@ -72,6 +72,7 @@
 
 <h2>3. Gerenciamento de Estado no Zustand</h2>
 <p><code>useExerciciosStore</code> mantém catálogo, historico e sessao. Conclusões entram em historico de forma idempotente; a sessão guarda tentativaId para impedir duplicação. O CARD-39 consome o histórico existente, sem criar coleção paralela de conclusões.</p>
+<p><strong>Duas pontuações (decisão do usuário em 02/11/2026):</strong> <code>sessao.respostas</code> preserva a primeira resposta e <code>correctedAnswers</code> acompanha a última resposta conferida de cada rodada. O resumo mostra os acertos iniciais e os acertos após correções, sem substituir a primeira tentativa. O histórico persiste <code>acertos</code>/<code>pontuacaoPercentual</code> iniciais e os campos opcionais <code>correctedHits</code>/<code>correctedScorePercent</code>. Registros antigos e recebidos do relógio continuam válidos e não recebem pontuações corrigidas inventadas. Datas do histórico e dos indicadores usam o calendário local, inclusive perto da virada do dia em UTC.</p>
 <p><strong>Avisos:</strong> <code>exerciseNotifications</code> calcula até sete datas futuras às 09h pelo calendário local. Qualquer tentativa concluída no mesmo dia, inclusive sem acertos, suprime o aviso desse dia. Sessão iniciada/abandonada não conta. Se 09h já passou, o primeiro aviso é amanhã. Mudar fuso ou data é considerado ao retomar o aplicativo.</p>
 <p>A preferência exerciseNotificationsEnabled começa desligada e é persistida em settings. Uma fila única reconcilia os dois domínios e preserva notificações desconhecidas. Concluir cancela o aviso agendado do dia e dispensa avisos apresentados pertinentes. Reabrir o aplicativo pelo menos a cada sete dias renova a janela.</p>
 
@@ -79,6 +80,7 @@
 
 <h2>4. Catálogo de Componentes e Tokens Visuais</h2>
 <p>As telas usam ThemedText, MainContainer, cards e componentes de <code>components/exercicio/</code>, incluindo CartaoRodada, CasasResposta, TecladoNumerico, OpcoesResposta, HistoricoTentativas e IndicadoresExercicio. Preferências e estados da integração são apresentados por NotificationSettings na aba Ajustes.</p>
+<p>Nos cartões do catálogo, detalhes e COMEÇAR são ações irmãs, evitando botões HTML aninhados. Os títulos herdam a escala tipográfica do tema. Avisos de sucesso distinguem lembretes e exercícios; a primeira rodada de uma nova sessão não reapresenta o sucesso da sessão anterior.</p>
 
 <hr>
 

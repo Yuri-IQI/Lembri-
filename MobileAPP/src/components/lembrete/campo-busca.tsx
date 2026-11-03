@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { MaterialSymbol } from '@/components/material-symbol';
 import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
@@ -45,6 +45,7 @@ export const CampoBusca = ({ valor, aoMudar, aoLimpar }: CampoBuscaProps) => {
         placeholder="Buscar..."
         placeholderTextColor={theme.textSecondary}
         accessibilityRole="search"
+        role={Platform.OS === 'web' ? 'searchbox' : undefined}
         accessibilityLabel="Buscar lembretes pelo nome"
         returnKeyType="search"
         autoCapitalize="none"

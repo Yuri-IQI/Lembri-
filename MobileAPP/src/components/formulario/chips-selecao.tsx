@@ -63,7 +63,8 @@ export function ChipsSelecao<T extends string>({
               key={opcao.valor}
               onPress={() => handlePress(opcao.valor)}
               accessibilityRole={multipla ? 'checkbox' : 'radio'}
-              accessibilityState={multipla ? { checked: ativo } : { selected: ativo }}
+              accessibilityState={{ checked: ativo }}
+              aria-checked={ativo}
               accessibilityLabel={opcao.rotulo}
               style={({ pressed }) => [
                 styles.chip,

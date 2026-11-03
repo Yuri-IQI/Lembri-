@@ -35,6 +35,7 @@ export const GrupoExerciciosCard = ({
         onPress={() => setExpandido((prev) => !prev)}
         accessibilityRole="button"
         accessibilityState={{ expanded: expandido }}
+        aria-expanded={expandido}
         accessibilityLabel={`${titulo}, ${plural(totalModos, 'modo de jogo', 'modos de jogo')}`}
         style={({ pressed }) => [styles.cabecalho, { opacity: pressed ? 0.7 : 1 }]}>
         <View style={[styles.areaIcone, { backgroundColor: theme.accentLight }]}>
@@ -42,7 +43,7 @@ export const GrupoExerciciosCard = ({
         </View>
 
         <View style={styles.info}>
-          <ThemedText type="subheading" style={styles.titulo}>
+          <ThemedText type="subheading">
             {titulo}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
@@ -82,10 +83,6 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
     gap: Spacing.one,
-  },
-  titulo: {
-    fontSize: 22,
-    lineHeight: 30,
   },
   modos: {
     gap: Spacing.two,

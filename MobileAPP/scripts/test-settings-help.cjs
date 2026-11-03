@@ -146,6 +146,35 @@ test('respostas: web e hidratação pendente não acessam APIs nativas; Android 
   }
 });
 
+test('inicialização: tarefa do relógio só é registrada no Android', () => {
+  const previousLoad = Module._load;
+  const file = path.join(sourceRoot, 'services/wear/tarefa-eventos.ts');
+  const processEvents = async () => {};
+  try {
+    for (const platform of ['web', 'ios', 'android']) {
+      const registrations = [];
+      Module._load = function (request, ...rest) {
+        if (request === 'react-native') return {
+          Platform: { OS: platform },
+          AppRegistry: platform === 'android' ? {
+            registerHeadlessTask: (name, provider) => registrations.push({ name, task: provider() }),
+          } : {},
+        };
+        if (request === './processar-eventos') return { processarEventos: processEvents };
+        return previousLoad.call(this, request, ...rest);
+      };
+      delete require.cache[file];
+      fromSource('services/wear/tarefa-eventos.ts');
+      assert.deepEqual(registrations, platform === 'android'
+        ? [{ name: 'lembri-eventos-relogio', task: processEvents }]
+        : [], platform);
+    }
+  } finally {
+    Module._load = previousLoad;
+    delete require.cache[file];
+  }
+});
+
 test('settings: contratos e escala existentes continuam válidos', async () => {
   await useSettingsStore.persist.rehydrate();
   fromSource('stores/__tests__/useSettingsStore.test.ts').runSettingsStoreTests();
@@ -212,6 +241,55 @@ test('settings: alternâncias rápidas preservam a última preferência', async 
   for (let index = 0; index < 21; index += 1) useSettingsStore.getState().setLargeText(index % 2 === 0);
   await flushWrites();
   assert.equal(JSON.parse(memory.get('lembri-settings')).state.isLargeText, true);
+});
+
+test('settings: erro de leitura não deixa mudança visual sobrescrever avisos ainda não carregados', async () => {
+  useSettingsStore.setState({ ...defaultSettingsMock, textScaleFactor: TextScale.normal });
+  await flushWrites();
+  const saved = JSON.stringify({
+    state: { ...defaultSettingsMock, hasSeenSplash: true, reminderLimit: 17,
+      reminderNotificationsEnabled: false, exerciseNotificationsEnabled: true },
+    version: 1,
+  });
+  memory.set('lembri-settings', saved);
+  try {
+    failRead = true;
+    await useSettingsStore.persist.rehydrate();
+    failRead = false;
+    useSettingsStore.getState().setLargeText(true);
+    await new Promise(setImmediate);
+    assert.equal(memory.get('lembri-settings'), saved, 'Registro original preservado até recuperar a leitura');
+    assert.equal(useSettingsPersistenceStore.getState().operation, 'load');
+    assert.ok(useSettingsPersistenceStore.getState().error);
+    await retrySettingsPersistence();
+    const recovered = useSettingsStore.getState();
+    assert.equal(recovered.reminderNotificationsEnabled, false);
+    assert.equal(recovered.exerciseNotificationsEnabled, true);
+    assert.equal(recovered.hasSeenSplash, true);
+    assert.equal(recovered.reminderLimit, 17);
+    assert.equal(recovered.isLargeText, false);
+    assert.equal(useSettingsPersistenceStore.getState().error, null);
+    useSettingsStore.getState().setLargeText(true);
+    await flushWrites();
+    assert.equal(JSON.parse(memory.get('lembri-settings')).state.isLargeText, true);
+    assert.equal(JSON.parse(memory.get('lembri-settings')).state.reminderNotificationsEnabled, false);
+  } finally {
+    failRead = false;
+  }
+});
+
+test('settings: JSON inválido permanece intacto até uma leitura recuperada', async () => {
+  await flushWrites();
+  const invalid = '{json inválido';
+  memory.set('lembri-settings', invalid);
+  await useSettingsStore.persist.rehydrate();
+  useSettingsStore.getState().toggleLargeText();
+  await new Promise(setImmediate);
+  assert.equal(memory.get('lembri-settings'), invalid);
+  assert.equal(useSettingsPersistenceStore.getState().operation, 'load');
+  memory.set('lembri-settings', JSON.stringify({ state: defaultSettingsMock, version: 1 }));
+  await retrySettingsPersistence();
+  assert.equal(useSettingsPersistenceStore.getState().error, null);
 });
 
 test('dispositivos: cópias, conexão idempotente e ID inexistente', async () => {
@@ -544,4 +622,51 @@ test('merge wearable: concluir na notificação publica o feito e cancela avisos
   assert.deepEqual(await responderNotificacao(response({ lembreteId: item.id, ocorrencia: occurrence })), {
     kind: 'reminder', id: item.id,
   });
+});
+
+test('exercícios: preserva primeira tentativa e persiste pontuação após correções sem duplicar histórico', async () => {
+  const store = fromSource('stores/useExerciciosStore.ts').useExerciciosStore;
+  const before = store.getState();
+  try {
+    const exerciseId = before.exercicios.find((item) => item.modoResposta === 'teclado').id;
+    store.getState().iniciarSessao(exerciseId);
+    const exercise = store.getState().exercicios.find((item) => item.id === exerciseId);
+    const total = exercise.rodadas.reduce((sum, round) => sum + round.itens.length, 0);
+    for (const [index, round] of exercise.rodadas.entries()) {
+      const first = [...round.itens];
+      if (index === 0) first[0] = '00';
+      store.getState().responderRodada(first);
+      const firstSnapshot = store.getState().sessao.respostas;
+      store.getState().responderRodada(round.itens);
+      assert.deepEqual(store.getState().sessao.respostas[index], first);
+      assert.deepEqual(store.getState().sessao.correctedAnswers[index], round.itens);
+      assert.deepEqual(firstSnapshot[index], first, 'A correção não modifica o snapshot inicial');
+      store.getState().avancarRodada();
+    }
+    const result = store.getState().concluirSessao();
+    assert.equal(result.acertos, total - 1);
+    assert.equal(result.correctedHits, total);
+    assert.equal(result.correctedScorePercent, 100);
+    assert.equal(store.getState().concluirSessao().id, result.id);
+    assert.equal(store.getState().historico.length, before.historico.length + 1);
+    await store.persist.rehydrate();
+    const saved = store.getState().historico.find((item) => item.id === result.id);
+    assert.equal(saved.acertos, total - 1);
+    assert.equal(saved.correctedHits, total);
+    assert.equal(saved.correctedScorePercent, 100);
+    const legacy = fromSource('mocks/historico-tentativas.mock.ts').historicoIniciaisMock[0];
+    assert.equal(legacy.correctedHits, undefined, 'Histórico antigo não ganha pontuação corrigida inventada');
+  } finally {
+    store.setState({ exercicios: before.exercicios, historico: before.historico, sessao: before.sessao });
+  }
+});
+
+test('avisos: mensagens de lembretes e exercícios mantêm origens independentes', () => {
+  const store = fromSource('stores/useAvisoStore.ts').useAvisoStore;
+  store.getState().mostrar('Lembrete salvo');
+  assert.equal(store.getState().scope, 'reminder');
+  store.getState().mostrar('Tudo certo!', 'exercise');
+  assert.equal(store.getState().scope, 'exercise');
+  store.getState().fechar();
+  assert.equal(store.getState().mensagem, null);
 });

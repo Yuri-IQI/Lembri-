@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { BorderWidth, ComponentSize, Radius } from '@/constants/theme';
@@ -32,7 +32,7 @@ export const DiaCalendario = ({
       onPress={onEscolher}
       disabled={!disponivel}
       accessibilityRole="button"
-      accessibilityLabel={rotulo}
+      accessibilityLabel={Platform.OS === 'web' && selecionado ? `${rotulo}, selecionado` : rotulo}
       accessibilityState={{ selected: selecionado, disabled: !disponivel }}
       style={({ pressed }) => [
         styles.casa,

@@ -76,6 +76,8 @@ export const Botao = ({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? rotulo}
       accessibilityState={{ disabled: desabilitado, busy: ocupado }}
+      aria-disabled={desabilitado}
+      aria-busy={ocupado}
       style={({ pressed }) => [
         styles.botao,
         {
@@ -96,6 +98,7 @@ export const Botao = ({
 const styles = StyleSheet.create({
   label: {
     flexShrink: 1,
+    textAlign: 'center',
   },
   botao: {
     minHeight: TouchTarget,

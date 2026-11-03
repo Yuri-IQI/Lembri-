@@ -54,6 +54,7 @@ export const ChipOcorrencia = ({ horario, estado, descricao, onAlternar }: ChipO
       onPress={onAlternar}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: feito }}
+      aria-checked={feito}
       accessibilityLabel={`${descricao} às ${horario}`}
       style={({ pressed }) => [estilo, { opacity: pressed ? 0.6 : 1 }]}>
       {conteudo}

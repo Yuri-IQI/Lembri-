@@ -3,7 +3,9 @@ import { create } from 'zustand';
 export interface AvisoState {
   /** Mensagem de sucesso mostrada na próxima tela (ex.: depois de salvar e voltar). */
   mensagem: string | null;
-  mostrar: (mensagem: string) => void;
+  /** Impede que uma confirmação de lembrete apareça durante um exercício e vice-versa. */
+  scope: 'reminder' | 'exercise';
+  mostrar: (mensagem: string, scope?: AvisoState['scope']) => void;
   fechar: () => void;
 }
 
@@ -12,6 +14,7 @@ export interface AvisoState {
  */
 export const useAvisoStore = create<AvisoState>((set) => ({
   mensagem: null,
-  mostrar: (mensagem) => set({ mensagem }),
+  scope: 'reminder',
+  mostrar: (mensagem, scope = 'reminder') => set({ mensagem, scope }),
   fechar: () => set({ mensagem: null }),
 }));

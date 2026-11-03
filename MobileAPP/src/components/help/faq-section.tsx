@@ -19,6 +19,7 @@ export function FaqSection({ items = helpMock }: { items?: readonly FaqItem[] })
         return <Card key={item.id} style={styles.section}>
           <Pressable accessibilityRole="button" accessibilityLabel={item.question}
             accessibilityHint="Mostra ou oculta a resposta" accessibilityState={{ expanded }}
+            aria-expanded={expanded}
             onPress={() => setExpandedId(expanded ? null : item.id)} style={styles.trigger}>
             <ThemedText type="subheading" style={styles.question}>{item.question}</ThemedText>
             <ThemedText accessible={false} importantForAccessibility="no">{expanded ? '−' : '+'}</ThemedText>

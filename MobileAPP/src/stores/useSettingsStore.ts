@@ -30,7 +30,10 @@ const settingsStorage = {
     }
   },
   setItem: async (key: string, value: string) => {
+    // Um snapshot de fallback não pode substituir preferências que ainda não foram lidas.
+    if (useSettingsPersistenceStore.getState().operation === 'load') return;
     pendingWrites = pendingWrites.then(async () => {
+      if (useSettingsPersistenceStore.getState().operation === 'load') return;
       try {
         await AsyncStorage.setItem(key, value);
         useSettingsPersistenceStore.setState({ error: null, operation: null });

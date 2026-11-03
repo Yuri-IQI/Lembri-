@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AgendaVazia } from '@/components/agenda/agenda-vazia';
 import { AvisoDesfazer } from '@/components/agenda/aviso-desfazer';
@@ -55,8 +55,10 @@ const HomeScreen = () => {
   if (lembretes.length === 0) {
     return (
       <MainContainer>
-        {cabecalho}
-        <AgendaVazia />
+        <ScrollView contentContainerStyle={styles.emptyContent}>
+          {cabecalho}
+          <AgendaVazia />
+        </ScrollView>
       </MainContainer>
     );
   }
@@ -83,6 +85,10 @@ const styles = StyleSheet.create({
   },
   cabecalho: {
     gap: Spacing.three,
+  },
+  emptyContent: {
+    gap: Spacing.three,
+    paddingBottom: Spacing.five,
   },
 });
 

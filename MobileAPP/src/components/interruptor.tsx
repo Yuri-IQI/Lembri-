@@ -1,5 +1,5 @@
 import type { ComponentRef, Ref } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { BorderWidth, ComponentSize, Radius, TouchTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -24,7 +24,15 @@ export const Interruptor = ({ ligado, onAlternar, accessibilityLabel, controlRef
       onPress={onAlternar}
       accessibilityRole="switch"
       accessibilityState={{ checked: ligado }}
+      aria-checked={ligado}
       accessibilityLabel={accessibilityLabel}
+      onKeyDown={Platform.OS === 'web' ? (event) => {
+        const { key, repeat } = event.nativeEvent;
+        if (key === ' ' || key === 'Spacebar') {
+          event.preventDefault();
+          if (!repeat) onAlternar();
+        }
+      } : undefined}
       style={styles.areaToque}>
       <View style={[styles.trilho, {
         backgroundColor: ligado ? theme.primary : theme.surface,

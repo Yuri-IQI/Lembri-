@@ -22,7 +22,8 @@ export const CirculoCor = ({ corHex, nome, selecionado, onPress }: CirculoCorPro
     <Pressable
       onPress={onPress}
       accessibilityRole="radio"
-      accessibilityState={{ selected: selecionado }}
+      accessibilityState={{ checked: selecionado }}
+      aria-checked={selecionado}
       accessibilityLabel={`Cor ${nome}`}
       style={({ pressed }) => [
         styles.circulo,

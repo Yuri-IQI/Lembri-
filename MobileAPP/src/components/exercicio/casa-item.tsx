@@ -1,7 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { BorderWidth, Radius, Spacing, TouchTarget } from '@/constants/theme';
+import { BorderWidth, ComponentSize, Radius, Spacing, TouchTarget } from '@/constants/theme';
 import type { ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -15,6 +15,9 @@ export interface CasaItemProps {
   cor?: ThemeColor;
   /** Posição do item na atividade, exibida antes do valor. */
   ordem?: number;
+  /** Número de leitura: usa preenchimento compacto e status abaixo dos dígitos. */
+  numeric?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -26,7 +29,7 @@ export interface CasaItemProps {
  * - `correta`: resposta avaliada como certa (fundo verde claro e indicador visual ✓);
  * - `errada`: resposta avaliada como incorreta (fundo vermelho claro e indicador visual ✗).
  */
-export const CasaItem = ({ valor, estado, dica, cor, ordem }: CasaItemProps) => {
+export const CasaItem = ({ valor, estado, dica, cor, ordem, numeric = false, style }: CasaItemProps) => {
   const theme = useTheme();
 
   let estiloFundo: string = theme.chipSelected;
@@ -78,11 +81,13 @@ export const CasaItem = ({ valor, estado, dica, cor, ordem }: CasaItemProps) => 
     <View
       style={[
         styles.container,
+        numeric && styles.numeric,
         {
           backgroundColor: estiloFundo,
           borderColor: estiloBorda,
           borderStyle: bordaTracejada ? 'dashed' : 'solid',
         },
+        style,
       ]}
       accessible={true}
       accessibilityRole="text"
@@ -124,13 +129,20 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginBottom: 2,
   },
+  numeric: {
+    minWidth: ComponentSize.exerciseNumberMinWidth,
+    paddingHorizontal: Spacing.one,
+  },
   conteudo: {
-    flexDirection: 'row',
+    flexDirection: 'column',
+    maxWidth: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.one,
   },
   texto: {
+    alignSelf: 'stretch',
+    maxWidth: '100%',
     textAlign: 'center',
   },
   icone: {

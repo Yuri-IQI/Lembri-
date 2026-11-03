@@ -20,6 +20,7 @@ export const BotaoFiltro = ({ rotulo, selecionado, onPress }: BotaoFiltroProps) 
     <Pressable
       accessibilityRole="tab"
       accessibilityState={{ selected: selecionado }}
+      aria-selected={selecionado}
       accessibilityLabel={`Mostrar ${rotulo}`}
       onPress={onPress}
       style={({ pressed }) => [

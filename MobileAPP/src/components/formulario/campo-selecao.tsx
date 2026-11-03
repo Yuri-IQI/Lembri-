@@ -62,6 +62,7 @@ export const CampoSelecao = <T,>({ rotulo, opcoes, valor, onAlterar }: CampoSele
                 }}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: escolhida }}
+                aria-checked={escolhida}
                 style={styles.opcao}>
                 <MaterialSymbol
                   name={escolhida ? 'radio_button_checked' : 'radio_button_unchecked'}

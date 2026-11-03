@@ -35,6 +35,7 @@ export function DeviceSection() {
       <Card style={styles.section}>
         <Pressable accessibilityRole="button" accessibilityLabel="Relógios de demonstração"
           accessibilityHint="Mostra ou oculta os relógios simulados" accessibilityState={{ expanded }}
+          aria-expanded={expanded}
           style={styles.trigger} onPress={() => {
             setExpanded(!expanded);
             if (!expanded && !loaded) void load();

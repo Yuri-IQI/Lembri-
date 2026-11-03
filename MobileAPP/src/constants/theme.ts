@@ -263,6 +263,8 @@ export const ComponentSize = {
   barFrameHeight: 72,
   /** Altura mínima da barra inferior de abas (BottomBar). */
   bottomBarHeight: 80,
+  /** Largura mínima dos números de leitura, sem ação de toque, nos cartões de exercício. */
+  exerciseNumberMinWidth: 44,
 
   /** Dimensões estruturais do interruptor customizado (Switch). */
   switchWidth: 56,

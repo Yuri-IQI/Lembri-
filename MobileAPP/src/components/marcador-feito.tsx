@@ -27,6 +27,7 @@ export const MarcadorFeito = ({
       onPress={onAlternar}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: feito }}
+      aria-checked={feito}
       accessibilityLabel={`${rotulo}: ${descricao}`}
       style={({ pressed }) => [styles.area, { opacity: pressed ? 0.6 : 1 }]}>
       <View

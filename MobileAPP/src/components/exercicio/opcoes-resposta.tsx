@@ -7,6 +7,10 @@ import { useTheme } from '@/hooks/use-theme';
 export interface OpcoesRespostaProps {
   opcoes: string[];
   respostasAtuais: string[];
+  /** Casa que receberá a próxima opção, mesmo quando a lista de respostas estiver rolada. */
+  activePosition?: number;
+  /** Agrupa passos longos em duas colunas, preservando a leitura completa. */
+  twoColumns?: boolean;
   aoSelecionarOpcao: (opcao: string) => void;
 }
 
@@ -19,6 +23,8 @@ export interface OpcoesRespostaProps {
 export const OpcoesResposta = ({
   opcoes,
   respostasAtuais,
+  activePosition,
+  twoColumns = false,
   aoSelecionarOpcao,
 }: OpcoesRespostaProps) => {
   const theme = useTheme();
@@ -26,7 +32,7 @@ export const OpcoesResposta = ({
   return (
     <View style={styles.container}>
       <ThemedText type="label" themeColor="textSecondary" accessibilityRole="header">
-        OPÇÕES DISPONÍVEIS
+        {activePosition ? `OPÇÕES · CASA ${activePosition} DE ${respostasAtuais.length}` : 'OPÇÕES DISPONÍVEIS'}
       </ThemedText>
 
       <View style={styles.grade}>
@@ -44,13 +50,13 @@ export const OpcoesResposta = ({
               accessibilityState={{ disabled: jaUsada }}
               style={[
                 styles.chip,
+                twoColumns && styles.twoColumns,
                 {
                   backgroundColor: jaUsada ? theme.background : theme.surface,
                   borderColor: jaUsada ? theme.borderSubtle : theme.border,
                   opacity: jaUsada ? 0.45 : 1,
                 },
-              ]}
-              hitSlop={8}>
+              ]}>
               <ThemedText
                 type="defaultBold"
                 style={[
@@ -79,6 +85,9 @@ const styles = StyleSheet.create({
   },
   chip: {
     minHeight: TouchTarget,
+    minWidth: TouchTarget,
+    maxWidth: '100%',
+    flexShrink: 1,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: Radius.lg,
@@ -88,5 +97,10 @@ const styles = StyleSheet.create({
   },
   texto: {
     textAlign: 'center',
+  },
+  twoColumns: {
+    flexBasis: '45%',
+    flexGrow: 1,
+    paddingHorizontal: Spacing.two,
   },
 });

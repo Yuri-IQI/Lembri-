@@ -56,6 +56,7 @@ export const FiltrosAgenda = ({ ativa, pausados, onSelecionar }: FiltrosAgendaPr
         onPress={alternar}
         accessibilityRole="button"
         accessibilityState={{ expanded: aberto }}
+        aria-expanded={aberto}
         accessibilityLabel={aberto ? 'Menos opções de filtro' : 'Mais opções de filtro'}
         style={({ pressed }) => [styles.mais, { opacity: pressed ? 0.7 : 1 }]}>
         <ThemedText type="smallBold">{aberto ? 'Menos opções' : 'Mais opções'}</ThemedText>
