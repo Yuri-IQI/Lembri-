@@ -149,3 +149,45 @@ Validado avanço da primeira rodada de Ordenação, três rodadas completas de A
 ![Compras com resposta em duas colunas](assets/fluxos-app/compras-respostas-2x2-360.jpg)
 
 ![Resumo de associação com textos contidos nas casas](assets/fluxos-app/associacao-resumo-2x2-360.jpg)
+
+## Interruptor sobrepondo categorias nos lembretes
+
+Reproduzido em 360 × 760 com texto ampliado: a etiqueta Tarefas Domésticas extrapolava a coluna textual e passava por baixo do interruptor. O controle já era irmão da área de detalhes; a causa era o conteúdo sem limite de largura.
+
+Coluna textual e ação principal agora podem encolher, a lista de categorias/etiquetas e o título respeitam a largura disponível, e o interruptor mantém sua largura sem encolher. A etiqueta usa espaçamento horizontal compacto do tema e quebra o texto dentro da própria área. A mesma correção de etiqueta e título se aplica à Home e aos detalhes do lembrete.
+
+Validação: lista completa em 360 e 320 px, texto ampliado, categorias únicas e múltiplas. Na lista em 360 px, todas as etiquetas medidas terminavam antes da coluna do interruptor, sem overflow; controles de 56 × 56 dp. Desligar e religar Lavar roupas atualizou o estado e retornou ao valor original. Detalhes também conferidos visualmente. TypeScript, lint e 11 testes de componentes acessíveis passaram. Preferência e viewport restaurados após o teste.
+
+![Categoria contida e interruptor ao lado em 360 × 760](assets/fluxos-app/lembrete-interruptor-360x760.jpg)
+
+## Espaçamento adaptativo para palavras das categorias
+
+As etiquetas medem o texto e cada palavra com a própria fonte. Quando uma palavra excede a largura disponível, reduzem apenas o espaçamento entre caracteres, até o limite de 0,06 em definido no tema. O tamanho da fonte permanece em 15 px normal ou 18 px ampliado. As medições são invisíveis, não ocupam espaço no layout e ficam excluídas da árvore de acessibilidade.
+
+Na implementação inicial, apenas as etiquetas que exigiam compactação excessiva ganhavam uma linha própria. Essa alternância foi substituída pela padronização descrita abaixo. O ajuste de espaçamento continua disponível, voltando a zero quando a largura permite.
+
+Validação web em 320 e 360 × 760, com texto normal e ampliado: Domésticas ficou inteira com aproximadamente -0,39 px de espaçamento em 320 px; as duas palavras do nome continuaram em linhas separadas. Compromissos ficou inteira na linha expandida. Nenhum dos sete rótulos medidos apresentou overflow; em 360 px, todos retornaram ao espaçamento normal. Verificadas abertura dos detalhes pela etiqueta expandida, restauração da preferência e ausência de erros no console.
+
+Adicionadas duas regressões: cálculo de compactação/restauração/limite e exclusão das medições da acessibilidade. Os 13 testes de componentes e cálculo, TypeScript e lint passaram. A medição foi implementada com componentes React Native; validação nativa em dispositivo continua pendente.
+
+![Palavras completas com espaçamento adaptativo em 320 px](assets/fluxos-app/etiquetas-espacamento-adaptativo-320.jpg)
+
+## Posição uniforme das etiquetas dos cards
+
+Conforme a preferência confirmada pelo usuário, todas as categorias dos cards ficam abaixo do conteúdo principal e antes dos horários, independentemente do comprimento do nome, quantidade de categorias ou largura da tela. O componente compartilhado aplica a regra na Home e em Lembretes. Cards sem categoria não recebem uma linha vazia.
+
+Removidos estado e callbacks que alternavam a posição de cada etiqueta. Mantidos o espaçamento adaptativo interno e o toque para abrir os detalhes. A extensão de toque nas etiquetas não cria uma parada adicional de teclado; o botão principal já oferece o acesso aos detalhes e anuncia as categorias.
+
+Validação: em 320 px com texto ampliado, as sete etiquetas da lista e as 13 etiquetas da Home estavam abaixo do cabeçalho. Texto visível sem overflow nas etiquetas da lista. Conferidos também 360 px, categorias únicas/múltiplas, categoria curta Saúde e longa Tarefas Domésticas, além de abertura dos detalhes pelo toque. TypeScript, lint e 13 testes passaram; preferência de texto e viewport restaurados.
+
+![Categorias sempre abaixo do conteúdo principal](assets/fluxos-app/etiquetas-sempre-abaixo-360.jpg)
+
+## Fade de abertura e fundos suaves
+
+A camada de carregamento agora desaparece em 400 ms sobre a tela já desenhada, após fontes, hidratação e tempo mínimo existentes. A navegação permanece sem interação e fora da árvore de acessibilidade até o término; na web, `inert` também impede foco pelo teclado. A preferência de movimento reduzido pula o fade, inclusive quando ativada durante a transição. Falha ao consultar essa preferência também encerra a camada sem animação.
+
+Fundo principal e splash usam o mesmo neutro quente `#F2F1ED`; cards usam branco suave `#FAF9F6` e campos `#F6F5F1`. Texto principal continua preto. Contraste calculado: 18,58:1 para texto principal sobre o fundo, 7,36:1 para texto secundário sobre o fundo e 7,90:1 sobre cards. A alteração suaviza a aparência; não representa comprovação de redução de desconforto ocular, que depende de preferência, brilho e ambiente.
+
+Validação web em 360 × 760: camada observada em opacidade 1, depois 0,741218 e finalmente removida; `inert` passou de presente a ausente ao finalizar. Home visível sem erros no console. Oito testes novos cobrem o ciclo do fade, cancelamento, movimento reduzido, falha da consulta, contraste e consistência do fundo nativo. Com as baterias existentes, 53 testes passaram, além de TypeScript e lint. A alteração de configuração do splash nativo exige nova compilação; transição em build nativa não foi validada nesta etapa.
+
+![Home com fundo neutro suave](assets/fluxos-app/fundo-suave-home-360.jpg)

@@ -52,8 +52,33 @@ const { SeletorMatiz } = fromSource('components/formulario/seletor-matiz.tsx');
 const { ExercicioCard } = fromSource('components/cards/exercicio-card.tsx');
 const { HistoricoTentativas } = fromSource('components/exercicio/historico-tentativas.tsx');
 const { IndicadoresExercicio } = fromSource('components/exercicio/indicadores-exercicio.tsx');
+const { EtiquetaTipo } = fromSource('components/etiqueta-tipo.tsx');
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 const noop = () => {};
+
+test('etiquetas: espaçamento adapta só palavras largas e restaura em áreas maiores', () => {
+  const { fitWordSpacing } = fromSource('utils/fit-word-spacing.ts');
+  const { LabelTextFitting } = fromSource('constants/theme.ts');
+  const words = [{ text: 'Compromissos', width: 110 }];
+  assert.equal(fitWordSpacing(words, 120, 15), 0);
+  assert.equal(fitWordSpacing(words, 0, 15), 0);
+  const spacing = fitWordSpacing(words, 105, 15);
+  assert.ok(spacing < 0);
+  assert.ok(spacing >= -15 * LabelTextFitting.maximumCompressionEm);
+  assert.ok(110 + ('Compromissos'.length - 1) * spacing <= 105);
+  assert.equal(fitWordSpacing(words, 140, 15), 0);
+  assert.equal(fitWordSpacing([{ text: 'PalavraExtremamenteLonga', width: 300 }], 80, 18),
+    -18 * LabelTextFitting.maximumCompressionEm);
+  // O nome completo pode ocupar duas linhas: apenas uma palavra indivisível precisa caber.
+  assert.equal(fitWordSpacing([{ text: 'Tarefas', width: 65 }, { text: 'Domésticas', width: 95 }], 100, 18), 0);
+});
+
+test('etiquetas: medições invisíveis não duplicam o rótulo acessível nem truncam o texto', () => {
+  const markup = render(EtiquetaTipo, { tipo: { id: 'qa', nome: 'Tarefas Domésticas', corHex: '#D5EA9B' } });
+  assert.equal((markup.match(/aria-label="Categoria: Tarefas Domésticas"/g) || []).length, 1);
+  assert.match(markup, /aria-hidden="true"/);
+  assert.match(markup, />Tarefas Domésticas</);
+});
 
 test('web: interruptor anuncia ligado e desligado no HTML', () => {
   for (const ligado of [true, false]) {

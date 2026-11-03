@@ -1,7 +1,8 @@
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useFonts, type FontFamilyDefinition } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { Platform, StatusBar } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Platform, StatusBar, StyleSheet, View, type ViewProps } from 'react-native';
 
 import { DialogoVoz } from '@/components/voz/dialogo-voz';
 
@@ -48,6 +49,11 @@ const RootLayout = () => {
   const hydrated = useStoresHidratadas();
   const [fontsLoaded, fontError] = useFonts(webFonts);
   const ready = hydrated && (fontsLoaded || Boolean(fontError));
+  const [loadingVisible, setLoadingVisible] = useState(true);
+  const [contentDrawn, setContentDrawn] = useState(false);
+  const finishLoading = useCallback(() => setLoadingVisible(false), []);
+  // React Native Web encaminha inert ao DOM; no nativo, a árvore de acessibilidade é ocultada.
+  const webInertProps: ViewProps & { inert?: boolean } = Platform.OS === 'web' ? { inert: loadingVisible } : {};
   const tempoMinimoPassou = useTempoMinimo(LoadingEclipse.tempoMinimoMs);
   const hasSeenSplash = useSettingsStore((s) => s.hasSeenSplash);
   const markSplashSeen = useSettingsStore((s) => s.markSplashSeen);
@@ -60,16 +66,33 @@ const RootLayout = () => {
     <>
       {ready && (
         <ThemeProvider value={navigationTheme}>
-          <StatusBar barStyle="dark-content" />
-          <Stack screenOptions={{ headerShown: false }} />
-          <SettingsPersistenceFeedback />
-          <DialogoVoz />
-          {!hasSeenSplash && !settingsError && <Splash onFim={markSplashSeen} />}
+          <View
+            style={styles.app}
+            onLayout={() => setContentDrawn(true)}
+            pointerEvents={loadingVisible ? 'none' : 'auto'}
+            accessibilityElementsHidden={loadingVisible}
+            importantForAccessibility={loadingVisible ? 'no-hide-descendants' : 'auto'}
+            aria-hidden={loadingVisible}
+            {...webInertProps}>
+            <StatusBar barStyle="dark-content" />
+            <Stack screenOptions={{ headerShown: false }} />
+            <SettingsPersistenceFeedback />
+            <DialogoVoz />
+            {!hasSeenSplash && !settingsError && <Splash onFim={markSplashSeen} />}
+          </View>
         </ThemeProvider>
       )}
-      {(!ready || !tempoMinimoPassou) && <Loading onDesenhada={SplashScreen.hideAsync} />}
+      {loadingVisible && (
+        <Loading
+          ready={ready && tempoMinimoPassou && contentDrawn}
+          onDesenhada={SplashScreen.hideAsync}
+          onFinished={finishLoading}
+        />
+      )}
     </>
   );
 };
+
+const styles = StyleSheet.create({ app: { flex: 1 } });
 
 export default RootLayout;

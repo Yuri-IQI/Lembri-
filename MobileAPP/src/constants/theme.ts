@@ -3,19 +3,21 @@ import type { TextStyle } from 'react-native';
 /**
  * Paleta oficial de cores de alto contraste (WCAG 2.2 Nível AAA) extraída do protótipo do Figma.
  *
- * O tema principal do Lembri é preto no branco com detalhes em cinza e amarelo de destaque.
+ * O tema principal usa texto escuro sobre neutros suaves, com amarelo de destaque.
  * Atenção: `textMuted` (#949494) possui contraste ~3.06:1 e deve ser restrito exclusivamente
  * a placeholders de input ou elementos desabilitados (isento pela WCAG 1.4.6).
  */
+const appBackground = '#F2F1ED';
+
 export const Colors = {
   text: '#000000',
   textSecondary: '#4E4E4E',
   textMuted: '#949494',
 
-  background: '#F2F2F2',
-  surface: '#FFFFFF',
+  background: appBackground,
+  surface: '#FAF9F6',
   /** Fundo das caixas de texto (Figma). */
-  inputBackground: '#F9F9F9',
+  inputBackground: '#F6F5F1',
 
   border: '#949494',
   borderSubtle: '#D0D0D0',
@@ -34,7 +36,7 @@ export const Colors = {
   tagLilas: '#CDB8F5',
   tagLaranja: '#FFB870',
   chipSelected: '#CCCCCC',
-  chipBackground: '#fcfcfc',
+  chipBackground: '#FAF9F6',
   /** Borda tracejada do chip "+ Novo tipo" (Figma). */
   borderDashed: '#292626',
   tabActive: '#F8EB5C',
@@ -47,8 +49,8 @@ export const Colors = {
   danger: '#A50E0E',
   overlay: 'rgba(0, 0, 0, 0.55)',
 
-  /** Tela de carregamento. Texto sobre o fundo: 8,3:1 (AAA). */
-  loadingFundo: '#FAF7EC',
+  /** Carregamento e navegação compartilham o fundo, sem troca brusca de cor. */
+  loadingFundo: appBackground,
   loadingLua: '#E8E08A',
   loadingSombra: '#1B1B1B',
   loadingPonto: '#7E7E7E',
@@ -91,6 +93,8 @@ export const LoadingEclipse = {
   pulsoMs: 1500,
   /** Evita um piscar de tela quando os dados carregam quase na hora. */
   tempoMinimoMs: 2500,
+  /** Dissolução da camada de carregamento sobre a tela já desenhada. */
+  fadeOutMs: 400,
 } as const;
 
 /**
@@ -99,6 +103,13 @@ export const LoadingEclipse = {
 export const TextScale = {
   normal: 1,
   large: 1.2,
+} as const;
+
+/** Ajuste das etiquetas: preserva o tamanho da fonte e limita a aproximação das letras. */
+export const LabelTextFitting = {
+  maximumCompressionEm: 0.06,
+  measurementWidthMultiplier: 2,
+  roundingInset: 0.5,
 } as const;
 
 export type TextVariant =

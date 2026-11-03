@@ -52,6 +52,7 @@ export const Interruptor = ({ ligado, onAlternar, accessibilityLabel, controlRef
 
 const styles = StyleSheet.create({
   areaToque: {
+    flexShrink: 0,
     minWidth: TouchTarget,
     minHeight: TouchTarget,
     alignItems: 'center',

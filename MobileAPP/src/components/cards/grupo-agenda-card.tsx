@@ -40,6 +40,7 @@ type GrupoAgendaCardProps = {
 /**
  * Um lembrete num dia: ícone do template, título, tipos e os horários do dia como etiquetas que
  * marcam o feito.
+ * As categorias ficam sempre em uma linha própria, entre o conteúdo principal e os horários.
  */
 export const GrupoAgendaCard = ({
   lembrete,
@@ -95,7 +96,6 @@ export const GrupoAgendaCard = ({
                 {lembrete.titulo}
               </ThemedText>
             </TextoRiscado>
-            <ListaEtiquetas tipos={tipos} />
             {complemento && (
               <ThemedText type="small" themeColor="textSecondary">
                 {complemento}
@@ -118,6 +118,12 @@ export const GrupoAgendaCard = ({
           />
         )}
       </View>
+
+      {tipos.length > 0 && (
+        <Pressable onPress={onAbrir} accessible={false} focusable={false} tabIndex={-1}>
+          <ListaEtiquetas tipos={tipos} />
+        </Pressable>
+      )}
 
       {!pausado && (
         <View style={styles.horarios}>
@@ -151,6 +157,7 @@ const styles = StyleSheet.create({
   },
   principal: {
     flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
@@ -158,6 +165,7 @@ const styles = StyleSheet.create({
   },
   textos: {
     flex: 1,
+    minWidth: 0,
     alignItems: 'flex-start',
     gap: Spacing.one,
   },
